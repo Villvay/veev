@@ -1,4 +1,4 @@
-# Veev
+# veev
 #### Lightweight php framework for rapid web weaving
 
 *This is the 2015 version of the TinyFx php framework.*
