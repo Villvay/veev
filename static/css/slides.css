@@ -1,0 +1,33 @@
+
+ul.slides{
+	list-style-type:none;
+	width:100%;
+	margin:0px;
+	padding:0px;
+	min-height:200px;
+	overflow:hidden;
+	position:relative;
+	transition:height 1s;
+}
+
+ul.slides li{
+	width:100%;
+	position:absolute;
+	left:100px;
+	opacity:0;
+	transition:all 1s;
+}
+
+ul.slides li.active{
+	left:0px;
+	opacity:1;
+}
+
+ul.slides li.prev{
+	left:-100px;
+	opacity:0;
+}
+
+ul.slides li img{
+	width:100%;
+}

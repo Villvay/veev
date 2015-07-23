@@ -1,0 +1,123 @@
+
+div#calendar{
+	border:1px solid #C9C9C9;
+	background-color:#F0F0F0;
+	position:absolute;
+	top:100px;
+	left:200px;
+	display:none;
+	z-index:10;
+	padding:5px;
+	*width:250px;
+	/* --- */
+	-moz-box-shadow:2px 2px 15px #CCCCCC;
+	-webkit-box-shadow:2px 2px 15px #CCCCCC;
+	box-shadow:0px 0px 15px #CCCCCC;
+	/* --- */
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	/* --- */
+	behavior:url(PIE.htc);
+}
+
+div#calendar form{
+	margin:0px;
+}
+
+div#calendar #clock{
+	margin-top:10px;
+}
+
+div#calendar_controllers{
+	margin:4px 0px;
+	text-align:center;
+}
+
+div#calendar_controllers select, div#calendar_controllers input{
+	padding:2px 2px;
+	margin:0px;
+	position:relative;
+}
+div#calendar_controllers select{
+	height:24px;
+	top:-1px;
+}
+div#calendar_controllers input{
+	height:24px;
+}
+
+div.cal_head_row{
+	margin:0px;
+}
+
+div.cal_head{
+	background-color:#F0DDDD;
+	border:1px solid #888888;
+	border-right:1px solid #666666;
+	border-left:1px solid #FFFFFF;
+	width:34px;
+	float:left;
+	margin:0px;
+	text-align:center;
+	font-size:10pt;
+}
+
+div.cal_date_empty{
+	width:34px;
+	height:20px;
+	float:left;
+	margin:0px;
+	border-bottom:1px solid #BBBBBB;
+	border-right:1px solid #777777;
+	border-left:1px solid #EEEEEE;
+	border-top:0px;
+	background-color:#E5F0FC;/*#E0EFFF;*/
+}
+
+div.cal_date{
+	width:34px;
+	height:20px;
+	float:left;
+	margin:0px;
+	border-bottom:1px solid #BBBBBB;
+	border-right:1px solid #777777;
+	border-left:1px solid #EEEEEE;
+	border-top:0px;
+	background-color:#D4E5F5;/*#BBCCDD;*/
+	text-align:center;
+	font-size:10pt;
+	cursor:pointer;
+}
+
+/*div#calendar_controllers input.ctrl_button{
+	width:25px;
+	height:20px;
+	padding:0px;
+}*/
+div#calendar_controllers input.close_button{
+	/*width:20px;
+	height:20px;
+	padding:0px;*/
+	top:-1px;
+	border:1px solid #FF4040;
+	color:#FF4040;
+	background-color:#FFC0C0;
+}
+
+div.current_date{
+	border:1px solid #DD8888;
+	background-color:#DDCCCC;
+}
+
+div.today{
+	border:1px solid #DD8888;
+	background-color:#D8C0DF;
+	/*width:33px;
+	height:18px;*/
+}
+
+div.cal_content{
+	clear:both;
+
+}
