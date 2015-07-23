@@ -4,7 +4,7 @@ $path = rtrim($_SERVER['REQUEST_URI'], 'configure.php');
 $server = $_SERVER['SERVER_NAME'];
 $lang = 'en';
 include 'data/lang.php';
-$lex['en']['title'] = 'TinyF(x)';
+$lex['en']['title'] = 'Veev';
 include 'framework/render.php';
 if (isset($_POST['htaccess']) && isset($_POST['config'])){
 	error_reporting(E_ERROR);
@@ -132,5 +132,5 @@ ob_start();
 <?php
 $yield = ob_get_contents();
 ob_end_clean();
-$yield = render_template('home.php', $yield, array('title' => 'Configure TinyF(x2) Website'));
+$yield = render_template('home.php', $yield, array('title' => 'Configure Veev Website'));
 die($yield); ?>

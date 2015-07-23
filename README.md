@@ -1,5 +1,5 @@
-# tiny F(x2)
-#### Smallest php Framework - with some more rocket fuel
+# Veev
+#### Lightweight php framework for rapid web weaving
 
 *This is the 2015 version of the TinyFx php framework.*
 
@@ -22,7 +22,7 @@ There are modules, interfaces and templates.
 2. Start Apache or WAMP
 3. Create database from the provided database.sql
 4. Make sure apache can write in to the directory (or you will have to manually copy the .htaccess and framework/config.php)
-5. Navigate to http://localhost/tinyfx or wherever the folder you checked this out.
+5. Navigate to http://localhost/veev or wherever the folder you checked this out.
 6. Provide database username/password, and modify default settings as needed.
 7. configure.php will generate .hraccess and framework/config.php
 
@@ -30,7 +30,7 @@ There are modules, interfaces and templates.
 - N.B: If you rename or move the project folder, you will need configure.php; delete .htaccess and framework.php to reconfigure.
 Do the same when deployed to staging or production server. On production server, delete the configure.php once configured.
 
-- Navigate to http://localhost/tinyfx/admin Username:admin , Password:admin
+- Navigate to http://localhost/veev/admin Username:admin , Password:admin
 
 
 ## Module
@@ -136,7 +136,7 @@ $db->delete('blog', $params[0]);	//	$params[0] = 6 (from GET parameter 1 - http:
 
 For the first three data related view helpers you need to define data schema as follows:
 This is like a 'model' in conventional php frameworks, but much simpler.
-TinyF(x) abstracts the rest for you inteligently and intuitively.
+Veev abstracts the rest for you inteligently and intuitively.
 
 Of course you can define these in a seperate folder and include in module controller,
 but why not define them in module controller itself..
