@@ -130,9 +130,41 @@ $db->delete('blog', $params[0]);	//	$params[0] = 6 (from GET parameter 1 - http:
 ```
 
 
+#### A table join query with simple left Join
+```php
+$data['content'] = $db->select(
+				array('content.id, content.title, `user`.`name` AS username, category.`name` AS category, content.description'),
+				array('content', array('user', /*'id',*/ 'user_id'), array('category', /*'id',*/ 'cat_id')),
+				8);
+		//	SELECT content.id, content.title, `user`.`name`, category.`name`, content.description
+		//	FROM content
+		//		LEFT JOIN category ON category.id = content.cat_id
+		//		LEFT JOIN `user` ON `user`.id = content.user_id
+		//	WHERE content.id = 8
+```
+
+#### More advanced query with support for pagination
+```php
+$count = 0;	//	Number of records will be set to this
+$data['content'] = $db->select(
+				array('content.id, title, `user`.`name` AS username, category.`name` AS category, description'),
+				array('content', array('user', 'user_id'), array('category', 'cat_id')),
+				'cat_id = 3', 0, 10, $count, false);	//	If the 7th parameter (debug flag) is set to true, The query will display and the script terminated.
+		//
+		//	SELECT content.id, content.title, `user`.`name`, category.`name`, content.description
+		//	FROM content
+		//		LEFT JOIN category ON category.id = content.cat_id
+		//		LEFT JOIN `user` ON `user`.id = content.user_id
+		//	WHERE cat_id = 3
+		//	LIMIT 0, 10
+```
+
+
 ## View Helpers
 **Unleash the full potential of Rocket-Fuelled Paper-Planes.!**
 *Treacle for CURD*
+
+These makes it easy to generate HTML content. The first three view helpers generate HTML content for data from a database.
 
 ### Data Schema
 For the first three data related view helpers you need to define data schema as follows:
@@ -144,9 +176,10 @@ but why not define them in module controller itself..
 
 ```php
 $pages_schema = array(
-				'stub' 		=> array('Title', 		'key' => true),
+				'title' 		=> array('Title', 		'key' => true),
 				'en' 			=> array('English', 	'display' => 'richtext', 'table' => false),
 				'ch' 			=> array('Chinese', 	'display' => 'richtext', 'table' => false),
+				'atatus' 		=> array('Status', 		'enum' => array(-1 => 'Rejected', 0 => 'Pending', 1 => 'Approved', 2 => 'Starred')),
 				'slides' 		=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{stub}', 'table' => false),
 				'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
 				'view' 		=> array('View', 		'form' => false, 'cmd' => '{key}')
@@ -154,8 +187,10 @@ $pages_schema = array(
 
 ```
 
+First let's understand the schema of this schema, the keywords and structure.
+
 #### key
-This is to tell that this field is the primary key. When a form is generated, this will be a hidden field.
+This is to mark that this field is the primary key. When a form is generated, this will be a hidden field.
 
 #### table
 If this is set to false, this field will not be displayed on the table, but only on form, and data view.
@@ -163,21 +198,37 @@ If this is set to false, this field will not be displayed on the table, but only
 #### display
 Valid values are:
 enum, autofill, calendar, calendar+clock, password, textarea, richtext, email, currency, numeric, check, checkbox, file, folder.
+These are further explained below.
 
 ##### enum
 Renders a select (drop-down) on form, and maps a key value in database to a more descriptive string for table and data view.
+A status-id or a user-level may have an integer column in the database, but a text representation when displaying to the user.
 
 ##### autofil
 Similar to enum, but renders an auto complete textbox on form.
+As the user types in the text field, this will show enum options that contains what user types.
+Enum key field will be the value on form POST data.
+You may need to include the relevent support JavaScript [~/static/js/select2filter.js]
 
 ##### calendar
 On the form, renders a calendar controller to select a date.
+You may need to include the relevent support JavaScript [~/static/js/calendar.js] and php partial view [~/interfaces/calendar.php]
 
 ##### password
-An input with type="password"
+An input with type="password". [native HTML]
+
+##### numeric
+A numeric input box. This will be validated and zeros grouped in to 3s.
+* Support JavaScript [~/static/js/script.js]
+
+##### currency
+A currency input box. This will be validated and zeros grouped in to 3s.
+This is similar to numeric, but in addition a '$' sign is displayed in the front.
+* Support JavaScript [~/static/js/script.js]
 
 ##### textarea
-A textarea input that softly resizes to contain text content
+A textarea input that softly resizes to contain text content.
+* Support JavaScript [~/static/js/script.js]
 
 
 ### render_table
@@ -194,19 +245,6 @@ $data['pages'] = $db->select(
 				'content');
 		//	SELECT stub, en, ch FROM content
 return $data;
-```
-
-#### A table join query with simple left Join
-```php
-$data['content'] = $db->select(
-				array('content.id, content.title, `user`.`name` AS username, category.`name` AS category, content.description'),
-				array('content', array('user', /*'id',*/ 'user_id'), array('category', /*'id',*/ 'cat_id')),
-				8);
-		//	SELECT content.id, content.title, `user`.`name`, category.`name`, content.description
-		//	FROM content
-		//		LEFT JOIN category ON category.id = content.cat_id
-		//		LEFT JOIN `user` ON `user`.id = content.user_id
-		//	WHERE content.id = 8
 ```
 
 On the view:
@@ -286,3 +324,53 @@ This could range from
 * 5 July 2012
 
 These can be localized with advanced localization library for veev
+
+
+
+## Interfaces
+The web application you are building may have various interfaces. You may need saupport libraries for these.
+These are stored in interfaces folder. If you are running several applications on a Linux server, we suggest SymLink these folders of all apps to a single shared folder.
+
+Some of the provided interfaces are: Database, Email, Google-Cloud-Messaging, User-Tracking, Image-Resizing (php GD).
+We have discussed about database abstraction/interface earlier.
+
+### Email
+To send an Email:
+```php
+include 'interfaces/email.php';
+send_email('to@example.com', array('name' => 'John', 'message' => 'Hello John, This is Email body'), 'template', 'Email Subject');
+```
+Similar to module views, you can create template.php in ~/email/ folder. Email will be rendered and sent as a multipart message.
+
+
+### User Tracking
+This framework sets a unique ID cookie on every browser.
+This unique ID is derived with IP-address and time.
+You can access this on global variable $user_id and use to identify returning visitors.
+
+
+### ImageMagic
+This library has some nifty php_gd based functions to cut, crop, resize images inside php.
+
+#### load_image ($file_path)
+First you need to open an image file. This function returns a bitmap image object that can be processed using these functions.
+
+#### save_image ($image, $file, [$ext])
+Once processed, each of the following functions returns a similar bitmap image object. This function writes that to a file.
+
+#### thumbnail ($image, $size)
+A square shaped thumbnail can be generated with this. Image will be cropped 'as needed' to make it a square, then resized.
+
+#### resize ($image, [$width], [$height])
+If you don't want to crop, only provide the width or height. If both provided, image 'may be' cropped as needed.
+
+#### crop ($image, $rect, [$new_size])
+You can custom crop an image with this function. Providing all the intricate parameters is up to you.
+This is the base function used by the above functions.
+
+$rect = array('width' => 80, 'height' => 80, 'top' => 10, 'left' => 10)
+
+$new_size = array('width' => 80, 'height' => 80)
+
+
+
