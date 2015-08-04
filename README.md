@@ -27,7 +27,7 @@ There are modules, interfaces and templates.
 7. configure.php will generate .hraccess and framework/config.php
 
 - Your database settings are now in framework/config.php
-- N.B: If you rename or move the project folder, you will need configure.php; delete .htaccess and framework.php to reconfigure.
+- N.B: If you rename or move the project folder, you will need configure.php; delete .htaccess and framework/config.php to reconfigure.
 Do the same when deployed to staging or production server. On production server, delete the configure.php once configured.
 
 - Navigate to http://localhost/veev/admin Username:admin , Password:admin
@@ -38,55 +38,6 @@ A module is a section of a website, like Admin section, Dashboard, Shopping cart
 All contents of each of these modules is put inside a single folder. There is a module controller for every module.
 There can be many functions in a module controller, and a view file corresponding to each of these functions.
 An HTTP request will load a module, execute a function and render the view.
-
-
-## Development
-In the example app, you will find three modules: index, user and admin.
-The module controller file name starts with an '@' and ends with the extension '.module.php'.
-All the other files are views, if not starting with an underscore (_), in which case those are shared view partials.
-
-Format: http://example.com/module/method/parameter/s
-
-Eg: http://example.com/user/log-in/
-- This http request will first load the module ~/modules/user/@user.module.php
-- Then invoke the function log_in($params)
-- If this was a POST request (user clicked "Log In" - submit), post fields (username/password) will be put in to $params
-
-
-You can put a module inside a module, then it become a sub-module.
-
-http://example.com/module/submodule/method/parameter/s
-
-Eg: http://example.com/admin/users/edit/8
-- This http request will load the module ~/modules/admin/users/@users.module.php
-- Then invoke the function log_in($params) - **NOTICE the dash is converted to an underscore**
-- Since this is a GET request, $params[0] will be 8
-
-
-To move a website section into another master section, all you need to do is to move a single folder into another. (and edit any urls as necessory)
-
-Also, you can copy a module from one project to another. On a Linux server, you can create a SymLink to share a module between two websites.
-
-
-## URLs
-We recommend using absolute URLs *Whenever Not Impossible*
-You can use **BASE_URL** and **BASE_URL_STATIC** to refer to website root url.
-Eg:
-
-```php
-<a href="<?= BASE_URL; ?>dashboard">Dashboard</a>
-
-<img src="<?= BASE_URL_STATIC; ?>images/flower.jpg" />
-
-<script src="<?= BASE_URL_STATIC; ?>js/script.js"></script>
-
-```
-
-**BASE_URL_STATIC** is defined in framework/config.php
-You may later want to leverage static content to a cookieless subdomain.
-If you use **BASE_URL_STATIC**, you only need to change this in one place.
-Also, for uploading files to this static directory, use **STATIC_FILES_ROOT**.
-This is the relative path from website root to static content path.
 
 
 ## How a request is processed
@@ -102,6 +53,55 @@ To help in rendering HTML in views, there is a library of helper methods such as
 render_data_view, render_form, render_table, flash_message, render_dropdown, shorten_string, slugify, beautify_datetime
 
 These are pretty self explainatory. You can look up all these on framework/render.php
+
+
+## Development
+In the example app, you will find three modules: index, user and admin.
+The module controller file name starts with an '@' and ends with the extension '.module.php'.
+All the other files are views, if not starting with an underscore (_), in which case those are shared view partials.
+
+Format: http://example.com/module/method/parameter/s
+
+Eg: http://example.com/user/log-in/
+- This http request will first load the module ~/modules/user/@user.module.php
+- Then invoke the function log_in($params) - **NOTICE the dash is converted to an underscore**
+- If this was a POST request (user clicked "Log In" - submit), post fields (username/password) will be put in to $params
+
+
+You can put a module inside a module, then it become a sub-module.
+
+http://example.com/module/submodule/method/parameter/s
+
+Eg: http://example.com/admin/users/edit/8
+- This http request will load the module ~/modules/admin/users/@users.module.php
+- Then invoke the function edit($params)
+- Since this is a GET request, $params[0] will be 8
+
+
+To move a website section into another master section, all you need to do is to move a single folder into another. (and edit any urls as necessory)
+
+Also, you can copy a module from one project to another. On a Linux server, you can create a SymLink to share a module between two websites.
+
+
+## URLs
+We recommend using absolute URLs *Whenever Not Impossible*
+You can use **BASE_URL** and **BASE_URL_STATIC** to refer to website root url.
+Eg:
+
+```php
+<a href="<?php echo BASE_URL; ?>dashboard">Dashboard</a>
+
+<img src="<?php echo BASE_URL_STATIC; ?>images/flower.jpg" />
+
+<script src="<?php echo BASE_URL_STATIC; ?>js/script.js"></script>
+
+```
+
+**BASE_URL_STATIC** is defined in framework/config.php
+You may later want to leverage static content to a cookieless subdomain.
+If you use **BASE_URL_STATIC**, you only need to change this in one place.
+Also, for uploading files to this static directory, use **STATIC_FILES_ROOT**.
+This is the relative path from website root to static content path.
 
 
 ## Database
@@ -134,6 +134,7 @@ $db->delete('blog', $params[0]);	//	$params[0] = 6 (from GET parameter 1 - http:
 **Unleash the full potential of Rocket-Fuelled Paper-Planes.!**
 *Treacle for CURD*
 
+### Data Schema
 For the first three data related view helpers you need to define data schema as follows:
 This is like a 'model' in conventional php frameworks, but much simpler.
 Veev abstracts the rest for you inteligently and intuitively.
@@ -144,9 +145,9 @@ but why not define them in module controller itself..
 ```php
 $pages_schema = array(
 				'stub' 		=> array('Title', 		'key' => true),
-				'en' 		=> array('English', 	'display' => 'richtext', 'table' => false),
-				'ch' 		=> array('Chinese', 	'display' => 'richtext', 'table' => false),
-				'slides' 	=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{stub}', 'table' => false),
+				'en' 			=> array('English', 	'display' => 'richtext', 'table' => false),
+				'ch' 			=> array('Chinese', 	'display' => 'richtext', 'table' => false),
+				'slides' 		=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{stub}', 'table' => false),
 				'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
 				'view' 		=> array('View', 		'form' => false, 'cmd' => '{key}')
 			);
@@ -164,7 +165,7 @@ Valid values are:
 enum, autofill, calendar, calendar+clock, password, textarea, richtext, email, currency, numeric, check, checkbox, file, folder.
 
 ##### enum
-Renders a select (drop-down) on form, and maps a value in database to a more descriptive string for table and data view.
+Renders a select (drop-down) on form, and maps a key value in database to a more descriptive string for table and data view.
 
 ##### autofil
 Similar to enum, but renders an auto complete textbox on form.
@@ -176,7 +177,7 @@ On the form, renders a calendar controller to select a date.
 An input with type="password"
 
 ##### textarea
-A textarea inout that softly resizes to contain text content
+A textarea input that softly resizes to contain text content
 
 
 ### render_table
@@ -193,6 +194,19 @@ $data['pages'] = $db->select(
 				'content');
 		//	SELECT stub, en, ch FROM content
 return $data;
+```
+
+#### A table join query with simple left Join
+```php
+$data['content'] = $db->select(
+				array('content.id, content.title, `user`.`name` AS username, category.`name` AS category, content.description'),
+				array('content', array('user', /*'id',*/ 'user_id'), array('category', /*'id',*/ 'cat_id')),
+				8);
+		//	SELECT content.id, content.title, `user`.`name`, category.`name`, content.description
+		//	FROM content
+		//		LEFT JOIN category ON category.id = content.cat_id
+		//		LEFT JOIN `user` ON `user`.id = content.user_id
+		//	WHERE content.id = 8
 ```
 
 On the view:
@@ -247,8 +261,28 @@ flash_message('You don't have permission to edit this', 'warning');
 
 ```
 
+These messages are displayed only once. Once displayed, it is removed. You can call this function as many times from the module or view.
+If a flash message is displayed on a view, it is removed from displaying on the template. i.e: The view takes precedence here.
+
 
 ### render_dropdown
+This renders an associative array to a select input
+
 ### shorten_string
+Shortens a given string to the given limit, breaks at the end of a word. Three dots are appended to the end if the string is actually shortened.
+
 ### slugify
+Makes a string sutable for displaying on the URL.
+
 ### beautify_datetime
+Converts a timestamp or MySQL date-time to a more readable format.
+This could range from
+* 5 seconds ago
+* 3 minutes ago
+* 2:15 hours ago
+* Yesterday 2:30 pm
+* Monday 2:30 pm
+* 7th June
+* 5 July 2012
+
+These can be localized with advanced localization library for veev

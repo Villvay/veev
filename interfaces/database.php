@@ -54,17 +54,20 @@ class MySQL{
 	$qstart = 'SELECT '.$cols;
 	$qpart = ' FROM ';
 	if (is_array($table)){
-		$qpart .= $table[0];
+		$qpart .= '`'.$table[0].'`';
 		$n_table = count($table);
 		if ($n_table > 1)
 			for ($i = 1; $i < $n_table; $i++)
-				$qpart .= ' LEFT JOIN '.$table[$i][0].' ON '.$table[$i][0].'.'.$table[$i][1].' = '.$table[0].'.'.$table[$i][2];
+				if (count($table[$i]) == 2)
+					$qpart .= ' LEFT JOIN `'.$table[$i][0].'` ON `'.$table[$i][0].'`.`'.$table[$i][1].'` = `'.$table[0].'`.`'.$table[$i][2].'`';
+				else
+					$qpart .= ' LEFT JOIN `'.$table[$i][0].'` ON `'.$table[$i][0].'`.id = `'.$table[0].'`.`'.$table[$i][1].'`';
 	}
 	else
-		$qpart .= $table;
+		$qpart .= '`'.$table.'`';
 	if ($conditions == false){}
 	else if (is_numeric($conditions))
-		$qpart .= ' WHERE id = '.$conditions;
+		$qpart .= ' WHERE `'.$table[0].'`.id = '.$conditions;
 	else
 		$qpart .= ' WHERE '.$conditions;
 	//
