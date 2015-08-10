@@ -29,25 +29,15 @@
 <?php 	} ?>
 				</div>
 				<a id="hamberger"></a>
-				<ul class="nav">
-					<li <?php echo $method == 'index' ? 'class="current"' : ''; ?>>
-						<a href="<?php echo BASE_URL; ?>"><i class="fa fa-home"></i> <?php echo $lex[$lang]['home']; ?></a>
-					</li>
-					<li <?php echo $module == 'index' && $method == 'blog' ? 'class="current"' : ''; ?>>
-						<a href="<?php echo BASE_URL; ?>blog"><i class="fa fa-newspaper-o"></i> <?php echo $lex[$lang]['blog']; ?></a>
-					</li>
-					<li <?php echo $method == 'about' ? 'class="current"' : ''; ?>>
-						<a href="<?php echo BASE_URL; ?>about"><i class="fa fa-info-circle"></i> <?php echo $lex[$lang]['about']; ?></a>
-					</li>
-					<li <?php echo $method == 'contact' ? 'class="current"' : ''; ?>>
-						<a href="<?php echo BASE_URL; ?>contact"><i class="fa fa-envelope-o"></i> <?php echo $lex[$lang]['contact']; ?></a>
-					</li>
-<?php 	if (isset($user)){ ?>
-					<li <?php echo $module == 'user' && $method == 'blog' ? 'class="current"' : ''; ?>>
-						<a href="<?php echo BASE_URL; ?>user/blog"><i class="fa fa-newspaper-o"></i> <?php echo $lex[$lang]['my-blog']; ?></a>
-					</li>
-<?php 	} ?>
-				</ul>
+<?php 	$navigation = array(
+			array('title' => $lex[$lang]['home'], 'icon' => 'fa-home'),
+			array('title' => $lex[$lang]['blog'], 'icon' => 'fa-newspaper-o', 'method' => 'blog'),
+			array('title' => $lex[$lang]['about'], 'icon' => 'fa-info-circle', 'method' => 'about'),
+			array('title' => $lex[$lang]['contact'], 'icon' => 'fa-envelope-o', 'method' => 'contact'));
+		if (isset($user))
+			$navigation[] = array('title' => $lex[$lang]['my-blog'], 'icon' => 'fa-newspaper-o', 'module' => 'user', 'method' => 'blog');
+		render_navigation($navigation); ?>
+<?php /* ul class="nav"><li <?php echo $method == 'index' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>"><i class="fa fa-home"></i> <?php echo $lex[$lang]['home']; ?></a></li><li <?php echo $module == 'index' && $method == 'blog' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>blog"><i class="fa fa-newspaper-o"></i> <?php echo $lex[$lang]['blog']; ?></a></li><li <?php echo $method == 'about' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>about"><i class="fa fa-info-circle"></i> <?php echo $lex[$lang]['about']; ?></a></li><li <?php echo $method == 'contact' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>contact"><i class="fa fa-envelope-o"></i> <?php echo $lex[$lang]['contact']; ?></a></li><?php 	if (isset($user)){ ?><li <?php echo $module == 'user' && $method == 'blog' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>user/blog"><i class="fa fa-newspaper-o"></i> <?php echo $lex[$lang]['my-blog']; ?></a></li><?php 	} ?></ul */ ?>
 			</div>
 		</nav>
 		<main class="container">

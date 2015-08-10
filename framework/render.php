@@ -301,6 +301,32 @@ tinymce.init({
 
 	// ========================================================
 
+	function render_navigation($data, $classname = 'nav'){
+		global $module, $method; ?>
+				<ul class="<?php echo $classname; ?>">
+<?php 	foreach ($data as $link){
+			$path = ( isset($link['module']) ? $link['module'] : '' ) . ( isset($link['module']) && isset($link['method']) ? '/' : '' ) . ( isset($link['method']) ? $link['method'] : '' );
+			if (!isset($link['module']))
+				$link['module'] = 'index';
+			if (!isset($link['method']))
+				$link['method'] = 'index'; ?>
+					<li<?php echo $module == $link['module'] && $method == $link['method'] ? ' class="current"' : ''; ?>>
+<?php 		if (isset($link['submenu'])){ ?>
+						<label>
+							<?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><input type="checkbox" class="nav-chk" name="<?php echo str_replace('/', '-', $path); ?>"><?php echo $link['title']; ?>
+						</label>
+<?php 			render_navigation($link['submenu']);
+			}
+			else{ ?>
+						<a href="<?php echo BASE_URL.$path; ?>"><?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><?php echo $link['title']; ?></a>
+<?php 		} ?>
+					</li>
+<?php 	} ?>
+				</ul>
+<?php }
+
+	// ========================================================
+
 	function flash_message($message, $level, $fadeout = false){
 		if (!isset($_SESSION['flash_messages']))
 			$_SESSION['flash_messages'] = array();

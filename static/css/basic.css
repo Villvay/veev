@@ -61,7 +61,7 @@ nav ul.nav, nav:hover ul.nav{
 }
 
 
-nav a, nav h1, nav h2, nav h3{
+nav a, nav label, nav h1, nav h2, nav h3{
 	color:#E0E0E0;
 }
 nav a:hover{
@@ -102,6 +102,39 @@ ul.nav li.current a{
 	color:#F8F8F8;
 	text-shadow:0px 0px 6px #8888FF;
 }
+
+
+nav ul.nav li ul, nav:hover ul.nav li ul{
+	display:none;
+	height:auto;
+	background-color: #505050;
+	border: 2px solid #404040;
+	margin-top:5px;
+	padding:0px;
+	box-shadow: 0px 0px 20px #000;
+	position:absolute;
+	z-index:6;
+}
+nav ul.nav li ul li{
+	display:block;
+	float:none;
+	height:auto;
+	margin: 10px;
+}
+
+ul.nav input.nav-chk{
+	display:none;
+}
+/*ul.nav input.nav-chk:checked~ul{
+	display:block;
+}*/
+ul.nav li:hover ul{
+	display:block;
+}
+ul.nav li label:hover ~ ul{
+	display:block;
+}
+
 
 a.current{
 	color:#0800FF;

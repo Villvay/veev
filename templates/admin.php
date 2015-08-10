@@ -14,14 +14,14 @@
 		<nav>
 			<div class="container">
 				<h2>Admin Dashboard</h2>
-<?php if (isset($user) && $user['level'] > 4){ ?>
-				<ul class="nav">
-					<li><a href="<?php echo BASE_URL; ?>admin/pages">Pages</a></li>
-					<li><a href="<?php echo BASE_URL; ?>admin/inquiry">Inquiry</a></li>
-					<li><a href="<?php echo BASE_URL; ?>admin/users">Users</a></li>
-					<li><a href="<?php echo BASE_URL; ?>user/sign-out">Log Out</a></li>
-				</ul>
-<?php } ?>
+<?php 	$navigation = array();
+		if (isset($user) && $user['level'] > 4){
+			$navigation[] = array('title' => 'Pages', 'module' => 'admin', 'method' => 'pages');
+			$navigation[] = array('title' => 'Inquiry', 'module' => 'admin', 'method' => 'inquiry');
+			$navigation[] = array('title' => 'Users', 'module' => 'admin', 'method' => 'users');
+			$navigation[] = array('title' => 'Log Out', 'module' => 'user', 'method' => 'sign-out');
+		}
+		render_navigation($navigation); ?>
 			</div>
 		</nav>
 		<main class="container">
