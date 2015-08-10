@@ -311,10 +311,10 @@ Navigation Builder generates a ul>li mark-up for a navigation menu for an array 
 You have to define the links in a php array in the following format:
 ```php
 $navigation = array(
-	array('title' => 'Home, 'icon' => 'fa-home'),
-	array('title' => 'Blog, 'icon' => 'fa-newspaper-o', 'method' => 'blog'),
-	array('title' => 'About, 'icon' => 'fa-info-circle', 'method' => 'about'),
-	array('title' => 'Contact, 'icon' => 'fa-envelope-o', 'method' => 'contact'));
+	array('title' => 'Home', 'icon' => 'fa-home'),
+	array('title' => 'Blog', 'icon' => 'fa-newspaper-o', 'method' => 'blog'),
+	array('title' => 'About', 'icon' => 'fa-info-circle', 'method' => 'about'),
+	array('title' => 'Contact', 'icon' => 'fa-envelope-o', 'method' => 'contact'));
 if (isset($user))	//	Conditionally show this link
 	$navigation[] = array('title' => 'My Blog', 'icon' => 'fa-newspaper-o', 'module' => 'user', 'method' => 'blog');
 render_navigation($navigation);
