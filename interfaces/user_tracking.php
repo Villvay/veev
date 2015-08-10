@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+/*if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
 	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 else if (isset($_SERVER['REMOTE_ADDR']))
 	$ip = $_SERVER['REMOTE_ADDR'];
@@ -16,5 +16,5 @@ if (!isset($user_id)){
 		$user_id = strtoupper($ip);
 		setcookie('user_id', $user_id, time()+(3600*24*365*5));
 	}
-}
+}*/
 ?>

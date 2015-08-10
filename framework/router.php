@@ -30,6 +30,7 @@ if (!isset($_SESSION['lang']))
 	$_SESSION['lang'] = 'en';
 $lang = $_SESSION['lang'];
 
+date_default_timezone_set('UTC');
 
 // Determine the Module
 $module = array_shift($params);

@@ -145,7 +145,7 @@
 				<input type="email" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
 <?php 				}
 					else if ($field['display'] == 'currency'){ ?>
-				<span>Rs.</span>
+				<span>$</span>
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" data-validate="currency" />
 <?php 				}
 					else if ($field['display'] == 'numeric'){ ?>
