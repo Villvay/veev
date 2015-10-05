@@ -152,7 +152,10 @@
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" data-validate="numeric" />
 <?php 				}
 					else if ($field['display'] == 'check' || $field['display'] == 'checkbox'){ ?>
-				<input type="checkbox" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
+				<input type="checkbox" class="form-control" name="<?php echo $key; ?>"<?php echo $data[$key] ? ' checked' : ''; ?> />
+<?php 				}
+					else if ($field['display'] == 'readonly'){ ?>
+				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" readonly="true" />
 <?php 				}
 					else if ($field['display'] == 'file'){ ?>
 				<input type="file" class="form-control" name="<?php echo $key; ?>" />
@@ -230,19 +233,32 @@ tinymce.init({
 			echo '</th>';
 		?></tr></thead><tbody><?php
 		$key = false;
-		while ($row = mysql_fetch_assoc($data)){
+		if (is_array($data))
+			foreach ($data as $row)
+				render_row($row, $schema, $found);
+		else
+			while ($row = mysql_fetch_assoc($data))
+				render_row($row, $schema, $found);
+		if (!$found){
+			?><tr class="no-records"><td colspan="99"><i>No records to display</i></td></tr><?php
+		} ?></tbody></table><?php
+	}
+	function render_row($row, $schema, &$found){
 			foreach ($schema as $col => $meta){
 				if (isset($meta['key']) && $meta['key'])
 					$key = $row[$col];
 			} ?><tr onclick="return row_click(this);"<?php echo isset($key) ? 'data-key="'.$key.'"' : ''; ?>><?php
 			$cmd_opened = false;
 			foreach ($schema as $col => $meta){
-				if (isset($meta['cmd']) || isset($meta['onclick'])){
+				if (isset($meta['link'])){
+?><td><a class="<?php echo $col; ?><?php echo isset($meta['default']) ? ' default' : ''; ?>" href=<?php echo '"' . BASE_URL.str_replace('{key}', $key, $meta['link']) . '"'; ?>><?php echo $row[$col]; ?></a></td><?php
+				}
+				else if (isset($meta['cmd']) || isset($meta['onclick'])){
 					if (!$cmd_opened){
 						echo '<td class="action_btns">';
 						$cmd_opened = true;
 					}
-					?> &nbsp;<a class="<?php echo $col; ?><?php echo isset($meta['default']) ? ' default' : ''; ?>" href=<?php
+					?><a class="button <?= $col; ?><?= isset($meta['default']) ? ' default' : ''; ?>" href=<?php
 					if (isset($meta['cmd']))
 						echo '"' . BASE_URL.str_replace('{key}', $key, $meta['cmd']) . '"' . (isset($meta['confirm']) ? ' onclick="if (confirm(\'Are you sure.?\')){return true;}else{event.stopPropagation(); return false;}"' : '');	//	' onclick="if (confirm(\'Are you sure.?\')){return true;}else{event.stopPropagation(); return false;}"'
 					else if (isset($meta['onclick']))
@@ -250,7 +266,7 @@ tinymce.init({
 					?>><?php echo $meta[0]; ?></a><?php
 				}
 				else if (!isset($meta['table']) || $meta['table']){
-					echo '<td>';
+					echo '<td'.(isset($meta['display']) && ($meta['display'] == 'numeric' || $meta['display'] == 'currency') ? ' align="right"' : '').'>';
 					if (isset($meta['table-display'])){
 						if ($meta['table-display'] == 'enum')	//echo '<small>'.$row[$col].'</small>';
 							render_dropdown($col.'['.$key.']', $meta['enum'], $row[$col], $col, (isset($meta['onchange']) ? $meta['onchange'] : false), true);
@@ -263,6 +279,8 @@ tinymce.init({
 						else
 							echo $row[$col];
 					}
+					else if (isset($meta['function']))
+						echo $meta['function']($row);
 					else if (isset($meta['enum']))
 						echo isset($meta['enum'][$row[$col]]) ? (is_array($meta['enum'][$row[$col]]) ? $meta['enum'][$row[$col]][0] : $meta['enum'][$row[$col]]) : '-';
 					else if (isset($meta['autofill']))
@@ -282,16 +300,12 @@ tinymce.init({
 				echo '</td>';
 			?></tr><?php
 			$found = true;
-		}
-		if (!$found){
-			?><tr class="no-records"><td colspan="99"><i>No records to display</i></td></tr><?php
-		} ?></tbody></table><?php
 	}
 
 	// ========================================================
 
 	function render_dropdown($name, $data, $selected = false, $classname = false, $onchange = false, $ontblrow = false){ ?>
-				<select name="<?php echo $name; ?>" class="form-control<?php echo $classname != false ? ' '.$classname : ''; ?>"<?php echo $onchange != false ? ' onchange="'.$onchange.'"' : ''; ?><?php echo $ontblrow != false ? ' onmouseover="row_click_latch=true;" onmouseout="row_click_latch=false;"' : ''; ?>>
+				<select name="<?php echo $name; ?>" onclick="dropdown_clicked(this);" class="form-control<?php echo $classname != false ? ' '.$classname : ''; ?>"<?php echo $onchange != false ? ' onchange="'.$onchange.'"' : ''; ?>>
 					<option value="" class="first-child">Please Select</option>
 <?php 				foreach ($data as $key => $val){ ?>
 					<option value="<?php echo $key; ?>" <?php echo $selected == $key ? 'selected' : ''; ?>><?php echo is_array($val) ? $val[0] : $val; ?></option>

@@ -21,7 +21,7 @@ $params_count = count($params);
 
 //	SESSION RELATED
 include 'interfaces/user_tracking.php';
-ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
+//ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
 session_start();
 if (isset($_SESSION['user']))
 	$user = $_SESSION['user'];
@@ -71,6 +71,7 @@ $submodule = false;
 if (is_dir('modules/'.$module.'/'.$method)){
 	$submodule = $method;
 	$method = array_shift($params);
+	$method = str_replace('-', '_', $method);
 	if (file_exists('modules/'.$module.'/@'.$submodule.'.module.php'))
 		require_once 'modules/'.$module.'/@'.$submodule.'.module.php';
 	else if (file_exists('modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php'))

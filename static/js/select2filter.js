@@ -24,7 +24,7 @@ function select2filter(select){
 		_self.index = -1;
 		if (input.value.trim() != '')
 			for (var i = 0; i < select.options.length; i++)
-				if (select.options[i].text.toLowerCase().indexOf(input.value.toLowerCase()) > -1)
+				if (select.options[i].value != '' && select.options[i].text.toLowerCase().indexOf(input.value.toLowerCase()) > -1)
 					_self.list.appendChild(new select2filter_item(_self, select.options[i].text.replace(new RegExp("("+preg_quote(input.value)+")", 'gi'), "<b>$1</b>"), select.options[i].value));
 		_self.list.style.display = (_self.list.childNodes.length == 0) ? 'none' : 'block';
 		if (_self.list.childNodes.length > 0){

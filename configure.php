@@ -1,5 +1,6 @@
 <?php
 
+date_default_timezone_set('UTC');
 $path = rtrim($_SERVER['REQUEST_URI'], 'configure.php');
 $server = $_SERVER['SERVER_NAME'];
 $lang = 'en';
@@ -9,12 +10,12 @@ include 'framework/render.php';
 if (isset($_POST['htaccess']) && isset($_POST['config'])){
 	error_reporting(E_ERROR);
 	//
-	$conn = mysql_connect($_POST['db_host'], $_POST['db_user'], $_POST['db_pass']);
-	$db = mysql_select_db($_POST['db_name'], $conn);
+	$conn = mysqli_connect($_POST['db_host'], $_POST['db_user'], $_POST['db_pass'], $_POST['db_name']);
+	/*$db = mysql_select_db($_POST['db_name'], $conn);
+	else if (!$db)
+		flash_message('Database is not found.', 'error');*/
 	if (!$conn)
 		flash_message('Database credentials are wrong.', 'error');
-	else if (!$db)
-		flash_message('Database is not found.', 'error');
 	else{
 		file_put_contents('.htaccess', $_POST['htaccess']);
 		$result = file_put_contents('framework/config.php', $_POST['config']);

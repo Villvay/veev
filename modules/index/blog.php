@@ -9,7 +9,7 @@
 <h2><?php echo $lex[$lang]['blog']; ?></h2>
 
 <ul class="blog">
-<?php 	while ($article = mysql_fetch_assoc($blog)){ ?>
+<?php 	while ($article = row_assoc($blog)){ ?>
 	<li>
 		<a href="<?php echo BASE_URL; ?>blog/<?php echo $page; ?>/<?php echo $article['id']; ?>/<?php echo slugify($article['title']); ?>">
 			<small><?php echo beautify_datetime($article['published']); ?></small>

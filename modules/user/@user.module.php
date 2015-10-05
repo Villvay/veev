@@ -41,7 +41,7 @@
 		}
 		else if (isset($params[1])){
 			if ($params[0] == 'edit')
-				$data['article'] = mysql_fetch_assoc($db->query('SELECT id, published, title, content FROM blog WHERE id = '.$params[1]));
+				$data['article'] = row_assoc($db->query('SELECT id, published, title, content FROM blog WHERE id = '.$params[1]));
 			else if ($params[0] == 'add')
 				$data['article'] = array('id' => 'new', 'published' => date('Y-m-d H:i:s'), 'title' => '', 'content' => '');
 			else if ($params[0] == 'delete'){
@@ -57,7 +57,7 @@
 				$page = $params[0];
 			$data['page'] = $page;
 			$data['blog'] = $db->query('SELECT id, published, title FROM blog ORDER BY published DESC LIMIT '.($per_page * ($page - 1)).', '.$per_page);
-			$pages = mysql_fetch_array($db->query('SELECT COUNT(*) FROM blog'));
+			$pages = row_array($db->query('SELECT COUNT(*) FROM blog'));
 			$data['pages'] = ceil($pages[0] / $per_page);
 		}
 		//
@@ -115,7 +115,7 @@
 		if (isset($params['username'])){
 			$db = connect_database();
 			$user = $db->query('SELECT id, cid, username, `password`, level, timezone FROM `user` WHERE username = \''.$params['username'].'\'');
-			if ($user = mysql_fetch_assoc($user)){
+			if ($user = row_assoc($user)){
 				if ($user['password'] == md5($params['password'].':NaCl')){
 					unset($user['password']);
 					$_SESSION['user'] = $user;

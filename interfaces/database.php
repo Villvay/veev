@@ -5,7 +5,7 @@ class MySQL{
    var $Database = DB_NAME;
    var $User = DB_USER;
    var $Password = DB_PASS;
-   var $Link_ID = 0;
+   var $Link_ID = false;
    var $Query_ID = 0;
    var $Record   = array();
    var $Row;
@@ -22,26 +22,26 @@ class MySQL{
     }
 
    function connect(){
-      if($this->Link_ID == 0){
-         $this->Link_ID = mysql_connect($this->Host, $this->User, $this->Password);
-         if (!$this->Link_ID){
-            $this->halt('Database connection failure');
+      if($this->Link_ID === false){
+	 $this->Link_ID = mysqli_connect($this->Host, $this->User, $this->Password, $this->Database);
+         if (mysqli_connect_errno()){
+            $this->halt('Database connection failure: '.mysqli_connect_error());
          }
-         $SelectResult = mysql_select_db($this->Database, $this->Link_ID);
+         /*$SelectResult = mysqli_select_db($this->Link_ID, $this->Database);
          if(!$SelectResult){
-            $this->Errno = mysql_errno($this->Link_ID);
-            $this->Error = mysql_error($this->Link_ID);
+            $this->Errno = mysqli_errno($this->Link_ID);
+            $this->Error = mysqli_error($this->Link_ID);
             $this->halt('Database not found: <i>'.$this->Database.'</i>');
-         }
+         }*/
       }
    }
 
    function query($Query_String){
       $this->connect();
-      $this->Query_ID = mysql_query($Query_String, $this->Link_ID);
+      $this->Query_ID = mysqli_query($this->Link_ID, $Query_String);
       $this->Row = 0;
-      $this->Errno = mysql_errno();
-      $this->Error = mysql_error();
+      $this->Errno = mysqli_errno($this->Link_ID);
+      $this->Error = mysqli_error($this->Link_ID);
       if (!$this->Query_ID){
          $this->halt('SQL Error: <br/><pre>'.str_replace(array('FROM', 'WHERE', 'AND', 'ORDER'), array('<br/>FROM', '<br/>WHERE', '<br/> &nbsp; AND', '<br/>ORDER'), $Query_String).'</pre><br/>'.$this->Error);
       }
@@ -72,7 +72,7 @@ class MySQL{
 		$qpart .= ' WHERE '.$conditions;
 	//
 	if ($count !== false){
-		$count = mysql_fetch_assoc($this->query('SELECT COUNT(*) AS cou'.$qpart));
+		$count = mysqli_fetch_assoc($this->query('SELECT COUNT(*) AS cou'.$qpart));
 		$count = $count['cou'];
 	}
 	//
@@ -84,7 +84,7 @@ class MySQL{
    function update($table, $params, $conditions = false){
 	$cols = $this->query('DESCRIBE `'.$table.'`');
 	$qpart = '';
-	while ($col = mysql_fetch_array($cols)){
+	while ($col = mysqli_fetch_array($cols)){
 		if (isset($params[$col[0]]) && $col[0] != 'id'){
 			$val = $params[$col[0]];
 			if ($qpart != ''){
@@ -115,7 +115,7 @@ class MySQL{
 	$cols = $this->query('DESCRIBE `'.$table.'`');
 	$qpart1 = '';
 	$qpart2 = '';
-	while ($col = mysql_fetch_array($cols)){
+	while ($col = mysqli_fetch_array($cols)){
 		if (isset($params[$col[0]])){
 			$val = $params[$col[0]];
 			if ($qpart1 != ''){
@@ -135,7 +135,7 @@ class MySQL{
 	$sql = 'INSERT INTO `'.$table.'`('.$qpart1.') VALUES('.$qpart2.')';
 	//echo $sql;
 	$this->query($sql);
-	return mysql_insert_id();
+	return mysqli_insert_id();
    }
 
    function delete($table, $id, $conditions = false){
@@ -148,35 +148,43 @@ class MySQL{
    }
 
    function next_record(){
-      $this->Record = mysql_fetch_array($this->Query_ID);
+      $this->Record = mysqli_fetch_array($this->Query_ID);
       $this->Row += 1;
-      $this->Errno = mysql_errno();
-      $this->Error = mysql_error();
+      $this->Errno = mysqli_errno();
+      $this->Error = mysqli_error();
       $stat = is_array($this->Record);
       if (!$stat){
-         mysql_free_result($this->Query_ID);
+         mysqli_free_result($this->Query_ID);
          $this->Query_ID = 0;
       }
       return $this->Record;
    }
 
    function num_rows(){
-      return mysql_num_rows($this->Query_ID);
+      return mysqli_num_rows($this->Query_ID);
    }
 
    function close(){
-      if($this->Link_ID != 0){
-         mysql_close($this->Link_ID);
+      if($this->Link_ID !== false){
+         mysqli_close($this->Link_ID);
       }
    }
    
    function insert_id(){
-      return mysql_insert_id($this->Link_ID);
+      return mysqli_insert_id($this->Link_ID);
    }
    
    function affected_rows(){
-      return mysql_affected_rows($this->Link_ID);
+      return mysqli_affected_rows($this->Link_ID);
    }
+}
+
+function row_assoc($resource){
+	return mysqli_fetch_assoc($resource);
+}
+
+function row_array($resource){
+	return mysqli_fetch_array($resource);
 }
 
 ?>

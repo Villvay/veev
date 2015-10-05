@@ -33,7 +33,7 @@
 			//
 			$found = false;
 			$content = $db->query('SELECT stub, en, ch FROM content WHERE stub = \''.$params[0].'\'');
-			if ($content = mysql_fetch_assoc($content)){
+			if ($content = row_assoc($content)){
 				$data['content'] = $content;
 				$found = true;
 			}
@@ -96,7 +96,7 @@
 		$data = array('schema' => $users_schema);
 		$db = connect_database();
 		//
-		$data['user'] = mysql_fetch_assoc($db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND id = '.$params[0]));
+		$data['user'] = row_assoc($db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND id = '.$params[0]));
 		$data['user']['password'] = '[encrypted]';
 		//
 		$data['html_head'] = array('title' => 'Edit User Account');

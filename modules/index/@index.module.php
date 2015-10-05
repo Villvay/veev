@@ -14,7 +14,7 @@
 		$db = connect_database();
 		//
 		$content = $db->query('SELECT en, ch FROM content WHERE stub = \'home\'');
-		if ($content = mysql_fetch_assoc($content)){
+		if ($content = row_assoc($content)){
 			$data['content'] = $content[$lang];
 		}
 		//
@@ -32,7 +32,7 @@
 		$db = connect_database();
 		//
 		$content = $db->query('SELECT en, ch FROM content WHERE stub = \'about\'');
-		if ($content = mysql_fetch_assoc($content)){
+		if ($content = row_assoc($content)){
 			//$data['ch'] = $content['ch'];
 			//$data['en'] = $content['en'];
 			$data['content'] = $content[$lang];
@@ -48,7 +48,7 @@
 		$db = connect_database();
 		//
 		$content = $db->query('SELECT en, ch FROM content WHERE stub = \'contact\'');
-		if ($content = mysql_fetch_assoc($content)){
+		if ($content = row_assoc($content)){
 			//$data['ch'] = $content['ch'];
 			//$data['en'] = $content['en'];
 			$data['content'] = $content[$lang];
@@ -66,12 +66,12 @@
 		if (isset($params[0]) && $params[0] > 0)
 			$page = $params[0];
 		if (isset($params[1])){
-			$data['article'] = mysql_fetch_assoc($db->query('SELECT id, published, title, content FROM blog WHERE id = '.$params[1]));
+			$data['article'] = row_assoc($db->query('SELECT id, published, title, content FROM blog WHERE id = '.$params[1]));
 		}
 		else{
 			$per_page = 5;
 			$data['blog'] = $db->query('SELECT id, published, title, content FROM blog ORDER BY published DESC LIMIT '.($per_page * ($page - 1)).', '.$per_page);
-			$pages = mysql_fetch_array($db->query('SELECT COUNT(*) FROM blog'));
+			$pages = row_array($db->query('SELECT COUNT(*) FROM blog'));
 			$data['pages'] = ceil($pages[0] / $per_page);
 		}
 		$data['page'] = $page;
