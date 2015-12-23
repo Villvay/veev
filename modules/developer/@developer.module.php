@@ -84,9 +84,9 @@
 					($meta['Null'] == 'YES' ? (' DEFAULT '.($meta['Default'] == '' ? 'NULL' : '\''.$meta['Default'].'\'')) : '').',';
 		}
 		if (count($primKey) > 0)
-			$query .= "\n".'  PRIMARY KEY (`'.implode('`,`', $primKey).'`)'."\n".')';
+			$query .= "\n".'  PRIMARY KEY (`'.implode('`,`', $primKey).'`)'."\n".');';
 		else
-			$query = substr($query, 0, -1).')';
+			$query = substr($query, 0, -1).');';
 		return $query;
 	}
 

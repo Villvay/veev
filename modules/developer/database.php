@@ -36,7 +36,7 @@
 </form>
 
 <?php function render_tbl($table, $tblSchema, $schema, $import, $direction = 'new'){
-		$sql = isset($import[$table]) ? 'ALTER TABLE '.$table : ($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table));
+		$sql = isset($import[$table]) ? '' : ($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table));
 		/*/echo isset($import[$table]) ? '' : '<input type="hidden" name="sql[]" value="'.($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table)).'" />';
 <?php /* input type="hidden" name="sql[]" value="<?php echo isset($import[$table]) ? '' : ''.($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table)).''; ?>" / */ ?>
 <section class="<?php echo isset($import[$table]) ? 'exist' : $direction; ?>">
@@ -51,11 +51,13 @@
 			</tr>
 		</thead>
 		<tbody>
-<?php 	foreach ($tblSchema as $field => $row){
+<?php 	$changedAny = false;
+		foreach ($tblSchema as $field => $row){
 			render_rw($field, $row, $import, $table, $schema, $direction, $sql);
 			if (isset($import[$table]) && !isset($import[$table][$field])){
 				$sql .= "\n".'  ADD `'.$field.'` '.$row['Type'].($row['Size'] != '' ? '('.$row['Size'].')' : '').($row['Null'] == 'NO' ? ' NOT NULL' : '').
 					($row['Extra'] == 'auto_increment' ? ' AUTO_INCREMENT' : '').($row['Null'] == 'YES' ? (' DEFAULT '.($row['Default'] == '' ? 'NULL' : '\''.$row['Default'].'\'')) : '');
+				$changedAny = true;
 			}
 		}
 		if (isset($import[$table])){
@@ -65,11 +67,14 @@
 					$sql .= "\n".'  DROP COLUMN '.$col;
 				}
 			}
-		} ?>
+			$changedAny = true;
+		}
+		if ($changedAny)
+			$sql = 'ALTER TABLE '.$table.$sql.';'; ?>
 		</tbody>
 	</table>
-	<input type="hidden" name="sql[]" value="<?php echo $sql; ?>" />
-	<textarea><?php echo $sql; ?></textarea>
+	<?php /* input type="hidden" value="<?php echo $sql; ?>" */ ?>
+	<textarea name="sql[]"><?php echo $sql; ?></textarea>
 </section>
 <br /><br />
 <?php } ?>
@@ -105,7 +110,8 @@
 				<td class="<?php echo $changedIn ? 'changed' : ''; ?>"><?php echo $changedIn ? $import[$table][$field][$col].' =&gt; ' : ''; ?><?php echo $row[$col]; ?></td>
 <?php 		} ?>
 			</tr>
-<?php } ?>
+<?php 	//return $changed;
+	} ?>
 
 <style>
 	h3{
