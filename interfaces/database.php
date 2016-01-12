@@ -135,7 +135,7 @@ class MySQL{
 	$sql = 'INSERT INTO `'.$table.'`('.$qpart1.') VALUES('.$qpart2.')';
 	//echo $sql;
 	$this->query($sql);
-	return mysqli_insert_id();
+	return mysqli_insert_id($this->Link_ID);
    }
 
    function delete($table, $id, $conditions = false){
