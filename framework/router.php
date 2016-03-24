@@ -32,10 +32,12 @@ $lang = $_SESSION['lang'];
 
 date_default_timezone_set('UTC');
 
+
 // Determine the Module
 $module = array_shift($params);
 if ($module == '')
 	$module = 'index';
+
 
 // Determine the Method
 if ($params_count < 2)
@@ -45,6 +47,7 @@ else
 if ($method == '')
 	$method = 'index';
 
+
 // Append GET, POST to params
 foreach ($_POST as $key => $val)
 	$params[$key] = $val;
@@ -53,6 +56,7 @@ require_once 'render.php';
 require_once 'data/lang.php';
 
 $module = str_replace('-', '_', $module);
+
 
 // Include the Module
 if (file_exists('modules/'.$module.'/@'.$module.'.module.php'))
@@ -78,6 +82,7 @@ if (is_dir('modules/'.$module.'/'.$method)){
 		require_once 'modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php';
 }
 
+
 // Call the Method
 if (function_exists($method)){
 	$data = $method($params);
@@ -88,36 +93,27 @@ if (function_exists($method)){
 	if (isset($template_file) && $template_file != '' && (!isset($params['format']) || $params['format'] != 'js'))
 		$yield = render_template($template_file, $yield, (isset($data['html_head']) ? $data['html_head'] : false));
 	// =================
-	/*if (false){	//	minify_html
-		$yield = str_replace("\t", '', $yield);
-		$yield = str_replace(array("\n", "\r", '   ', '  '), ' ', $yield);
-		$yield = preg_replace("/<!--.*-->/Uis", '', $yield);
-	}*/
-	//if ($compress_html){	//	compress_html
-		global $HTTP_ACCEPT_ENCODING;
-		if (strpos($HTTP_ACCEPT_ENCODING, 'x-gzip') !== false)
-			$encoding = 'x-gzip';
-		else if (strpos($HTTP_ACCEPT_ENCODING, 'gzip') !== false)
-			$encoding = 'gzip';
-		else
-			$encoding = false;
-		if ($encoding){
-			$size = strlen($yield);
-			if ($size > 2048){
-				header('Content-Encoding: '.$encoding);
-				print("\x1f\x8b\x08\x00\x00\x00\x00\x00");
-				$yield = gzcompress($yield, 9);
-				//$yield = substr($yield, 0, $size);
-			}
+	global $HTTP_ACCEPT_ENCODING;
+	if (strpos($HTTP_ACCEPT_ENCODING, 'x-gzip') !== false)
+		$encoding = 'x-gzip';
+	else if (strpos($HTTP_ACCEPT_ENCODING, 'gzip') !== false)
+		$encoding = 'gzip';
+	else
+		$encoding = false;
+	if ($encoding){
+		$size = strlen($yield);
+		if ($size > 2048){
+			header('Content-Encoding: '.$encoding);
+			print("\x1f\x8b\x08\x00\x00\x00\x00\x00");
+			$yield = gzcompress($yield, 9);
 		}
-	//}
+	}
 	echo $yield;
-	//if (function_exists('cache_page'))
-	//	cache_page($yield, $module, $method, $params);
 }
 else{
 	require_once 'templates/error_404.php';
 }
+
 
 function connect_database($database = false){
 	global $db_connection;
@@ -131,6 +127,7 @@ function connect_database($database = false){
 if ($db_connection != false){
 	$db_connection->close();
 }
+
 
 function redirect($module, $method = false, $params = false, $redirect_after = false){
 	if ($redirect_after != false)

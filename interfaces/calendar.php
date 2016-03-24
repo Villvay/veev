@@ -16,7 +16,7 @@
 					<option value="<?php echo $Year; ?>"<?php if ($Year == $sel_year){ ?> selected<?php } ?>><?php echo $Year; ?></option>
 				<?php } ?>
 			</select>
-			<select name="cal_month" onchange="Calendar_FillMonth();" style="width:92px;">
+			<select name="cal_month" onchange="Calendar_FillMonth();" style="width:110px;">
 				<option value="1">January</option>
 				<option value="2">February</option>
 				<option value="3">March</option>

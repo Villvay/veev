@@ -5,18 +5,36 @@ $path = rtrim($_SERVER['REQUEST_URI'], 'configure.php');
 $server = $_SERVER['SERVER_NAME'];
 $lang = 'en';
 include 'data/lang.php';
-$lex['en']['title'] = 'Veev';
+$lex['en']['title'] = 'Setup Veev Site/Web-app';
 include 'framework/render.php';
 if (isset($_POST['htaccess']) && isset($_POST['config'])){
 	error_reporting(E_ERROR);
 	//
 	$conn = mysqli_connect($_POST['db_host'], $_POST['db_user'], $_POST['db_pass'], $_POST['db_name']);
-	/*$db = mysql_select_db($_POST['db_name'], $conn);
-	else if (!$db)
-		flash_message('Database is not found.', 'error');*/
-	if (!$conn)
-		flash_message('Database credentials are wrong.', 'error');
-	else{
+	if (!$conn){
+		$conn = mysqli_connect($_POST['db_host'], $_POST['db_user'], $_POST['db_pass']);
+		if (!$conn)
+			flash_message('Database credentials are wrong.', 'error');
+		else{
+			mysqli_query($conn, 'CREATE DATABASE `'.$_POST['db_name'].'`');
+			mysqli_query($conn, 'USE `'.$_POST['db_name'].'`');
+		}
+	}
+	if (!!$conn){
+		if (file_exists('database.sql')){
+			$lines = file('database.sql');
+			$query = '';
+			foreach ($lines as $line)
+				if (substr($line, 0, 2) == '--' || (substr($line, 0, 2) == '/*' && (substr($line, -4, 3) == '*/;' || substr($line, -3) == '*/;')) || trim($line) == ''){}
+				else{
+					$query .= $line;
+					if (substr($line, -1) == ';' || substr($line, -2, 1) == ';'){
+						mysqli_query($conn, $query);
+						$query = '';
+					}
+				}
+		}
+		//
 		file_put_contents('.htaccess', $_POST['htaccess']);
 		$result = file_put_contents('framework/config.php', $_POST['config']);
 		if (!$result)

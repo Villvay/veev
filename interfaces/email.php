@@ -21,7 +21,15 @@
 				"\r\n\r\n--".$boundary."\r\n".
 				'Content-type: text/html;charset=utf-8'.
 				"\r\n\r\n".$message.
-				"\r\n\r\n--".$boundary.'--';
+				"\r\n\r\n--".$boundary;
+		if ($attachments !== false)
+			foreach ($attachments as $filename => $data){
+				$message .= "\r\n".'Content-Type: application/octet-stream; name="'.$filename.'"'."\r\n".
+							'Content-Transfer-Encoding: base64'."\r\n".
+							'Content-Disposition: attachment'."\r\n".
+							$data."\r\n\r\n--".$boundary;
+			}
+		$message .= '--';
 		$mail_sent = @mail($to, $subject, $message, $headers);
 		return $mail_sent;
 	}

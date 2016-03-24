@@ -5,20 +5,12 @@
 				'title' => 'Website Title',
 				'subtitle' => 'Website Subtitle',
 				'home' => 'Home',
-				'blog' => 'Blog',
-				'my-blog' => 'My Blog',
+				'news' => 'News',
+				'my-news' => 'My News',
 				'about' => 'About Us',
+				'privacy-policy' => 'Privacy Policy',
+				'terms-of-use' => 'Terms of Use',
 				'contact' => 'Contact Us',
-			),
-		'si' => array(
-				'language' => 'English',
-				'title' => 'Website Title',
-				'subtitle' => 'Website Subtitle',
-				'home' => 'Home',
-				'blog' => 'Blog',
-				'my-blog' => 'My Blog',
-				'about' => 'About Us',
-				'contact' => 'Contact Us',
-			),
+			)
 		);
 ?>

@@ -26,18 +26,22 @@
 <?php 	if (isset($user)){ ?>
 					<a><?php echo $user['username']; ?></a> &nbsp;
 					<a href="<?php echo BASE_URL; ?>user/sign-out">Log Out</a>
+<?php 	}else{ ?>
+					<a href="<?php echo BASE_URL; ?>user/log-in"><?php echo $lex[$lang]['log-in']; ?></a>
 <?php 	} ?>
 				</div>
 				<a id="hamberger"></a>
 <?php 	$navigation = array(
 			array('title' => $lex[$lang]['home'], 'icon' => 'fa-home'),
-			array('title' => $lex[$lang]['blog'], 'icon' => 'fa-newspaper-o', 'method' => 'blog'),
+			array('title' => $lex[$lang]['news'], 'icon' => 'fa-newspaper-o', 'method' => 'news'),
 			array('title' => $lex[$lang]['about'], 'icon' => 'fa-info-circle', 'method' => 'about'),
 			array('title' => $lex[$lang]['contact'], 'icon' => 'fa-envelope-o', 'method' => 'contact'));
-		if (isset($user))
-			$navigation[] = array('title' => $lex[$lang]['my-blog'], 'icon' => 'fa-newspaper-o', 'module' => 'user', 'method' => 'blog');
+		if (isset($user)){
+			$navigation[] = array('title' => $lex[$lang]['my-news'], 'icon' => 'fa-newspaper-o', 'module' => 'user', 'method' => 'news');
+			if (isset($user) && $user['level'] > 4)
+				$navigation[] = array('title' => 'Admin', 'icon' => 'fa-dashboard', 'module' => 'admin');
+		}
 		render_navigation($navigation); ?>
-<?php /* ul class="nav"><li <?php echo $method == 'index' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>"><i class="fa fa-home"></i> <?php echo $lex[$lang]['home']; ?></a></li><li <?php echo $module == 'index' && $method == 'blog' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>blog"><i class="fa fa-newspaper-o"></i> <?php echo $lex[$lang]['blog']; ?></a></li><li <?php echo $method == 'about' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>about"><i class="fa fa-info-circle"></i> <?php echo $lex[$lang]['about']; ?></a></li><li <?php echo $method == 'contact' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>contact"><i class="fa fa-envelope-o"></i> <?php echo $lex[$lang]['contact']; ?></a></li><?php 	if (isset($user)){ ?><li <?php echo $module == 'user' && $method == 'blog' ? 'class="current"' : ''; ?>><a href="<?php echo BASE_URL; ?>user/blog"><i class="fa fa-newspaper-o"></i> <?php echo $lex[$lang]['my-blog']; ?></a></li><?php 	} ?></ul */ ?>
 			</div>
 		</nav>
 		<main class="container">
@@ -48,9 +52,9 @@
 			<div class="container">
 				&copy; From Year - <?php echo date('Y'); ?> All rights reserved &nbsp; | &nbsp; Company Name
 				<div class="right f-right">
-					<a href="<?php echo BASE_URL; ?>privacy_policy">Privacy Policy</a>
+					<a href="<?php echo BASE_URL; ?>privacy-policy">Privacy Policy</a>
 					&nbsp; | &nbsp;
-					<a href="<?php echo BASE_URL; ?>terms_of_use">Terms of Use</a>
+					<a href="<?php echo BASE_URL; ?>terms-of-use">Terms of Use</a>
 					&nbsp; | &nbsp;
 					<a href="<?php echo BASE_URL; ?>contact"><?php echo $lex[$lang]['contact']; ?></a>
 				</div>

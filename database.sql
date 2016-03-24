@@ -25,10 +25,11 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- Table structure for table `blog`
 --
 
-CREATE TABLE IF NOT EXISTS `blog` (
+CREATE TABLE IF NOT EXISTS `news` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `lang` varchar(3) NOT NULL,
   `published` datetime NOT NULL,
-  `title` varchar(256) NOT NULL,
+  `title` varchar(250) NOT NULL,
   `content` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
@@ -37,10 +38,10 @@ CREATE TABLE IF NOT EXISTS `blog` (
 -- Dumping data for table `blog`
 --
 
-INSERT INTO `blog` (`id`, `published`, `title`, `content`) VALUES
-(1, '2015-06-14 21:31:01', 'Lorem ipsum', '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>'),
-(2, '2015-06-14 23:37:42', 'Sed ut perspiciatis', '<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>'),
-(3, '2015-06-14 23:38:10', 'Neque porro quisquam est...', '<p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?</p>\r\n<p><img style="display: block; margin-left: auto; margin-right: auto;" src="../../../static/uploads/1434782724.jpg" alt="" width="414" height="206" /></p>\r\n<p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>');
+INSERT INTO `news` (`id`, `lang`, `published`, `title`, `content`) VALUES
+(1, 'en', '2015-06-14 21:31:01', 'Lorem ipsum', '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>'),
+(2, 'en', '2015-06-14 23:37:42', 'Sed ut perspiciatis', '<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>'),
+(3, 'en', '2015-06-14 23:38:10', 'Neque porro quisquam est...', '<p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?</p>\r\n<p><img style="display: block; margin-left: auto; margin-right: auto;" src="../../../static/uploads/1434782724.jpg" alt="" width="414" height="206" /></p>\r\n<p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>');
 
 -- --------------------------------------------------------
 
@@ -61,7 +62,8 @@ CREATE TABLE IF NOT EXISTS `company` (
 --
 
 INSERT INTO `company` (`id`, `title`, `subdomain`, `email`) VALUES
-(1, 'TinyF(x)', 'tinyfx', 'supporttinyfx.com');
+(1, 'TinyF(x)', 'tinyfx', 'http://32k.co/'),
+(2, 'Veev', 'veev', 'https://github.com/villvay/Veev/');
 
 -- --------------------------------------------------------
 
@@ -71,9 +73,10 @@ INSERT INTO `company` (`id`, `title`, `subdomain`, `email`) VALUES
 
 CREATE TABLE IF NOT EXISTS `content` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `stub` varchar(32) NOT NULL,
-  `en` text NOT NULL,
-  `ch` text NOT NULL,
+  `lang` varchar(3) NOT NULL,
+  `slug` varchar(50) NOT NULL,
+  `title` varchar(250) NOT NULL,
+  `content` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
 
@@ -81,10 +84,12 @@ CREATE TABLE IF NOT EXISTS `content` (
 -- Dumping data for table `content`
 --
 
-INSERT INTO `content` (`id`, `stub`, `en`, `ch`) VALUES
-(1, 'home', '<p>Home Page</p>', '<p>Home Page</p>'),
-(2, 'about', '<p>About Us</p>', '<p>&nbsp;</p>\r\n<p>About Us</p>'),
-(3, 'contact', '<p>Contact Us</p>', '<p>Contact Us</p>');
+INSERT INTO `content` (`id`, `lang`, `slug`, `title`, `content`) VALUES
+(1, 'en', 'home', 'Home Page', '<p>Home Page</p>'),
+(2, 'en', 'about', 'About Us', '<p>About Us</p>'),
+(3, 'en', 'contact', 'Contact Us', '<p>Contact Us</p>'),
+(3, 'en', 'privacy-policy', 'Privacy Policy', '<p>Privacy Policy</p>'),
+(3, 'en', 'terms-of-use', 'Terms of Use', '<p>Terms of Use</p>');
 
 -- --------------------------------------------------------
 

@@ -151,8 +151,12 @@ button, a.button{
 	border-top:1px solid #C0C0C8;
 	border-bottom:2px solid #4060A0;
 }
-a.button{
+/*a.button{
 	display:inline-block;
+}*/
+table.table-striped a.button{
+	padding:3px 8px;
+	margin:0px 3px;
 }
 a.button i.fa{
 	font-size:10pt;

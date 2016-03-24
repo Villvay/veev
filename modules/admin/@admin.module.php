@@ -17,10 +17,10 @@
 	$pages_index = array('home' => 'Home Page', 'about' => 'About Us', 'contact' => 'Contact Us');
 	$pages_schema = array(
 						'stub' 	=> array('Title', 		'key' => true),
-						'en' 		=> array('English', 	'display' => 'richtext', 'table' => false),
-						'ch' 		=> array('Chinese', 	'display' => 'richtext', 'table' => false),
-						'slides' 	=> array('Slides', 	'display' => 'folder', 'path' => 'user/images/uploads/{stub}', 'table' => false),
-						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
+						'en' 		=> array('English', 		'display' => 'richtext', 'table' => false),
+						'ch' 		=> array('Chinese', 		'display' => 'richtext', 'table' => false),
+						'slides' 	=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{stub}', 'table' => false),
+						'edit' 	=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
 						'view' 	=> array('View', 		'form' => false, 'cmd' => '{key}')
 					);
 	function pages($params){
@@ -32,7 +32,7 @@
 			$data['page'] = $params[0];
 			//
 			$found = false;
-			$content = $db->query('SELECT stub, en, ch FROM content WHERE stub = \''.$params[0].'\'');
+			$content = $db->query('SELECT slug, en, ch FROM content WHERE stub = \''.$params[0].'\'');
 			if ($content = row_assoc($content)){
 				$data['content'] = $content;
 				$found = true;
@@ -40,7 +40,7 @@
 			//
 			if (isset($params['en'])){
 				if ($found)
-					$db->update('content', array('ch' => $params['ch'], 'en' => $params['en']), 'stub = \''.$params['stub'].'\'');
+					$db->update('content', array('ch' => $params['ch'], 'en' => $params['en']), 'slug = \''.$params['slug'].'\'');
 				else
 					$db->insert('content', $params);
 				flash_message('Content is saved', 'success');
@@ -48,7 +48,7 @@
 			}
 		}
 		else
-			$data['pages'] = $db->query('SELECT stub FROM content');
+			$data['pages'] = $db->query('SELECT slug FROM content');
 		//
 		$data['html_head'] = array('title' => 'Pages: Admin Dashboard');
 		return $data;
@@ -68,11 +68,11 @@
 
 	$user_levels = array(1 => 'Basic User', 2 => 'Super User', 3 => 'Manager', 5 => 'Admin', 8 => 'Super Admin');
 	$users_schema = array(
-						'id' 		=> array('ID', 		'table' => false, 'key' => true),
+						'id' 			=> array('ID', 			'table' => false, 'key' => true),
 						'username' 	=> array('Username', 	'form-width' => '50'),
 						'password' 	=> array('Password', 	'table' => false, 'display' => 'password', 'form-width' => '50'),
-						'email' 	=> array('Email'),
-						'level' 	=> array('Level', 		'enum' => $user_levels),
+						'email' 		=> array('Email'),
+						'level' 		=> array('Level', 		'enum' => $user_levels),
 						'timezone' 	=> array('Time Zone'),
 						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/edit-user/{key}', 'default' => true)
 					);
@@ -96,8 +96,8 @@
 		$data = array('schema' => $users_schema);
 		$db = connect_database();
 		//
-		$data['user'] = row_assoc($db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND id = '.$params[0]));
-		$data['user']['password'] = '[encrypted]';
+		$data['a_user'] = row_assoc($db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND id = '.$params[0]));
+		$data['a_user']['password'] = '[encrypted]';
 		//
 		$data['html_head'] = array('title' => 'Edit User Account');
 		return $data;
@@ -108,7 +108,7 @@
 		$users_schema['timezone']['enum'] = $timezones;
 		$data = array('schema' => $users_schema);
 		//
-		$data['user'] = array('id' => 'new', 'username' => '', 'password' => '', 'email' => '', 'level' => '1', 'timezone' => $user['timezone']);
+		$data['a_user'] = array('id' => 'new', 'username' => '', 'password' => '', 'email' => '', 'level' => '1', 'timezone' => $user['timezone']);
 		//
 		$data['html_head'] = array('title' => 'Add User Account');
 		return $data;

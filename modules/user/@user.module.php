@@ -14,40 +14,40 @@
 
 	// --------------------------------------------------------------------
 
-	$blog_schema = array(
+	$news_schema = array(
 						'id' 			=> array('ID', 		'table' => false, 'key' => true),
 						'title' 			=> array('Title'),
 						'content' 		=> array('Content', 	'table' => false, 'display' => 'richtext'),
 						'published' 		=> array('Published on', 'form' => false),
-						'edit' 			=> array('Edit', 		'form' => false, 'cmd' => 'user/blog/edit/{key}', 'default' => true),
-						'delete' 		=> array('Delete', 	'form' => false, 'cmd' => 'user/delete/edit/{key}', 'default' => true),
-						'view' 		=> array('View', 		'form' => false, 'cmd' => 'bloh/*/{key}', 'default' => true)
+						'edit' 			=> array('Edit', 		'form' => false, 'cmd' => 'user/news/edit/{key}', 'default' => true),
+						'delete' 		=> array('Delete', 	'form' => false, 'cmd' => 'user/news/delete/{key}', 'confirm' => true),
+						'view' 		=> array('View', 		'form' => false, 'cmd' => 'news/*/{key}')
 					);
 
-	function blog($params){
-		global $blog_schema;
-		$data = array('schema' => $blog_schema);
+	function news($params){
+		global $news_schema;
+		$data = array('schema' => $news_schema);
 		$db = connect_database();
 		//
 		if (isset($params['title'])){
 			if ($params['id'] == 'new'){
 				$params['published'] = date('Y-m-d H:i:s');
-				$db->insert('blog', $params);
+				$db->insert('news', $params);
 			}
 			else
-				$db->update('blog', $params);
-			flash_message('Blog article is saved', 'success');
-			redirect('user', 'blog');
+				$db->update('news', $params);
+			flash_message('News article is saved', 'success');
+			redirect('user', 'news');
 		}
 		else if (isset($params[1])){
 			if ($params[0] == 'edit')
-				$data['article'] = row_assoc($db->query('SELECT id, published, title, content FROM blog WHERE id = '.$params[1]));
+				$data['article'] = row_assoc($db->query('SELECT id, published, title, content FROM news WHERE id = '.$params[1]));
 			else if ($params[0] == 'add')
 				$data['article'] = array('id' => 'new', 'published' => date('Y-m-d H:i:s'), 'title' => '', 'content' => '');
 			else if ($params[0] == 'delete'){
-				$db->delete('blog', $params[1]);
-				flash_message('Blog article is deleted', 'success');
-				redirect('user', 'blog');
+				$db->delete('news', $params[1]);
+				flash_message('News article is deleted', 'success');
+				redirect('user', 'news');
 			}
 		}
 		else{
@@ -56,12 +56,12 @@
 			if (isset($params[0]))
 				$page = $params[0];
 			$data['page'] = $page;
-			$data['blog'] = $db->query('SELECT id, published, title FROM blog ORDER BY published DESC LIMIT '.($per_page * ($page - 1)).', '.$per_page);
-			$pages = row_array($db->query('SELECT COUNT(*) FROM blog'));
+			$data['news'] = $db->query('SELECT id, published, title FROM news ORDER BY published DESC LIMIT '.($per_page * ($page - 1)).', '.$per_page);
+			$pages = row_array($db->query('SELECT COUNT(*) FROM news'));
 			$data['pages'] = ceil($pages[0] / $per_page);
 		}
 		//
-		$data['html_head'] = array('title' => 'Blog: Admin Dashboard');
+		$data['html_head'] = array('title' => 'News: Admin Dashboard');
 		return $data;
 	}
 

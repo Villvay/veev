@@ -38,7 +38,7 @@
 
 	// ========================================================
 
-	function render_data_view($schema, $data, $edit_action){
+	function render_data_view($schema, $data, $edit_action = false){
 		echo '<br/>';
 		foreach ($schema as $key => $field){
 			if (isset($field['key']) && $field['key'] || (isset($field['display']) && $field['display'] == 'hidden')){
@@ -47,6 +47,7 @@
 		<label for="<?php echo $key; ?>"><?php echo $field[0]; ?></label>
 		<div class="row">
 			<div class="col-xs-6 col-md-4">
+				<b>
 <?php 			if (isset($field['enum'])){
 					echo isset($field['enum'][$data[$key]]) ? (is_array($field['enum'][$data[$key]]) ? $field['enum'][$data[$key]][0] : $field['enum'][$data[$key]]) : '-';
 				}
@@ -77,18 +78,20 @@
 				else{
 					echo $data[$key];
 				} ?>
-				<hr/>
+				</b><hr/>
 			</div>
 		</div>
 <?php 		}
-		} ?>
+		}
+		if ($edit_action != false){ ?>
 		<input class="btn" type="button" value="Edit" onclick="window.location='<?php echo BASE_URL.$edit_action; ?>';" />
+<?php 	} ?>
 		<input class="btn" type="button" value="Back" onclick="window.history.back();" />
 <?php }
 
 	// ========================================================
 
-	function render_form($schema, $data, $action){
+	function render_form($schema, $data, $action, $onsubmit = false){
 		$file_upload = false;
 		$calendar = false;
 		$richtext = false;
@@ -112,7 +115,7 @@
 	<script src="<?php echo BASE_URL_STATIC; ?>js/select2filter.js"></script>
 	<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/select2filter.css" />
 <?php 	} ?>
-	<form method="post" class="data-form" action="<?php echo BASE_URL.$action; ?>"<?php echo $file_upload ? ' enctype="multipart/form-data"' : ''; ?> onsubmit="return validate(this);" autocomplete="off">
+	<form method="post" class="data-form" action="<?php echo BASE_URL.$action; ?>"<?php echo $file_upload ? ' enctype="multipart/form-data"' : ''; ?> <?php echo $onsubmit == false ? 'onsubmit="return validate(this);"' : $onsubmit; ?> autocomplete="off">
 <?php 	foreach ($schema as $key => $field){
 			if (isset($field['key']) && $field['key'] || (isset($field['display']) && $field['display'] == 'hidden')){ ?>
 		<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
@@ -200,7 +203,7 @@ tinymce.init({
 
 	$cal_rendered = false;
 	function render_calendar(){
-		global $cal_rendered;
+		global $cal_rendered, $from_year, $to_year;
 		if ($cal_rendered)
 			return false;
 		$cal_rendered = true; ?>
@@ -237,7 +240,7 @@ tinymce.init({
 			foreach ($data as $row)
 				render_row($row, $schema, $found);
 		else
-			while ($row = mysql_fetch_assoc($data))
+			while ($row = row_assoc($data))
 				render_row($row, $schema, $found);
 		if (!$found){
 			?><tr class="no-records"><td colspan="99"><i>No records to display</i></td></tr><?php

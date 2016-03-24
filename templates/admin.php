@@ -6,20 +6,28 @@
 		<meta name="viewport" content="width=device-width" />
 		<link rel="shortcut icon" type="image/x-icon" href="<?php echo BASE_URL_STATIC; ?>favicon.ico" />
 		<title><?php echo isset($html_head['title']) ? $html_head['title'] : 'Admin Dashboard'; ?></title>
+		<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>font-awesome/css/font-awesome.min.css" />
+		<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/fonts.css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/basic.css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/admin.css" />
-		<link rel="stylesheet" href="<?php echo BASE_URL_STATIC; ?>font-awesome/css/font-awesome.min.css" />
 	</head>
 	<body>
 		<nav>
 			<div class="container">
-				<h2>Admin Dashboard</h2>
+				<h1>Admin Dashboard</h1>
+				<div class="right f-right">
+<?php 	if (isset($user)){ ?>
+					<a><?php echo $user['username']; ?></a> &nbsp;
+					<a href="<?php echo BASE_URL; ?>user/sign-out">Log Out</a>
+<?php 	} ?>
+				</div>
 <?php 	$navigation = array();
 		if (isset($user) && $user['level'] > 4){
-			$navigation[] = array('title' => 'Pages', 'module' => 'admin', 'method' => 'pages');
-			$navigation[] = array('title' => 'Inquiry', 'module' => 'admin', 'method' => 'inquiry');
-			$navigation[] = array('title' => 'Users', 'module' => 'admin', 'method' => 'users');
-			$navigation[] = array('title' => 'Log Out', 'module' => 'user', 'method' => 'sign-out');
+			$navigation[] = array('title' => 'Pages', 'icon' => 'fa-newspaper-o', 'module' => 'admin', 'method' => 'pages');
+			$navigation[] = array('title' => 'Inquiry', 'icon' => 'fa-envelope-o', 'module' => 'admin', 'method' => 'inquiry');
+			$navigation[] = array('title' => 'Users', 'icon' => 'fa-users', 'module' => 'admin', 'method' => 'users');
+			$navigation[] = array('title' => 'View Site', 'icon' => 'fa-globe', 'module' => 'index');
+			//$navigation[] = array('title' => 'Log Out', 'icon' => 'fa-sign-out', 'module' => 'user', 'method' => 'sign-out');
 		}
 		render_navigation($navigation); ?>
 			</div>

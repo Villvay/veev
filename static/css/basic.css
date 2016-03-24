@@ -1,6 +1,6 @@
 
 body{
-	font-family:'Raleway', sans-serif;
+	font-family:'Titillium Web', sans-serif;
 	padding:0px;
 	margin:0px;
 	background-color:#F8F8F8;
@@ -32,12 +32,12 @@ nav.scrolling{
 nav, nav:hover{
 	width:100%;
 	text-align:center;
-	background-color:#505050;
-	border-bottom:2px solid #404040;
+	background-color:#19355F;
+	border-bottom:2px solid #0A1535;
 	top:0px;
 	z-index:8;
 	position:fixed;
-	box-shadow:0px -5px 20px #000000;
+	box-shadow:0px -3px 20px #000000;
 	opacity:1;
 	transition:all 0.5s;
 }
@@ -249,30 +249,30 @@ ul.certificates li:hover img{
 
 /* -------------------------- */
 
-ul.blog{
+ul.news{
 	list-style-type:none;
 	margin:0px;
 	padding:0px;
 	border-top:1px solid #8EAEFF;
 }
 
-ul.blog li{
+ul.news li{
 	margin:10px 0px;
 	padding:10px 0px;
 	border-bottom:1px solid #8EAEFF;
 	background-color:#FFFFFF;
 	transition:background-color 0.5s;
 }
-ul.blog li:hover{
+ul.news li:hover{
 	background-color:#FFFFF0;
 }
-ul.blog li a{
+ul.news li a{
 	color:#000000;
 }
-ul.blog li h3{
+ul.news li h3{
 	margin:0px 0px 10px 0px;
 }
-ul.blog li small{
+ul.news li small{
 	float:right;
 }
 

@@ -187,4 +187,15 @@ function row_array($resource){
 	return mysqli_fetch_array($resource);
 }
 
+function load_schema($file){
+	if (!$file = file_get_contents('schema/'.$file.'.json'))
+		return array();
+	return json_decode($file, true);
+}
+
+function write_schema($file, $schema){
+	$data = json_encode($schema);
+	file_put_contents('schema/'.$file.'.json', $data);
+}
+
 ?>
