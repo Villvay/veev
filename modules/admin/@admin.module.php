@@ -16,10 +16,11 @@
 
 	$pages_index = array('home' => 'Home Page', 'about' => 'About Us', 'contact' => 'Contact Us');
 	$pages_schema = array(
-						'stub' 	=> array('Title', 		'key' => true),
-						'en' 		=> array('English', 		'display' => 'richtext', 'table' => false),
-						'ch' 		=> array('Chinese', 		'display' => 'richtext', 'table' => false),
-						'slides' 	=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{stub}', 'table' => false),
+						'slug' 	=> array('Title', 		'key' => true, 'table' => false),
+						'title' 	=> array('Title'),
+						'lang' 	=> array('Language', 	'enum' => array('en' => 'English', 'ru' => 'Russian')),
+						'content' 	=> array('Content', 		'display' => 'richtext', 'table' => false),
+						'slides' 	=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{slug}', 'table' => false),
 						'edit' 	=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
 						'view' 	=> array('View', 		'form' => false, 'cmd' => '{key}')
 					);
@@ -32,7 +33,7 @@
 			$data['page'] = $params[0];
 			//
 			$found = false;
-			$content = $db->query('SELECT slug, en, ch FROM content WHERE stub = \''.$params[0].'\'');
+			$content = $db->query('SELECT slug, lang, title, content FROM content WHERE slug = \''.$params[0].'\'');
 			if ($content = row_assoc($content)){
 				$data['content'] = $content;
 				$found = true;
@@ -48,7 +49,7 @@
 			}
 		}
 		else
-			$data['pages'] = $db->query('SELECT slug FROM content');
+			$data['pages'] = $db->query('SELECT slug, lang, title FROM content');
 		//
 		$data['html_head'] = array('title' => 'Pages: Admin Dashboard');
 		return $data;
