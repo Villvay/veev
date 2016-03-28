@@ -15,16 +15,18 @@ This version implements a new modular design pattern.
 This is NOT an MVC framework. This is much easier to work with.
 This is a completely different perspective
 There are modules, interfaces and templates.
+A module hs a module controller and views. A module also can have sub-modules.
+Similar to models in an MVC framework, here you can create "schema" files written in either JSON or php arrays.
 
 
 ## Instructions - Getting Started
-1. Check-out this repo to a folder under var/www/html or htdocs
-2. Start Apache or WAMP
-3. Create database from the provided database.sql
-4. Make sure apache can write in to the directory (or you will have to manually copy the .htaccess and framework/config.php)
-5. Navigate to http://localhost/veev or wherever the folder you checked this out.
-6. Provide database username/password, and modify default settings as needed.
-7. configure.php will generate .hraccess and framework/config.php
+1. Clone this repo to a folder under var/www/html or htdocs
+2. Start your web server [Apache / WAMP / MAMP / LAMP]
+~~3. Create database from the provided database.sql~~
+3. Make sure apache can write in to the directory (or you will have to manually write the .htaccess and framework/config.php)
+4. Navigate to http://localhost/veev or wherever the folder you cloned this repo into.
+5. Provide database server username/password, and modify default settings as needed.
+6. Set-up script will populate the database (from database.sql), generate .htaccess and framework/config.php
 
 - Your database settings are now in framework/config.php
 - N.B: If you rename or move the project folder, you will need configure.php; delete .htaccess and framework/config.php to reconfigure.
@@ -158,6 +160,17 @@ $data['content'] = $db->select(
 		//	WHERE cat_id = 3
 		//	LIMIT 0, 10
 ```
+
+
+## Deployment
+
+### Database migration
+When initially deploying, you can upload database.sql along with the project, and the set-up script populates the initial database from that.
+Any database change afterwards can be migrated using the Database tool in Developer module from Veev extras.
+You do not have to write database migration scripts. Use whatever database management tool you are confortable with,
+and Veev will monitor any change to the database and write the migration scripts for you (veev-extras: developer/database).
+These database migration scripts can be deployed with Git or any version control tool you prefer.
+The developer/database tool from the server side can be used to apply these migration scripts at your discretion.
 
 
 ## View Helpers
