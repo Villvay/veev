@@ -1,0 +1,25 @@
+﻿{
+"language": "English",
+"flag": "icons/flags/flag_usa.png",
+
+"title": "Website Title",
+"subtitle": "Website Subtitle",
+
+"log-in": "Log in",
+"log-out": "Log out",
+"register": "Register",
+"username": "Username",
+"password": "Password",
+
+"home": "Home",
+"about": "About Us",
+"contact": "Contact Us",
+"privacy-policy": "Privacy Policy",
+"terms-of-use": "Terms of Use",
+
+"news": "News",
+"my-news": "My News",
+
+"not-found": "404: Not Found",
+"translation-not-found": "The page you requested is not available in the language you have selected."
+}

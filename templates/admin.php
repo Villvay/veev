@@ -14,7 +14,7 @@
 	<body>
 		<nav>
 			<div class="container">
-				<h1>Admin Dashboard</h1>
+				<h1><a href="<?php echo BASE_URL; ?>admin">Admin Dashboard</a></h1>
 				<div class="right f-right">
 <?php 	if (isset($user)){ ?>
 					<a><?php echo $user['username']; ?></a> &nbsp;
@@ -26,8 +26,8 @@
 			$navigation[] = array('title' => 'Pages', 'icon' => 'fa-newspaper-o', 'module' => 'admin', 'method' => 'pages');
 			$navigation[] = array('title' => 'Inquiry', 'icon' => 'fa-envelope-o', 'module' => 'admin', 'method' => 'inquiry');
 			$navigation[] = array('title' => 'Users', 'icon' => 'fa-users', 'module' => 'admin', 'method' => 'users');
+			$navigation[] = array('title' => 'Database', 'icon' => 'fa-database', 'module' => 'admin/developer', 'method' => 'database');
 			$navigation[] = array('title' => 'View Site', 'icon' => 'fa-globe', 'module' => 'index');
-			//$navigation[] = array('title' => 'Log Out', 'icon' => 'fa-sign-out', 'module' => 'user', 'method' => 'sign-out');
 		}
 		render_navigation($navigation); ?>
 			</div>

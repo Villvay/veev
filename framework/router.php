@@ -30,6 +30,13 @@ if (!isset($_SESSION['lang']))
 	$_SESSION['lang'] = 'en';
 $lang = $_SESSION['lang'];
 
+if (file_exists('data/lang/'.$lang.'.json'))
+	$lex = file_get_contents('data/lang/'.$lang.'.json');
+else
+	$lex = file_get_contents('data/lang/en.json');
+//$lex = @json_decode($lex, true); if ($lex == false)
+$lex = json_decode(substr($lex, 3), true);
+
 date_default_timezone_set('UTC');
 
 
@@ -53,34 +60,32 @@ foreach ($_POST as $key => $val)
 	$params[$key] = $val;
 
 require_once 'render.php';
-require_once 'data/lang.php';
 
 $module = str_replace('-', '_', $module);
 
 
 // Include the Module
-if (file_exists('modules/'.$module.'/@'.$module.'.module.php'))
+$submodule = false;
+if (file_exists('modules/'.$module.'/@'.$module.'.module.php')){
 	require_once 'modules/'.$module.'/@'.$module.'.module.php';
-else if (file_exists('modules/index/'.$module.'.php')){
-	require_once 'modules/index/@index.module.php';
+	if (is_dir('modules/'.$module.'/'.$method)){
+		$submodule = $method;
+		$method = array_shift($params);
+		$method = str_replace('-', '_', $method);
+		if ($method == '')
+			$method = $submodule;
+		/*if (file_exists('modules/'.$module.'/@'.$submodule.'.module.php'))require_once 'modules/'.$module.'/@'.$submodule.'.module.php';else*/
+		if (file_exists('modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php'))
+			require_once 'modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php';
+	}
+}
+else{
 	array_unshift($params, $method);
 	$method = $module;
 	$module = 'index';
+	require_once 'modules/index/@index.module.php';
 }
-else
-	require_once 'templates/error_404.php';
 $method = str_replace('-', '_', $method);
-
-$submodule = false;
-if (is_dir('modules/'.$module.'/'.$method)){
-	$submodule = $method;
-	$method = array_shift($params);
-	$method = str_replace('-', '_', $method);
-	if (file_exists('modules/'.$module.'/@'.$submodule.'.module.php'))
-		require_once 'modules/'.$module.'/@'.$submodule.'.module.php';
-	else if (file_exists('modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php'))
-		require_once 'modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php';
-}
 
 
 // Call the Method

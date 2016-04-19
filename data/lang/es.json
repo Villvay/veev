@@ -1,0 +1,25 @@
+﻿{
+"language": "Español",
+"flag": "icons/flags/flag_spain.png",
+
+"title": "Website Title",
+"subtitle": "Website Subtitle",
+
+"log-in": "Iniciar sesión",
+"log-out": "Cerrar sesión",
+"register": "Registro",
+"username": "Nombre de usuario",
+"password": "Contraseña",
+
+"home": "Casa",
+"about": "Sobre nosotros",
+"contact": "Contáctenos",
+"privacy-policy": "Política de Privacidad",
+"terms-of-use": "Términos de Uso",
+
+"news": "Noticias",
+"my-news": "Mis noticias",
+
+"not-found": "404 No Encontrado",
+"translation-not-found": "La página solicitada no está disponible en el idioma que ha seleccionado."
+}

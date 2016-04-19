@@ -6,7 +6,8 @@ var viewframeHeight = window.innerHeight;
 var viewframeWidth = window.innerWidth;
 
 var header = document.querySelectorAll('nav')[0];
-var nav = header.querySelectorAll('ul.nav')[0];
+if (header != undefined)
+	var nav = header.querySelectorAll('ul.nav')[0];
 
 var menu = document.getElementById('hamberger');
 if (menu != undefined && nav != undefined)

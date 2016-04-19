@@ -60,6 +60,22 @@ nav ul.nav, nav:hover ul.nav{
 	opacity:1;
 }
 
+ul.languages{
+	list-style-type:none;
+	margin:4px 10px 0px 0px;
+	padding:0px;
+	float:right;
+}
+
+ul.languages li{
+	display:inline;
+}
+
+ul.languages li img{
+	width:24px;
+	height:24px;
+}
+
 
 nav a, nav label, nav h1, nav h2, nav h3{
 	color:#E0E0E0;

@@ -6,8 +6,8 @@
 		<meta name="robots" content="INDEX,FOLLOW" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="shortcut icon" type="image/x-icon" href="<?php echo BASE_URL_STATIC; ?>favicon.ico" />
-		<title><?php echo isset($html_head['title']) ? $html_head['title'] : $lex[$lang]['title']; ?></title>
-		<meta property="og:title" content="<?php echo isset($html_head['title']) ? $html_head['title'] : $lex[$lang]['title']; ?>" />
+		<title><?php echo isset($html_head['title']) ? $html_head['title'] : $lex['title']; ?></title>
+		<meta property="og:title" content="<?php echo isset($html_head['title']) ? $html_head['title'] : $lex['title']; ?>" />
 		<meta property="og:site_name" content="Website Name" />
 <?php 	if (isset($html_head['description'])){ ?>
 		<meta name="description" content="<?php echo $html_head['description']; ?>" />
@@ -21,23 +21,29 @@
 	<body>
 		<nav>
 			<div class="container">
-				<h1><a href="<?php echo BASE_URL; ?>"><?php echo $lex[$lang]['title']; ?></a></h1>
+				<h1><a href="<?php echo BASE_URL; ?>"><?php echo $lex['title']; ?></a></h1>
 				<div class="right f-right">
 <?php 	if (isset($user)){ ?>
 					<a><?php echo $user['username']; ?></a> &nbsp;
-					<a href="<?php echo BASE_URL; ?>user/sign-out">Log Out</a>
+					<a href="<?php echo BASE_URL; ?>user/sign-out"><?php echo $lex['log-out']; ?></a>
 <?php 	}else{ ?>
-					<a href="<?php echo BASE_URL; ?>user/log-in"><?php echo $lex[$lang]['log-in']; ?></a>
+					<a href="<?php echo BASE_URL; ?>user/log-in"><?php echo $lex['log-in']; ?></a>
 <?php 	} ?>
 				</div>
+				<ul class="languages">
+<?php 	$languages = list_languages();
+		foreach ($languages as $code => $details){ ?>
+					<li><a href="<?php echo BASE_URL; ?>language/<?php echo $code; ?>" title="<?php echo $details['title']; ?>"><img src="<?php echo BASE_URL_STATIC; ?><?php echo $details['flag']; ?>" /></a></li>
+<?php 	} ?>
+				</ul>
 				<a id="hamberger"></a>
 <?php 	$navigation = array(
-			array('title' => $lex[$lang]['home'], 'icon' => 'fa-home'),
-			array('title' => $lex[$lang]['news'], 'icon' => 'fa-newspaper-o', 'method' => 'news'),
-			array('title' => $lex[$lang]['about'], 'icon' => 'fa-info-circle', 'method' => 'about'),
-			array('title' => $lex[$lang]['contact'], 'icon' => 'fa-envelope-o', 'method' => 'contact'));
+			//array('title' => $lex[$lang]['home'], 'icon' => 'fa-home'),
+			array('title' => $lex['news'], 'icon' => 'fa-newspaper-o', 'module' => 'news'),
+			array('title' => $lex['about'], 'icon' => 'fa-info-circle', 'method' => 'about'),
+			array('title' => $lex['contact'], 'icon' => 'fa-envelope-o', 'method' => 'contact'));
 		if (isset($user)){
-			$navigation[] = array('title' => $lex[$lang]['my-news'], 'icon' => 'fa-newspaper-o', 'module' => 'user', 'method' => 'news');
+			$navigation[] = array('title' => $lex['my-news'], 'icon' => 'fa-newspaper-o', 'module' => 'news', 'method' => 'dashboard');
 			if (isset($user) && $user['level'] > 4)
 				$navigation[] = array('title' => 'Admin', 'icon' => 'fa-dashboard', 'module' => 'admin');
 		}
@@ -52,15 +58,15 @@
 			<div class="container">
 				&copy; From Year - <?php echo date('Y'); ?> All rights reserved &nbsp; | &nbsp; Company Name
 				<div class="right f-right">
-					<a href="<?php echo BASE_URL; ?>privacy-policy">Privacy Policy</a>
+					<a href="<?php echo BASE_URL; ?>privacy-policy"><?php echo $lex['privacy-policy']; ?></a>
 					&nbsp; | &nbsp;
-					<a href="<?php echo BASE_URL; ?>terms-of-use">Terms of Use</a>
+					<a href="<?php echo BASE_URL; ?>terms-of-use"><?php echo $lex['terms-of-use']; ?></a>
 					&nbsp; | &nbsp;
-					<a href="<?php echo BASE_URL; ?>contact"><?php echo $lex[$lang]['contact']; ?></a>
+					<a href="<?php echo BASE_URL; ?>contact"><?php echo $lex['contact']; ?></a>
 				</div>
 				<ul class="social-links">
-					<li><a href="https://www.linkedin.com/company/example" target="_blank"><img src="<?php echo BASE_URL_STATIC; ?>linkedin.png" /></a></li>
-					<li><a href="https://plus.google.com/333" target="_blank"><img src="<?php echo BASE_URL_STATIC; ?>googleplus.png" /></a></li>
+					<li><a href="https://www.linkedin.com/company/example" target="_blank"><img src="<?php echo BASE_URL_STATIC; ?>icons/socialmedia/social_linked_in.png" /></a></li>
+					<li><a href="https://plus.google.com/333" target="_blank"><img src="<?php echo BASE_URL_STATIC; ?>icons/socialmedia/social_google.png" /></a></li>
 				</ul>
 			</div>
 		</footer>

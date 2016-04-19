@@ -55,7 +55,7 @@
 					if ($field['display'] == 'calendar'){
 						echo beautify_datetime($data[$key]);
 					}
-					if ($field['display'] == 'calendar,clock'){
+					if ($field['display'] == 'calendar+clock'){
 						echo beautify_datetime($data[$key]);
 					}
 					else if ($field['display'] == 'password'){
@@ -98,7 +98,7 @@
 		$autofill = false;
 		foreach ($schema as $col => $meta)
 			if (isset($meta['display'])){
-				if ($meta['display'] == 'calendar' || $meta['display'] == 'calendar,clock')
+				if ($meta['display'] == 'calendar' || $meta['display'] == 'calendar+clock')
 					$calendar = true;
 				else if ($meta['display'] == 'file')
 					$file_upload = true;
@@ -275,7 +275,7 @@ tinymce.init({
 							render_dropdown($col.'['.$key.']', $meta['enum'], $row[$col], $col, (isset($meta['onchange']) ? $meta['onchange'] : false), true);
 						else if ($meta['table-display'] == 'calendar')
 							echo '<input type="text" class="form-control '.$col.'" name="'.$col.'['.$key.']" value="'.substr($row[$col], 0, 10).'" '.(isset($meta['onchange']) ? 'onchange="'.$meta['onchange'].'"' : '').'onfocus="return ShowCalendar(this);" readonly="true" />';
-						else if ($meta['table-display'] == 'calendar,clock')
+						else if ($meta['table-display'] == 'calendar+clock')
 							echo '<input type="text" class="form-control '.$col.'" name="'.$col.'['.$key.']" value="'.$row[$col].'" onfocus="return ShowCalendar(this, \'clock\');" readonly="true" />';
 						else if ($meta['table-display'] == 'small')
 							echo '<small>'.$row[$col].'</small>';
@@ -289,7 +289,7 @@ tinymce.init({
 					else if (isset($meta['autofill']))
 						echo isset($meta['autofill'][$row[$col]]) ? (is_array($meta['autofill'][$row[$col]]) ? $meta['autofill'][$row[$col]][0] : $meta['autofill'][$row[$col]]) : '-';
 					else if (isset($meta['display'])){
-						if ($meta['display'] == 'calendar' || $meta['display'] == 'calendar,clock')
+						if ($meta['display'] == 'calendar' || $meta['display'] == 'calendar+clock')
 							echo beautify_datetime($row[$col]);
 						else
 							echo $row[$col];
@@ -319,7 +319,7 @@ tinymce.init({
 	// ========================================================
 
 	function render_navigation($data, $classname = 'nav'){
-		global $module, $method; ?>
+		global $module, $submodule, $method, $page; ?>
 				<ul class="<?php echo $classname; ?>">
 <?php 	foreach ($data as $link){
 			$path = ( isset($link['module']) ? $link['module'] : '' ) . ( isset($link['module']) && isset($link['method']) ? '/' : '' ) . ( isset($link['method']) ? $link['method'] : '' );
@@ -327,7 +327,7 @@ tinymce.init({
 				$link['module'] = 'index';
 			if (!isset($link['method']))
 				$link['method'] = 'index'; ?>
-					<li<?php echo $module == $link['module'] && $method == $link['method'] ? ' class="current"' : ''; ?>>
+					<li<?php echo ($module == $link['module'] || $module.'/'.$submodule == $link['module']) && ($method == $link['method'] || $page == $link['method']) ? ' class="current"' : ''; ?>>
 <?php 		if (isset($link['submenu'])){ ?>
 						<label>
 							<?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><input type="checkbox" class="nav-chk" name="<?php echo str_replace('/', '-', $path); ?>"><?php echo $link['title']; ?>
@@ -341,6 +341,61 @@ tinymce.init({
 <?php 	} ?>
 				</ul>
 <?php }
+
+	// ========================================================
+
+	function render_slider($path){
+		$files_path = STATIC_FILES_ROOT.$path.'/';
+		$slides = array();
+		if (is_dir($files_path) && $dh = opendir($files_path)){
+			while (($file = readdir($dh)) !== false){
+				if ($file == '.' || $file == '..' || is_dir($files_path.$file)){//$files_path.'/'.$file
+				}
+				else if (substr($file, 0, 6) == 'thumb_'){
+					$slides[] = substr($file, 6);
+				}
+			}
+			closedir($dh);
+		}
+		if (count($slides) > 0){ ?>
+<script src="<?php echo BASE_URL_STATIC; ?>js/slides.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/slides.css" />
+<ul class="slides">
+<?php 		foreach ($slides as $slide){ ?>
+	<li><img src="<?php echo BASE_URL_STATIC; ?><?php echo $path; ?>/<?php echo $slide; ?>" /></li>
+<?php 		} ?>
+</ul>
+<script>new slideShow(document.querySelectorAll('ul.slides')[0]);</script>
+<?php 	}
+	}
+
+	function list_languages(){
+		$files_path = './data/lang/';
+		$indexCreatedOn = @filemtime($files_path.'index.db');
+		$index = @unserialize(gzinflate(file_get_contents($files_path.'index.db')));
+		if (!$index)
+			$index = array();
+		$langs = array();
+		$indexChanged = false;
+		$dh = opendir($files_path);
+		while (($file = readdir($dh)) !== false){
+			if (substr($file, -5) == '.json'){
+				$langs[] = substr($file, 0, -5);
+				if (filemtime($files_path.$file) > $indexCreatedOn){
+					$lang = json_decode(substr(file_get_contents($files_path.$file), 3), true);
+					$index[substr($file, 0, -5)] = array($lang['language'], 'title' => $lang['language'], 'flag' => $lang['flag']);
+					$indexChanged = true;
+				}
+			}
+		}
+		closedir($dh);
+		foreach ($index as $key => $val)
+			if (!in_array($key, $langs))
+				unset($index[$key]);
+		if ($indexChanged)
+			file_put_contents($files_path.'index.db', gzdeflate(serialize($index)));
+		return $index;
+	}
 
 	// ========================================================
 
