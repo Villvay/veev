@@ -19,7 +19,7 @@
 						'slug' 	=> array('Title', 		'key' => true, 'table' => false),
 						'title' 	=> array('Title'),
 						'lang' 	=> array('Language', 	'enum' => list_languages()),
-						'content' 	=> array('Content', 	'display' => 'richtext', 'table' => false),
+						'content' 	=> array('Content', 		'display' => 'richtext', 'table' => false),
 						'slides' 	=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{slug}', 'table' => false),
 						'edit' 	=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
 						'view' 	=> array('View', 		'form' => false, 'cmd' => '{key}')
@@ -75,6 +75,7 @@
 						'password' 	=> array('Password', 	'table' => false, 'display' => 'password', 'form-width' => '50'),
 						'email' 		=> array('Email'),
 						'level' 		=> array('Level', 		'enum' => $user_levels),
+						'auth' 		=> array('Authorized Modules', 'enum' => array()),
 						'timezone' 	=> array('Time Zone'),
 						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/edit-user/{key}', 'default' => true)
 					);
@@ -90,12 +91,26 @@
 		return $data;
 	}
 
-	function edit_user($params){
-		global $users_schema, $user, $timezones;
-		//$timezones = timezone_identifiers_list();
-		//$timezones = array_combine($timezones, $timezones);
+	function _add_edit_user($params){
+		global $users_schema, $timezones, $method;
+		$method = '_add_edit_user';
 		$users_schema['timezone']['enum'] = $timezones;
-		$data = array('schema' => $users_schema);
+		$data = array('schema' => $users_schema);//, 'modules' => array()
+		//
+		if ($dh = opendir('./modules/')){
+			while (($file = readdir($dh)) !== false){
+				if ($file != '.' && $file != '..' && is_dir('./modules/'.$file)){
+					$data['schema']['auth']['enum'][$file] = $file;
+				}
+			}
+			closedir($dh);
+		}
+		return $data;
+	}
+
+	function edit_user($params){
+		global $user;
+		$data = _add_edit_user($params);
 		$db = connect_database();
 		//
 		$data['a_user'] = row_assoc($db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND id = '.$params[0]));
@@ -106,10 +121,8 @@
 	}
 
 	function add_user($params){
-		global $users_schema, $user, $timezones;
-		$users_schema['timezone']['enum'] = $timezones;
-		$data = array('schema' => $users_schema);
-		//
+		global $user;
+		$data = _add_edit_user($params);
 		$data['a_user'] = array('id' => 'new', 'username' => '', 'password' => '', 'email' => '', 'level' => '1', 'timezone' => $user['timezone']);
 		//
 		$data['html_head'] = array('title' => 'Add User Account');

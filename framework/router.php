@@ -5,7 +5,7 @@ $db_connection = false;
 
 // RESOLVE REQUEST URL
 $server_name = $_SERVER['SERVER_NAME'];
-define ('BASE_URL', 'http://'.$server_name.PATH);
+define ('BASE_URL', PROTOCOL.'://'.$server_name.(PORT==''?'':':'.PORT).PATH);
 
 $subdomain = explode('.', $server_name);
 if (count($subdomain) > 2)

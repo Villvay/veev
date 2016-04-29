@@ -5,7 +5,7 @@
 
 <form method="post">
 	<a href="<?php echo BASE_URL; ?>admin/developer/database/export" class="button">Export Schema (to file) <i class="fa fa-database"></i> <i class="fa fa-arrow-right"></i> <i class="fa fa-file"></i></a>
-	<input type="submit" data-href="<?php echo BASE_URL; ?>admin/developer/database/import" value="Import Schema (to database) &#xf15b; &#xf061; &#xf1c0;" />
+	<input type="submit" data-href="<?php echo BASE_URL; ?>admin/developer/database/import" value="Import Schema (to database)" />
 
 <small><p>After changing Database schema on localhost, <i>Export Schema</i>; it will be written to a file. Commit it to your repository/VCS.<br/>
 After updating the project (with your favourite VCS), any database change will be listed here,<br/>

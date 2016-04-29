@@ -81,6 +81,7 @@ ul.prods li .sel{
 	box-sizing:border-box;
 	font-size:10pt;
 	border:1px solid #D5DEF4;
+	line-height:11pt;
 	border-radius:2px;
 	box-shadow:1px 1px 10px -5px #000000;
 	transition:box-shadow 1s;

@@ -63,8 +63,11 @@
 		$data['schema'] = $table_schema;
 		//
 		if (isset($params[0]) && $params[0] == 'export'){	//	CHECK IF THERE ARE CONFLICTS
-			file_put_contents('data/schema.db', gzdeflate(serialize($data['tables'])));
-			flash_message('Database schema is exported', 'success');
+			$result = file_put_contents('data/schema.db', gzdeflate(serialize($data['tables'])));
+			if ($result)
+				flash_message('Database schema is exported', 'success');
+			else
+				flash_message('No permission to write to data/schema.db', 'warning');
 			redirect('admin/developer', 'database');
 		}
 		//
