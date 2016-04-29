@@ -1,11 +1,15 @@
 <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/datatable.css" />
 <h2>Database</h2>
 
-<form method="post">
-<input type="submit" data-href="<?php echo BASE_URL; ?>admin/developer/database/import" value="Import Schema" />
-<a href="<?php echo BASE_URL; ?>admin/developer/database/export" class="button">Export Schema</a>
+<p>This allows you synchronize database schema changes between two or more deployments of a Veev app.</p>
 
-<small><p>After updating the project, any database change will be listed here, you can import database changes to your localhost from that file.<br/>After changing Database schema on localhost, <i>Export Schema</i>; it will be written to a file. Commit it to your repository/VCS.</p></small>
+<form method="post">
+	<a href="<?php echo BASE_URL; ?>admin/developer/database/export" class="button">Export Schema (to file) <i class="fa fa-database"></i> <i class="fa fa-arrow-right"></i> <i class="fa fa-file"></i></a>
+	<input type="submit" data-href="<?php echo BASE_URL; ?>admin/developer/database/import" value="Import Schema (to database) &#xf15b; &#xf061; &#xf1c0;" />
+
+<small><p>After changing Database schema on localhost, <i>Export Schema</i>; it will be written to a file. Commit it to your repository/VCS.<br/>
+After updating the project (with your favourite VCS), any database change will be listed here,<br/>
+&nbsp; &nbsp; &nbsp; you can import database changes to your localhost database from that file.</p></small>
 
 <?php /* table width="100%">
 	<tr>

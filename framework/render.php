@@ -139,7 +139,7 @@
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo substr($data[$key], 0, 10); ?>" data-validate="date" onfocus="ShowCalendar(this, 'clock');" readonly="true" />
 <?php 				}
 					else if ($field['display'] == 'password'){ ?>
-				<input type="password" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
+				<input type="password" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>"<?php /*echo isset($field['autocomplete']) && !$field['autocomplete'] ? ' autocomplete="smartass"' : '';*/ ?> />
 <?php 				}
 					else if ($field['display'] == 'textarea' || $field['display'] == 'richtext'){ ?>
 				<textarea name="<?php echo $key; ?>" rows="1" class="form-control<?php echo $field['display'] == 'richtext' ? ' richtext' : ''; ?>"><?php echo $data[$key]; ?></textarea>

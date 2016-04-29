@@ -10,7 +10,7 @@
 	</li>
 	<li>
 		<a href="<?php echo BASE_URL; ?>admin/inquiry" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/mail_alert.png" />
+			<img src="<?php echo BASE_URL_STATIC; ?>icons/mail_download.png" />
 			<br/>Inquiry
 		</a>
 	</li>
@@ -18,6 +18,12 @@
 		<a href="<?php echo BASE_URL; ?>admin/users" class="sel">
 			<img src="<?php echo BASE_URL_STATIC; ?>icons/user_group.png" />
 			<br/>Users
+		</a>
+	</li>
+	<li>
+		<a href="<?php echo BASE_URL; ?>admin/developer/vcs" class="sel">
+			<img src="<?php echo BASE_URL_STATIC; ?>icons/copy-document.png" />
+			<br/>Version Control
 		</a>
 	</li>
 	<li>

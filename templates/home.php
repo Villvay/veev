@@ -24,7 +24,7 @@
 				<h1><a href="<?php echo BASE_URL; ?>"><?php echo $lex['title']; ?></a></h1>
 				<div class="right f-right">
 <?php 	if (isset($user)){ ?>
-					<a><?php echo $user['username']; ?></a> &nbsp;
+					<a href="<?php echo BASE_URL; ?>user"><?php echo $user['username']; ?></a> &nbsp;
 					<a href="<?php echo BASE_URL; ?>user/sign-out"><?php echo $lex['log-out']; ?></a>
 <?php 	}else{ ?>
 					<a href="<?php echo BASE_URL; ?>user/log-in"><?php echo $lex['log-in']; ?></a>
@@ -45,7 +45,7 @@
 		if (isset($user)){
 			$navigation[] = array('title' => $lex['my-news'], 'icon' => 'fa-newspaper-o', 'module' => 'news', 'method' => 'dashboard');
 			if (isset($user) && $user['level'] > 4)
-				$navigation[] = array('title' => 'Admin', 'icon' => 'fa-dashboard', 'module' => 'admin');
+				$navigation[] = array('title' => $lex['admin-dashboard'], 'icon' => 'fa-dashboard', 'module' => 'admin');
 		}
 		render_navigation($navigation); ?>
 			</div>

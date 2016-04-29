@@ -78,7 +78,7 @@ ob_start();
 		</tr>
 		<tr>
 			<td>DB_NAME</td>
-			<td><input type="text" name="db_name" value="<?php echo isset($_POST['db_name']) ? $_POST['db_name'] : 'database'; ?>" /></td>
+			<td><input type="text" name="db_name" value="<?php echo isset($_POST['db_name']) ? $_POST['db_name'] : $path/*'database'*/; ?>" /></td>
 		</tr>
 		<tr>
 			<td>DB_USER</td>

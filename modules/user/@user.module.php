@@ -7,6 +7,7 @@
 		//
 		if (!isset($_SESSION['user']) && $method != 'log_in')
 			redirect('user', 'log_in');
+		flash_message('Under Construction', 'warning');
 		//
 		$data['html_head'] = array('title' => 'User Dashboard');
 		return $data;

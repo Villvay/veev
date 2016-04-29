@@ -19,7 +19,7 @@
 						'slug' 	=> array('Title', 		'key' => true, 'table' => false),
 						'title' 	=> array('Title'),
 						'lang' 	=> array('Language', 	'enum' => list_languages()),
-						'content' 	=> array('Content', 		'display' => 'richtext', 'table' => false),
+						'content' 	=> array('Content', 	'display' => 'richtext', 'table' => false),
 						'slides' 	=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{slug}', 'table' => false),
 						'edit' 	=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
 						'view' 	=> array('View', 		'form' => false, 'cmd' => '{key}')
@@ -60,6 +60,7 @@
 	function inquiry($params){
 		$data = array();
 		//
+		flash_message('Under Construction', 'warning');
 		//
 		$data['html_head'] = array('title' => 'Inquiry: Admin Dashboard');
 		return $data;

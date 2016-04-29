@@ -14,18 +14,25 @@
 	<body>
 		<nav>
 			<div class="container">
-				<h1><a href="<?php echo BASE_URL; ?>admin">Admin Dashboard</a></h1>
+				<h1><a href="<?php echo BASE_URL; ?>admin"><?php echo $lex['admin-dashboard']; ?></a></h1>
 				<div class="right f-right">
 <?php 	if (isset($user)){ ?>
-					<a><?php echo $user['username']; ?></a> &nbsp;
-					<a href="<?php echo BASE_URL; ?>user/sign-out">Log Out</a>
+					<a href="<?php echo BASE_URL; ?>user"><?php echo $user['username']; ?></a> &nbsp;
+					<a href="<?php echo BASE_URL; ?>user/sign-out"><?php echo $lex['log-out']; ?></a>
 <?php 	} ?>
 				</div>
+				<ul class="languages">
+<?php 	$languages = list_languages();
+		foreach ($languages as $code => $details){ ?>
+					<li><a href="<?php echo BASE_URL; ?>language/<?php echo $code; ?>" title="<?php echo $details['title']; ?>"><img src="<?php echo BASE_URL_STATIC; ?><?php echo $details['flag']; ?>" /></a></li>
+<?php 	} ?>
+				</ul>
 <?php 	$navigation = array();
 		if (isset($user) && $user['level'] > 4){
 			$navigation[] = array('title' => 'Pages', 'icon' => 'fa-newspaper-o', 'module' => 'admin', 'method' => 'pages');
 			$navigation[] = array('title' => 'Inquiry', 'icon' => 'fa-envelope-o', 'module' => 'admin', 'method' => 'inquiry');
 			$navigation[] = array('title' => 'Users', 'icon' => 'fa-users', 'module' => 'admin', 'method' => 'users');
+			$navigation[] = array('title' => 'Version Control', 'icon' => 'fa-upload', 'module' => 'admin/developer', 'method' => 'vcs');
 			$navigation[] = array('title' => 'Database', 'icon' => 'fa-database', 'module' => 'admin/developer', 'method' => 'database');
 			$navigation[] = array('title' => 'View Site', 'icon' => 'fa-globe', 'module' => 'index');
 		}

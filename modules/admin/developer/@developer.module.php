@@ -72,6 +72,15 @@
 		return $data;
 	}
 
+	function vcs($params){
+		$data = array();
+		//
+		flash_message('Under Construction', 'warning');
+		//
+		$data['html_head'] = array('title' => 'Version Control System');
+		return $data;
+	}
+
 	function _create_query($table, $schema){
 		$query = 'CREATE TABLE `'.$table.'` (';
 		$primKey = array();
