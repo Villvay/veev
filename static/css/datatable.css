@@ -40,6 +40,11 @@ table.table-striped tr td a{
 	text-decoration:none;
 }
 
+table.table-striped tr td a.button{
+	margin: -7px 0px -7px 5px;
+	padding: 4px 6px;
+}
+
 table.table-striped tr.alt_row td, table.table-striped tr:nth-child(odd) td{
 	background-color:#F6F6F6;
 }
@@ -58,7 +63,7 @@ table.table-striped tr:hover td{
 	display:block;
 }
 
-.form-group input, .form-group select, .form-group textarea{
+.form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group select, .form-group textarea{
 	width:100%;
 }
 .form-group iframe{

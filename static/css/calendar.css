@@ -40,11 +40,13 @@ div#calendar_controllers select, div#calendar_controllers input{
 	position:relative;
 }
 div#calendar_controllers select{
-	height:24px;
-	top:-1px;
+	height:28px;
+	top:-3px;
 }
 div#calendar_controllers input{
 	height:24px;
+	line-height:8px;
+	top:-3px;
 }
 
 div.cal_head_row{
@@ -99,7 +101,8 @@ div#calendar_controllers input.close_button{
 	/*width:20px;
 	height:20px;
 	padding:0px;*/
-	top:-1px;
+	top:-3px;
+	line-height:8px;
 	border:1px solid #FF4040;
 	color:#FF4040;
 	background-color:#FFC0C0;

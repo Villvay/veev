@@ -50,10 +50,10 @@ ul.list li div.w3{
 
 /* ----------------- */
 
-textarea{
+/*textarea{
 	width:100%;
 	height:250px;
-}
+}*/
 
 iframe.image-library{
 	width:100%;
@@ -89,6 +89,7 @@ form table tr td:last-child{
 }
 
 input[type="text"], input[type="password"], input[type="email"], select, textarea{
+	font-size:11pt;
 	font-family:'Titillium Web','Open Sans',sans-serif;
 	/*background-color:#FFFFFF;
 	color:#404040;*/
@@ -99,7 +100,9 @@ input[type="text"], input[type="password"], input[type="email"], select, textare
 	border:0px none;
 	border-bottom:2px solid #D8D8D8;
 	background-color:#F4F4F4;
-	border-radius:3px;
+}
+form.data-form input[type="text"], form.data-form input[type="password"], form.data-form input[type="email"], form.data-form select, form.data-form textarea{
+	width:100%;
 }
 input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, select:focus, textarea:focus{
 	background-color:#F8F8F0;
@@ -107,13 +110,18 @@ input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focu
 input[disabled], select[disabled], textarea[disabled]{
 	color:#666666;
 }
+input[readonly], select[readonly], textarea[readonly]{
+	color:#666666;
+	background-color:#F8F8F8;
+	border-bottom:2px solid #E8E8E8;
+}
 select{
 	outline:0px;
 	padding:3px 8px;
 }
-textarea{
+/*textarea{
 	height:200px;
-}
+}*/
 input[type="checkbox"], input[type="radio"]{
 	width:21px;
 	height:21px;
@@ -169,6 +177,15 @@ a.button i.fa{
 input[type="submit"][disabled], input[type="button"][disabled], button, a.button.disabled{
 	background-color:#849EB8;
 	border-bottom:2px solid #687BA2;
+}
+
+div.form-group{
+	margin-bottom:15px;
+}
+
+div.form-group label{
+	display:block;
+	margin-bottom:5px;
 }
 
 

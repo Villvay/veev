@@ -152,6 +152,8 @@ $thirty2k_secret = base64_encode(md5($thirty2k_app_id.'NaCl', true));
 			'define (\'BASE_URL_STATIC\', \''+document.config.base_url_static.value+'\');\n'+
 			'define (\'STATIC_FILES_ROOT\', \''+document.config.static_files_root.value+'\');\n'+
 			'\n'+
+			'define (\'PUBLIC_MODULES\', \'index|user\');\n'+
+			'\n'+
 			'// Database settings\n'+
 			'define (\'DB_HOST\', \''+document.config.db_host.value+'\');\n'+
 			'define (\'DB_NAME\', \''+document.config.db_name.value+'\');\n'+

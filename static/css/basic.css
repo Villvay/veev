@@ -1,6 +1,6 @@
 
 body{
-	font-family:'Titillium Web', sans-serif;
+	font-family:'Titillium Web','Open Sans',sans-serif;
 	padding:0px;
 	margin:0px;
 	background-color:#F8F8F8;
@@ -166,6 +166,11 @@ a.current{
 	display:inline-block;
 }
 
+
+.half{
+	width:50%;
+	float:left;
+}
 
 .f-right{
 	float:right;
