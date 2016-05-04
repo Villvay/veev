@@ -23,7 +23,7 @@
 			<div class="container">
 				<h1><a href="<?php echo BASE_URL; ?>"><?php echo $lex['title']; ?></a></h1>
 				<div class="right f-right">
-<?php 	if (isset($user)){ ?>
+<?php 	if ($user['id'] > 0){ ?>
 					<a href="<?php echo BASE_URL; ?>user"><?php echo $user['username']; ?></a> &nbsp;
 					<a href="<?php echo BASE_URL; ?>user/sign-out"><?php echo $lex['log-out']; ?></a>
 <?php 	}else{ ?>
@@ -38,14 +38,12 @@
 				</ul>
 				<a id="hamberger"></a>
 <?php 	$navigation = array(
-			//array('title' => $lex[$lang]['home'], 'icon' => 'fa-home'),
 			array('title' => $lex['news'], 'icon' => 'fa-newspaper-o', 'module' => 'news'),
 			array('title' => $lex['about'], 'icon' => 'fa-info-circle', 'method' => 'about'),
 			array('title' => $lex['contact'], 'icon' => 'fa-envelope-o', 'method' => 'contact'));
-		if (isset($user)){
+		if ($user['id'] > 0){
 			$navigation[] = array('title' => $lex['my-news'], 'icon' => 'fa-newspaper-o', 'module' => 'news', 'method' => 'dashboard');
-			if (isset($user) && $user['level'] > 4)
-				$navigation[] = array('title' => $lex['admin-dashboard'], 'icon' => 'fa-dashboard', 'module' => 'admin');
+			$navigation[] = array('title' => $lex['admin-dashboard'], 'icon' => 'fa-dashboard', 'module' => 'admin');
 		}
 		render_navigation($navigation); ?>
 			</div>

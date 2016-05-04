@@ -105,7 +105,7 @@
 	function _subfolders($path){
 		$dh = opendir($path);
 		$data = array();
-		$public_modules = array_merge(array('.', '..'), explode('|', PUBLIC_MODULES));
+		$public_modules = array_merge(array('.', '..'), array_keys(json_decode(PUBLIC_MODULES, true)));
 		while (($file = readdir($dh)) !== false){
 			if (!in_array($file, $public_modules) && is_dir($path.$file)){
 				$data[] = array($file, _subfolders($path.$file.'/'));
@@ -140,8 +140,14 @@
 		global $user;
 		$db = connect_database();
 		if ($params['password'] != '[encrypted]')
-			$params['password'] = md5($params['password'].':NaCl');
-		$params['auth'] = json_encode($params['auth']);
+			$params['password'] = md5($params['password'].':'.COMMON_SALT);
+		//
+		$auth = array();
+		foreach ($params['auth'] as $module => $acl){
+			unset($acl['full']);
+			$auth[$module] = array_keys($acl);
+		}
+		$params['auth'] = json_encode($auth);
 		//
 		if ($params['id'] == 'new'){
 			unset($params['id']);
