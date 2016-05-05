@@ -39,6 +39,7 @@
 	// ========================================================
 
 	function render_data_view($schema, $data, $edit_action = false){
+		global $acl;
 		echo '<br/>';
 		foreach ($schema as $key => $field){
 			if (isset($field['key']) && $field['key'] || (isset($field['display']) && $field['display'] == 'hidden')){
@@ -83,7 +84,7 @@
 		</div>
 <?php 		}
 		}
-		if ($edit_action != false){ ?>
+		if (isset($acl['edit']) && $edit_action != false){ ?>
 		<input class="btn" type="button" value="Edit" onclick="window.location='<?php echo BASE_URL.$edit_action; ?>';" />
 <?php 	} ?>
 		<input class="btn" type="button" value="Back" onclick="window.history.back();" />
@@ -321,9 +322,10 @@ tinymce.init({
 	// ========================================================
 
 	function render_navigation($data, $classname = 'nav'){
-		global $module, $submodule, $method, $page; ?>
+		global $user, $module, $submodule, $method, $page; ?>
 				<ul class="<?php echo $classname; ?>">
 <?php 	foreach ($data as $link){
+			//$acl = checkIfAuthorized($user, $link['module'], $submodule = false)
 			$path = ( isset($link['module']) ? $link['module'] : '' ) . ( isset($link['module']) && isset($link['method']) ? '/' : '' ) . ( isset($link['method']) ? $link['method'] : '' );
 			if (!isset($link['module']))
 				$link['module'] = 'index';
