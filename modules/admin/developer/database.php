@@ -11,23 +11,6 @@
 After updating the project (with your favourite VCS), any database change will be listed here,<br/>
 &nbsp; &nbsp; &nbsp; you can import database changes to your localhost database from that file.</p></small>
 
-<?php /* table width="100%">
-	<tr>
-		<td width="100%" valign="top">
-			Localhost
-<pre>
-<?php print_r($tables); ?>
-</pre>
-		</td>
-		<td width="100%" valign="top">
-			Schema File
-<pre>
-<?php print_r($import); ?>
-</pre>
-		</td>
-	</tr>
-</table */ ?>
-
 <?php
 	foreach ($import as $table => $tblSchema){
 		render_tbl($table, $tblSchema, $schema, $tables, 'new');
@@ -40,9 +23,7 @@ After updating the project (with your favourite VCS), any database change will b
 </form>
 
 <?php function render_tbl($table, $tblSchema, $schema, $import, $direction = 'new'){
-		$sql = isset($import[$table]) ? '' : ($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table));
-		/*/echo isset($import[$table]) ? '' : '<input type="hidden" name="sql[]" value="'.($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table)).'" />';
-<?php /* input type="hidden" name="sql[]" value="<?php echo isset($import[$table]) ? '' : ''.($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table)).''; ?>" / */ ?>
+		$sql = isset($import[$table]) ? '' : ($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table)); ?>
 <section class="<?php echo isset($import[$table]) ? 'exist' : $direction; ?>">
 	<h3><?php echo $table; ?></h3>
 	<table class="table table-striped tbl-<?php echo $table; ?>" width="100%">
@@ -77,7 +58,6 @@ After updating the project (with your favourite VCS), any database change will b
 			$sql = 'ALTER TABLE '.$table.$sql.';'; ?>
 		</tbody>
 	</table>
-	<?php /* input type="hidden" value="<?php echo $sql; ?>" */ ?>
 	<textarea name="sql[]"><?php echo $sql; ?></textarea>
 </section>
 <br /><br />
@@ -98,23 +78,11 @@ After updating the project (with your favourite VCS), any database change will b
 				$changedIn = false;
 				if ($changed){
 					$changedIn = $row[$col] != $import[$table][$field][$col];
-					/*if ($changedIn){
-						if ($col == 'Type')
-							$sql .= ' '.$row[$col];
-						else if ($col == 'Size')
-							$sql .= '('.$row[$col].')';
-						else if ($col == 'Null')
-							$sql .= $row['Null'] == 'NO' ? ' NOT NULL' : ' NULL';
-						else if ($col == 'Extra' && $row['Extra'] == 'auto_increment')
-							$sql .= ' AUTO_INCREMENT';
-						else if ($col == 'Default')
-							$sql .= ' DEFAULT '.($row['Default'] == '' ? 'NULL' : '\''.$row['Default'].'\'');
-					}*/
 				} ?>
 				<td class="<?php echo $changedIn ? 'changed' : ''; ?>"><?php echo $changedIn ? $import[$table][$field][$col].' =&gt; ' : ''; ?><?php echo $row[$col]; ?></td>
 <?php 		} ?>
 			</tr>
-<?php 	//return $changed;
+<?php
 	} ?>
 
 <style>

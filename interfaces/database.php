@@ -7,14 +7,10 @@ class MySQL{
    var $Password = DB_PASS;
    var $Link_ID = false;
    var $Query_ID = 0;
-   var $Record   = array();
+   var $Record = array();
    var $Row;
    var $Errno = 0;
    var $Error = '';
-
-   function halt($msg){
-	die($msg);
-   }
 
     public function __construct($database = false){
 	if ($database != false)
@@ -23,27 +19,34 @@ class MySQL{
 
    function connect(){
       if($this->Link_ID === false){
-	 $this->Link_ID = mysqli_connect($this->Host, $this->User, $this->Password, $this->Database);
+	 $this->Link_ID = mysqli_connect(DB_HOST, $this->User, $this->Password, $this->Database);
          if (mysqli_connect_errno()){
-            $this->halt('Database connection failure: '.mysqli_connect_error());
+	    errorHandler(1, mysqli_connect_error(), 'framework/config.php', 26);
          }
-         /*$SelectResult = mysqli_select_db($this->Link_ID, $this->Database);
-         if(!$SelectResult){
-            $this->Errno = mysqli_errno($this->Link_ID);
-            $this->Error = mysqli_error($this->Link_ID);
-            $this->halt('Database not found: <i>'.$this->Database.'</i>');
-         }*/
       }
    }
 
    function query($Query_String){
       $this->connect();
+      $type = explode(' ', $Query_String);
+      $type = strtoupper($type[0]);
+      global $acl;
+      if ((in_array($type, array('SELECT', 'DESCRIBE')) && !isset($acl['view'])) ||
+		(in_array($type, array('INSERT', 'CREATE')) && !isset($acl['add'])) ||
+		(in_array($type, array('UPDATE', 'ALTER')) && !isset($acl['edit'])) ||
+		(in_array($type, array('DELETE', 'DROP', 'TRUNCATE')) && !isset($acl['delete']))){
+	 ob_clean();
+	 global $lex, $user;
+	 require_once 'templates/error_401.php';
+	 die();
+      }
       $this->Query_ID = mysqli_query($this->Link_ID, $Query_String);
       $this->Row = 0;
       $this->Errno = mysqli_errno($this->Link_ID);
       $this->Error = mysqli_error($this->Link_ID);
       if (!$this->Query_ID){
-         $this->halt('SQL Error: <br/><pre>'.str_replace(array('FROM', 'WHERE', 'AND', 'ORDER'), array('<br/>FROM', '<br/>WHERE', '<br/> &nbsp; AND', '<br/>ORDER'), $Query_String).'</pre><br/>'.$this->Error);
+	 $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	 errorHandler(1, $this->Error.'<br/><pre>'.str_replace(array('FROM', 'WHERE', 'AND', 'ORDER'), array('<br/>FROM', '<br/>WHERE', '<br/> &nbsp; AND', '<br/>ORDER'), $Query_String).'</pre>', $backtrace[0]['file'], $backtrace[0]['line']);
       }
       return $this->Query_ID;
    }
@@ -107,7 +110,6 @@ class MySQL{
 		$sql = 'UPDATE `'.$table.'` SET '.$qpart.' WHERE id = '.$params['id'];
 	else
 		$sql = 'UPDATE `'.$table.'` SET '.$qpart.' WHERE '.$conditions;
-	//echo $sql;
 	$this->query($sql);
    }
 
@@ -133,7 +135,6 @@ class MySQL{
 		}
 	}
 	$sql = 'INSERT INTO `'.$table.'`('.$qpart1.') VALUES('.$qpart2.')';
-	//echo $sql;
 	$this->query($sql);
 	return mysqli_insert_id($this->Link_ID);
    }
@@ -143,7 +144,6 @@ class MySQL{
 		$sql = 'DELETE FROM '.$table.' WHERE id = '.$id;
 	else
 		$sql = 'DELETE FROM '.$table.' WHERE '.$conditions;
-	//echo $sql;
 	$this->query($sql);
    }
 

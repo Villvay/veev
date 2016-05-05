@@ -6,7 +6,7 @@ $db_connection = false;
 // RESOLVE REQUEST URL
 $server_name = $_SERVER['SERVER_NAME'];
 define ('BASE_URL', PROTOCOL.'://'.$server_name.(PORT==''?'':':'.PORT).PATH);
-//define ('BASE_URL', (defined(PROTOCOL)?PROTOCOL:'http').'://'.$server_name.(defined(PORT) && PORT==''? '':':'.PORT).PATH);
+//define ('BASE_URL', (defined(PROTOCOL)?PROTOCOL:'http').'://'.$server_name.(!defined(PORT) || PORT==''? '':':'.PORT).PATH);
 
 $subdomain = explode('.', $server_name);
 if (count($subdomain) > 2)
@@ -20,7 +20,7 @@ $params = explode('/', $query_string);
 $params_count = count($params);
 
 
-//	SESSION RELATED
+//	SESSION/ACL RELATED
 include 'interfaces/user_tracking.php';
 //ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
 session_start();
@@ -37,6 +37,13 @@ else
 $lex = json_decode(substr($lex, 3), true);
 
 date_default_timezone_set($user['timezone']);
+
+function checkIfAuthorized($user, $module, $submodule = false){
+	if (!isset($user['auth'][$module.($submodule==false?'':'/'.$submodule)]))
+		return false;
+	else
+		return array_flip($user['auth'][$module.($submodule==false?'':'/'.$submodule)]);
+}
 
 
 // Determine the Module
@@ -65,24 +72,39 @@ $module = str_replace('-', '_', $module);
 
 // Include the Module
 $submodule = false;
+global $acl;
 if (file_exists('modules/'.$module.'/@'.$module.'.module.php')){
-	require_once 'modules/'.$module.'/@'.$module.'.module.php';
-	if (is_dir('modules/'.$module.'/'.$method)){
-		$submodule = $method;
-		$method = array_shift($params);
-		$method = str_replace('-', '_', $method);
-		if ($method == '')
-			$method = $submodule;
-		/*if (file_exists('modules/'.$module.'/@'.$submodule.'.module.php'))require_once 'modules/'.$module.'/@'.$submodule.'.module.php';else*/
-		if (file_exists('modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php'))
-			require_once 'modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php';
+	$acl = checkIfAuthorized($user, $module);
+	if ($acl !== false){
+		require_once 'modules/'.$module.'/@'.$module.'.module.php';
+		//
+		if (is_dir('modules/'.$module.'/'.$method)){
+			$submodule = $method;
+			$method = array_shift($params);
+			$method = str_replace('-', '_', $method);
+			if ($method == '')
+				$method = $submodule;
+			/*if (file_exists('modules/'.$module.'/@'.$submodule.'.module.php'))require_once 'modules/'.$module.'/@'.$submodule.'.module.php';else*/
+			if (file_exists('modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php')){
+				$acl = checkIfAuthorized($user, $module, $submodule);
+				if ($acl !== false)
+					require_once 'modules/'.$module.'/'.$submodule.'/@'.$submodule.'.module.php';
+			}
+		}
 	}
+	if ($acl === false)
+		require_once 'templates/error_401.php';
 }
 else{
-	array_unshift($params, $method);
-	$method = $module;
-	$module = 'index';
-	require_once 'modules/index/@index.module.php';
+	$acl = checkIfAuthorized($user, 'index');
+	if ($acl !== false){
+		array_unshift($params, $method);
+		$method = $module;
+		$module = 'index';
+		require_once 'modules/index/@index.module.php';
+	}
+	else
+		require_once 'templates/error_401.php';
 }
 $method = str_replace('-', '_', $method);
 

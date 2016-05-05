@@ -47,7 +47,7 @@
 			if ($user = row_assoc($user)){
 				if ($user['password'] == md5($params['password'].':'.COMMON_SALT)){
 					unset($user['password']);
-					$user['auth'] = json_decode($user['auth'], true);
+					$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
 					$_SESSION['user'] = $user;
 					redirect('user', 'index');
 				}

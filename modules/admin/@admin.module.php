@@ -16,13 +16,13 @@
 
 	$pages_index = array('home' => 'Home Page', 'about' => 'About Us', 'contact' => 'Contact Us');
 	$pages_schema = array(
-						'slug' 	=> array('Title', 		'key' => true, 'table' => false),
-						'title' 	=> array('Title'),
-						'lang' 	=> array('Language', 	'enum' => list_languages()),
-						'content' 	=> array('Content', 		'display' => 'richtext', 'table' => false),
-						'slides' 	=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{slug}', 'table' => false),
-						'edit' 	=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
-						'view' 	=> array('View', 		'form' => false, 'cmd' => '{key}')
+						'slug' 		=> array('Title', 		'key' => true, 'table' => false),
+						'title' 		=> array('Title'),
+						'lang' 		=> array('Language', 	'enum' => list_languages()),
+						'content' 		=> array('Content', 	'display' => 'richtext', 'table' => false),
+						'slides' 		=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{slug}', 'table' => false),
+						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
+						'view' 		=> array('View', 		'form' => false, 'cmd' => '{key}')
 					);
 	function pages($params){
 		global $pages_schema;
@@ -71,13 +71,13 @@
 	$user_levels = array(1 => 'Basic User', 2 => 'Super User', 3 => 'Manager', 5 => 'Admin', 8 => 'Super Admin');
 	$users_schema = array(
 						'id' 			=> array('ID', 			'table' => false, 'key' => true),
-						'username' 	=> array('Username', 	'form-width' => '50'),
-						'password' 	=> array('Password', 	'table' => false, 'display' => 'password', 'form-width' => '50'),
+						'username' 	=> array('Username', 		'form-width' => '50'),
+						'password' 	=> array('Password', 		'table' => false, 'display' => 'password', 'form-width' => '50'),
 						'email' 		=> array('Email'),
-						'timezone' 	=> array('Time Zone', 	'form-width' => '50'),
-						'lang' 		=> array('Language', 	'form-width' => '50'),
+						'timezone' 	=> array('Time Zone', 		'form-width' => '50'),
+						'lang' 		=> array('Language', 		'form-width' => '50'),
 						'auth' 		=> array('Authorized Modules', 'enum' => array(), 'table' => false, 'form' => false),
-						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/edit-user/{key}', 'default' => true)
+						'edit' 		=> array('Edit', 			'form' => false, 'cmd' => 'admin/edit-user/{key}', 'default' => true)
 					);
 
 	function users($params){
@@ -130,7 +130,7 @@
 	function add_user($params){
 		global $user;
 		$data = _add_edit_user($params);
-		$data['a_user'] = array('id' => 'new', 'username' => '', 'password' => '', 'email' => '', 'level' => '1', 'timezone' => $user['timezone'], 'lang' => $user['lang']);
+		$data['a_user'] = array('id' => 'new', 'username' => '', 'password' => '', 'email' => '', 'timezone' => $user['timezone'], 'lang' => $user['lang'], 'auth' => '{}');
 		//
 		$data['html_head'] = array('title' => 'Add User Account');
 		return $data;
@@ -139,7 +139,9 @@
 	function save_user($params){
 		global $user;
 		$db = connect_database();
-		if ($params['password'] != '[encrypted]')
+		if ($params['password'] == '[encrypted]')
+			unset($params['password']);
+		else
 			$params['password'] = md5($params['password'].':'.COMMON_SALT);
 		//
 		$auth = array();

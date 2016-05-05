@@ -363,16 +363,18 @@ ul.social-links{
 	clear:both;
 	float:right;
 	list-style-type:none;
-	margin:8px 2px 0px 0px;
+	margin:6px 2px 0px 0px;
 	padding:0px;
 }
 
 ul.social-links li{
-	margin-left:10px;
+	margin-left:4px;
 	display:inline-block;
 }
 
 ul.social-links li img{
+	width:32px;
+	height:32px;
 	filter: grayscale(75%) brightness(125%);
 	-webkit-filter: grayscale(75%) brightness(125%);
 	-moz-filter: grayscale(75%) brightness(125%);
