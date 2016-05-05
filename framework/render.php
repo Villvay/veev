@@ -1,7 +1,7 @@
 <?php
 
 	function render_view($view, $data){
-		global $user, $module, $method, $lex, $lang;
+		global $user, $acl, $module, $method, $lex, $lang;
 		// Turn $data array to variables
 		if (isset($data))
 			foreach ($data as $key => $val)
@@ -219,6 +219,11 @@ tinymce.init({
 	// ========================================================
 
 	function render_table($schema, $data, $classname = false){
+		global $acl;
+		if (!isset($acl['edit']))
+			unset($schema['edit']);
+		if (!isset($acl['delete']))
+			unset($schema['delete']);
 		$found = false; ?>
 	<table width="100%" class="table table-striped<?php echo $classname != false ? ' '.$classname : ''; ?>"><thead><tr>
 <?php 	$cmd_opened = false;
@@ -325,24 +330,25 @@ tinymce.init({
 		global $user, $module, $submodule, $method, $page; ?>
 				<ul class="<?php echo $classname; ?>">
 <?php 	foreach ($data as $link){
-			//$acl = checkIfAuthorized($user, $link['module'], $submodule = false)
 			$path = ( isset($link['module']) ? $link['module'] : '' ) . ( isset($link['module']) && isset($link['method']) ? '/' : '' ) . ( isset($link['method']) ? $link['method'] : '' );
 			if (!isset($link['module']))
 				$link['module'] = 'index';
 			if (!isset($link['method']))
-				$link['method'] = 'index'; ?>
+				$link['method'] = 'index';
+			if (checkIfAuthorized($user, $link['module']) !== false){ ?>
 					<li<?php echo ($module == $link['module'] || $module.'/'.$submodule == $link['module']) && ($method == $link['method'] || $page == $link['method']) ? ' class="current"' : ''; ?>>
-<?php 		if (isset($link['submenu'])){ ?>
+<?php 			if (isset($link['submenu'])){ ?>
 						<label>
 							<?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><input type="checkbox" class="nav-chk" name="<?php echo str_replace('/', '-', $path); ?>"><?php echo $link['title']; ?>
 						</label>
-<?php 			render_navigation($link['submenu']);
-			}
-			else{ ?>
+<?php 				render_navigation($link['submenu']);
+				}
+				else{ ?>
 						<a href="<?php echo BASE_URL.$path; ?>"><?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><?php echo $link['title']; ?></a>
-<?php 		} ?>
+<?php 			} ?>
 					</li>
-<?php 	} ?>
+<?php 		}
+		} ?>
 				</ul>
 <?php }
 

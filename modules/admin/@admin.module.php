@@ -105,7 +105,7 @@
 	function _subfolders($path){
 		$dh = opendir($path);
 		$data = array();
-		$public_modules = array_merge(array('.', '..'), array_keys(json_decode(PUBLIC_MODULES, true)));
+		$public_modules = array_merge(array('.', '..'));//, array_keys(json_decode(PUBLIC_MODULES, true))
 		while (($file = readdir($dh)) !== false){
 			if (!in_array($file, $public_modules) && is_dir($path.$file)){
 				$data[] = array($file, _subfolders($path.$file.'/'));

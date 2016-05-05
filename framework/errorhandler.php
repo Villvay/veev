@@ -10,10 +10,17 @@ function errorHandler($errno, $errstr, $errfile, $errline/*, $errcontext*/){
 	ob_clean();
 	$yield = '';
 	//
-	if (ON_ERROR == 'DISPLAY')
-		$yield = print_r(array($errno, $errstr, $errfile, $errline), true);
+	if (ON_ERROR == 'DISPLAY'){
+		$errfile = substr($errfile, strlen(__FILE__)-26);
+		$yield = '<b>'.$errno.': '.$errstr.'</b><br/>'.$errfile.': '.$errline;
+	}
 	else if (ON_ERROR == 'LOG')
-		file_put_contents('data/error.log', json_encode(array($errno, $errstr, $errfile, $errline)), FILE_APPEND);
+		file_put_contents('data/'.date('Y-m-d').'-error.log', json_encode(array('errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile, 'errline' => $errline)).",\n", FILE_APPEND);
+	else if (ON_ERROR == 'EMAIL'){
+		global $server_name;
+		include 'interfaces/email.php';
+		send_email(ADMIN_EMAIL, array('errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile, 'errline' => $errline), 'error', 'Error in Veev app at '.$server_name, false);//, array($errfile) // Attached the file with error to the email
+	}
 	//
 	global $lex, $user;
 	require_once 'templates/error_500.php';

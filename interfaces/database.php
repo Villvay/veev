@@ -38,7 +38,6 @@ class MySQL{
 	 ob_clean();
 	 global $lex, $user;
 	 require_once 'templates/error_401.php';
-	 die();
       }
       $this->Query_ID = mysqli_query($this->Link_ID, $Query_String);
       $this->Row = 0;

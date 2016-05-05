@@ -16,7 +16,7 @@
 					<th>Edit</th>
 					<th>Delete</th>
 				</tr>
-<?php 					$data['auth'] = json_decode($data['auth'], true);
+<?php 					$data['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($data['auth'], true));
 						foreach($schema['auth']['enum'] as $module)
 								renderACLRow('', $module, $data['auth'], 0); ?>
 			</table>
@@ -50,6 +50,12 @@
 			view.checked = add.checked = edit.checked = del.checked = chk.checked;
 		else
 			full.checked = (view.checked && add.checked && edit.checked && del.checked);
+		for (var i = 0; i < chk.form.elements.length; i++)
+			if (chk.form.elements[i].name.startsWith(name[0]+'['+name[1]+'/') && (name[2] == 'full' || chk.form.elements[i].name.endsWith(']['+name[2]+']'))){
+				chk.form.elements[i].disabled = !chk.checked;
+				if (!chk.checked)
+					chk.form.elements[i].checked = false;
+			}
 	}
 </script>
 <style>
