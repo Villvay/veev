@@ -1,8 +1,5 @@
 <?php
 
-	if (!isset($_SESSION['user']) && $_SESSION['user']['level'] < 5 && $method != 'log_in')
-		redirect('user', 'log_in');
-
 	$template_file = 'admin.php';
 
 	function index($params){

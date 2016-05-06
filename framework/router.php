@@ -27,13 +27,13 @@ session_start();
 if (isset($_SESSION['user']))
 	$user = $_SESSION['user'];
 else
-	$user = array('id' => -1, 'cid' => -1, 'lang' => 'en', 'timezone' => 'UTC', 'auth' => json_decode(PUBLIC_MODULES, true));
+	$user = array('id' => -1, 'cid' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
 
 $lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
 if (file_exists('data/lang/'.$lang.'.json'))
 	$lex = file_get_contents('data/lang/'.$lang.'.json');
 else
-	$lex = file_get_contents('data/lang/'.$user['lang'].'.json');
+	$lex = file_get_contents('data/lang/'.DEFAULT_LANGUAGE.'.json');
 $lex = json_decode(substr($lex, 3), true);
 
 date_default_timezone_set($user['timezone']);

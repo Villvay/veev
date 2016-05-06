@@ -11,10 +11,11 @@
 					);
 
 	function index($params){
-		if (!isset($_SESSION['user']) && $method != 'log_in')
+		global $method, $user;
+		if ($user['id'] == -1 && $method != 'log_in')
 			redirect('user', 'log_in');
 		//
-		global $users_schema, $user;
+		global $users_schema;
 		//
 		if (isset($params['email'])){
 			$db = connect_database();

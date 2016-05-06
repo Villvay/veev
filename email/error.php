@@ -1,8 +1,11 @@
-<b><?php echo $errno; ?>: <?php echo $errstr; ?></b>
-<br/>
-<?php echo $errfile; ?>: <?php echo $errline; ?>
-<br/>
-<pre>
+<html>
+	<body>
+		<h2>An error has occured</h2>
+		<b><?php echo $errno; ?>: <?php echo $errstr; ?></b>
+		<br/>
+		<?php echo $errfile; ?>: <?php echo $errline; ?>
+		<br/>
+		<pre>
 <?php
 	$lines = explode("\n", file_get_contents($errfile));
 	$from = $errline - 5;
@@ -18,4 +21,6 @@
 			echo $lines[$i].'<br/>';
 	}
 ?>
-</pre>
+		</pre>
+	</body>
+</html>

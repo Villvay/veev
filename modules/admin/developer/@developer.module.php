@@ -1,19 +1,8 @@
 <?php
 
-	/*if (!isset($_SESSION['user']) && $_SESSION['user']['level'] < 5 && $method != 'log_in')
-		redirect('user', 'log_in');
-
 	$template_file = 'admin.php';
 
-	function index($params){
-		$data = array();
-		//
-		$data['html_head'] = array('title' => 'Developer Dashboard');
-		return $data;
-	}*/
-
 	$table_schema = array(
-			/*'Field' 	=> array('Field'),*/
 			'Type' 	=> array('Type', 	'function' => '_type'),
 			'Size' 	=> array('Size', 	'function' => '_type_length'),
 			'Null' 	=> array('Null'),

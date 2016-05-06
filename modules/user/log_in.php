@@ -13,7 +13,21 @@
 		</tr>
 		<tr>
 			<td></td>
+			<td>
+				<label>
+					<input type="checkbox" name="remember" />
+					Remember me
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td></td>
 			<td><input type="submit" value="Log In" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<a href="<?php echo BASE_URL; ?>user/reset-password/step-1">Forgot password?</a>
+			</td>
 		</tr>
 	</table>
 </form>

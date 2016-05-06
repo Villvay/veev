@@ -145,16 +145,26 @@ $thirty2k_secret = base64_encode(md5($thirty2k_app_id.'NaCl', true));
 			'RewriteRule (.*)$ index.php [L]\n';
 		//
 		document.config.config.value =
-			'<'+'?php\n'+
+			'<'+'?php\n//	Paths\n'+
 			'define (\'PROTOCOL\', \''+document.config.protocol.value+'\');\n'+
 			'define (\'PORT\', \''+document.config.port.value+'\');\n'+
 			'define (\'PATH\', \''+document.config.path.value+'\');\n'+
 			'define (\'BASE_URL_STATIC\', \''+document.config.base_url_static.value+'\');\n'+
 			'define (\'STATIC_FILES_ROOT\', \''+document.config.static_files_root.value+'\');\n'+
-			'\n'+
-			'define (\'PUBLIC_MODULES\', \'index|user\');\n'+
-			'\n'+
-			'// Database settings\n'+
+			'\n// Security\n'+
+			'define (\'PUBLIC_MODULES\', \'{"index":["view"], "user":["view"]}\');\n'+
+			'define (\'COMMON_SALT\', \'NaCl\');\n'+
+			'\n// Logging\n'+
+			'define (\'ON_ERROR\', \'DISPLAY\');//{DISPLAY, LOG, IGNORE, EMAIL}\n'+
+			'define (\'DATABASE_LOGGING\', \'OFF\');\n'+
+			'define (\'PROFILING\', \'OFF\');\n'+
+			'\n// Localization\n'+
+			'define (\'DEFAULT_TIMEZONE\', \'UTC\');\n'+
+			'define (\'DEFAULT_LANGUAGE\', \'en\');\n'+
+			'\n// VCS and API\n'+
+			'define (\'32K_APP_ID\', \'xoxPEWB2oy0VXyEM0pIX1HuS4i4\');\n'+
+			'define (\'32K_SECRET\', \'Z90g0kzbWJ/XFPEtNnYnow==\');\n'+
+			'\n// Database\n'+
 			'define (\'DB_HOST\', \''+document.config.db_host.value+'\');\n'+
 			'define (\'DB_NAME\', \''+document.config.db_name.value+'\');\n'+
 			'define (\'DB_USER\', \''+document.config.db_user.value+'\');\n'+
