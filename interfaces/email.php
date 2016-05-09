@@ -1,6 +1,6 @@
 <?php
 
-	global $email_from;
+	global $email_from, $server_name;
 	$email_from = 'Veev app at '.$server_name.' <veev@'.$server_name.'>';
 
 	function send_email($to, $data, $template, $subject = 'No Subject', $reply_to = false, $attachments = false){
@@ -12,13 +12,13 @@
 					"\r\n".'Sender: '.$email_from.
 					"\r\n".'Reply-To: '.$reply_to).
 				"\r\n".'MIME-Version: 1.0'.
-				"\r\n".'Content-Type: multipart/related; boundary='.$boundary."\r\n\r\n".
+				"\r\n".'Content-Type: multipart/related; boundary='.$boundary."\r\n".
 				'--'.$boundary.
-				"\r\n".'Content-Type: multipart/alternative; boundary='.$boundar2."\r\n\r\n";
+				"\r\n".'Content-Type: multipart/alternative; boundary='.$boundar2."\r\n";
 		//
 		$message = render_view('email/'.$template.'.php', $data);
 		//
-		$message = '--'.$boundar2."\r\n".
+		$message = "\r\n".'--'.$boundar2."\r\n".
 				'Content-type: text/plain; charset=utf-8'."\r\n\r\n".
 				strip_tags($message).
 				"\r\n\r\n--".$boundar2."\r\n".

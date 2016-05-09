@@ -36,7 +36,8 @@ class MySQL{
 		(in_array($type, array('UPDATE', 'ALTER')) && !isset($acl['edit'])) ||
 		(in_array($type, array('DELETE', 'DROP', 'TRUNCATE')) && !isset($acl['delete']))){
 	 ob_clean();
-	 global $lex, $user;
+	 global $lex, $user, $errorHandlerLatch;
+	 $errorHandlerLatch = true;
 	 require_once 'templates/error_401.php';
       }
       $this->Query_ID = mysqli_query($this->Link_ID, $Query_String);

@@ -161,9 +161,9 @@ $thirty2k_secret = base64_encode(md5($thirty2k_app_id.'NaCl', true));
 			'\n// Localization\n'+
 			'define (\'DEFAULT_TIMEZONE\', \'UTC\');\n'+
 			'define (\'DEFAULT_LANGUAGE\', \'en\');\n'+
-			'\n// VCS and API\n'+
-			'define (\'32K_APP_ID\', \'xoxPEWB2oy0VXyEM0pIX1HuS4i4\');\n'+
-			'define (\'32K_SECRET\', \'Z90g0kzbWJ/XFPEtNnYnow==\');\n'+
+			//'\n// VCS and API\n'+
+			//'define (\'32K_APP_ID\', \'xoxPEWB2oy0VXyEM0pIX1HuS4i4\');\n'+
+			//'define (\'32K_SECRET\', \'Z90g0kzbWJ/XFPEtNnYnow==\');\n'+
 			'\n// Database\n'+
 			'define (\'DB_HOST\', \''+document.config.db_host.value+'\');\n'+
 			'define (\'DB_NAME\', \''+document.config.db_name.value+'\');\n'+

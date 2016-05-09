@@ -380,7 +380,7 @@ tinymce.init({
 	}
 
 	function list_languages(){
-		$files_path = './data/lang/';
+		$files_path = dirname(dirname(__FILE__)).'/data/lang/';
 		$indexCreatedOn = @filemtime($files_path.'index.db');
 		$index = @unserialize(gzinflate(file_get_contents($files_path.'index.db')));
 		if (!$index)

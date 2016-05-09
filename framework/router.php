@@ -15,6 +15,8 @@ else
 	define ('SUBDOMAIN', '');
 
 $query_string = substr($_SERVER['REQUEST_URI'], strlen(PATH));
+if (strpos($query_string, '?') !== false)
+	$query_string = substr($query_string, 0, strpos($query_string, '?'));
 
 $params = explode('/', $query_string);
 $params_count = count($params);
@@ -63,6 +65,8 @@ if ($method == '')
 
 // Append GET, POST to params
 foreach ($_POST as $key => $val)
+	$params[$key] = $val;
+foreach ($_GET as $key => $val)
 	$params[$key] = $val;
 
 require_once 'render.php';
