@@ -31,13 +31,15 @@ class MySQL{
       $type = explode(' ', $Query_String);
       $type = strtoupper($type[0]);
       global $acl;
-      if ((in_array($type, array('SELECT', 'DESCRIBE')) && !isset($acl['view'])) ||
+      if ((in_array($type, array('SELECT', 'DESCRIBE', 'SHOW')) && !isset($acl['view'])) ||
 		(in_array($type, array('INSERT', 'CREATE')) && !isset($acl['add'])) ||
 		(in_array($type, array('UPDATE', 'ALTER')) && !isset($acl['edit'])) ||
 		(in_array($type, array('DELETE', 'DROP', 'TRUNCATE')) && !isset($acl['delete']))){
 	 ob_clean();
 	 global $lex, $user, $errorHandlerLatch;
 	 $errorHandlerLatch = true;
+	 //$yield = $Query_String;
+	 //die($Query_String);
 	 require_once 'templates/error_401.php';
       }
       $this->Query_ID = mysqli_query($this->Link_ID, $Query_String);

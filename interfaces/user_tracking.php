@@ -13,7 +13,7 @@ if (!isset($user_id)){
 	else{
 		$ip = str_replace(array('=', '+', '/'), '', base64_encode(sha1(microtime() . '-' . $ip, true)));
 		$user_id = $ip;
-		setcookie('user_id', $user_id, time()+(3600*24*365*5));
+		setcookie('user_id', $user_id, time()+(3600*24*365*5), PATH);
 	}
 }
 ?>

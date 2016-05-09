@@ -49,16 +49,21 @@ register_shutdown_function(
 			die();
 		else if ($yield == ''){
 			global $lex, $user;
+			require_once 'render.php';
 			$yield = strip_tags(ob_get_contents()).' ';
 			ob_end_clean();
 			$errline = strpos($yield, 'on line')+8;
-			$errfile = strpos($yield, ' in ')+4;
-			$errno = strpos($yield, ':');
-			$errstr = $yield; // trim(substr($yield, $errno+1, $errfile-$errno-5));
-			$errno = trim(substr($yield, 0, $errno));
-			$errfile = trim(substr($yield, $errfile, strpos($yield, ' ', $errfile)-$errfile));
-			$errline = trim(substr($yield, $errline, strpos($yield, ' ', $errline)-$errline));
-			errorHandler($errno, $errstr, $errfile, $errline);
+			if ($errline == 8)
+				errorHandler(0, $yield, '', '');
+			else{
+				$errfile = strpos($yield, ' in ')+4;
+				$errno = strpos($yield, ':');
+				$errstr = $yield; // trim(substr($yield, $errno+1, $errfile-$errno-5));
+				$errno = trim(substr($yield, 0, $errno));
+				$errfile = trim(substr($yield, $errfile, strpos($yield, ' ', $errfile)-$errfile));
+				$errline = trim(substr($yield, $errline, strpos($yield, ' ', $errline)-$errline));
+				errorHandler($errno, $errstr, $errfile, $errline);
+			}
 			die();
 		}
 	});

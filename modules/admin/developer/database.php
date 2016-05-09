@@ -24,7 +24,8 @@ After updating the project (with your favourite VCS), any database change will b
 
 <?php function render_tbl($table, $tblSchema, $schema, $import, $direction = 'new'){
 		$sql = isset($import[$table]) ? '' : ($direction == 'new' ? _create_query($table, $tblSchema) : _drop_query($table)); ?>
-<section class="<?php echo isset($import[$table]) ? 'exist' : $direction; ?>">
+<section class="<?php echo isset($import[$table]) ? 'exist'.(serialize($import[$table]) == serialize($tblSchema) ? ' same collapse' : '') : $direction; ?>">
+	<a class="toggle"></a>
 	<h3><?php echo $table; ?></h3>
 	<table class="table table-striped tbl-<?php echo $table; ?>" width="100%">
 		<thead>
@@ -40,7 +41,7 @@ After updating the project (with your favourite VCS), any database change will b
 		foreach ($tblSchema as $field => $row){
 			render_rw($field, $row, $import, $table, $schema, $direction, $sql);
 			if (isset($import[$table]) && !isset($import[$table][$field])){
-				$sql .= ($sql != '' ? ',' : '')."\n".'  ADD `'.$field.'` '.$row['Type'].($row['Size'] != '' ? '('.$row['Size'].')' : '').($row['Null'] == 'NO' ? ' NOT NULL' : '').
+				$sql .= ($sql != '' ? ',' : '')."\n".'  ADD `'.$field.'` '.$row['Type'].($row['Size'] != '' ? '('.$row['Size'].')' : '').($row['Null'] == 'NO' ? ' NOT NULL' : '').//($row['Default'] == '' ? '' : 'DEFAULT \''.$row['Default'].'\'').
 					($row['Extra'] == 'auto_increment' ? ' AUTO_INCREMENT' : '').($row['Null'] == 'YES' ? (' DEFAULT '.($row['Default'] == '' ? 'NULL' : '\''.$row['Default'].'\'')) : '');
 				$changedAny = true;
 			}
@@ -77,6 +78,7 @@ After updating the project (with your favourite VCS), any database change will b
 <?php 		foreach ($schema as $col => $meta){
 				$changedIn = false;
 				if ($changed){
+//echo $col .':'. $row[$col] .':'. $import[$table][$field][$col];
 					$changedIn = $row[$col] != $import[$table][$field][$col];
 				} ?>
 				<td class="<?php echo $changedIn ? 'changed' : ''; ?>"><?php echo $changedIn ? $import[$table][$field][$col].' =&gt; ' : ''; ?><?php echo $row[$col]; ?></td>
@@ -97,6 +99,8 @@ After updating the project (with your favourite VCS), any database change will b
 	textarea{
 		font-family:monospace;
 		margin-top:6px;
+		max-width:100%;
+		width:100%;
 	}
 	/* ----- */
 	section.exist{
@@ -147,5 +151,71 @@ After updating the project (with your favourite VCS), any database change will b
 	/* ----- */
 	table.table-striped tr:hover td {
 		background-color: #FFFFD0 !important;
+	}
+</style>
+
+<script>
+var sections = document.querySelectorAll('section');
+for (var i = 0; i < sections.length; i++){
+	//sections[i].style.height = sections[i].offsetHeight+'px';
+	sections[i].setAttribute('data-height', sections[i].offsetHeight);
+}
+var toggles = document.querySelectorAll('section a.toggle');
+var togglingElem, expandedHeight;
+for (var i = 0; i < toggles.length; i++)
+	toggles[i].onclick = function(){
+		if (this.parentNode.className.indexOf('collapse') > 0){
+			togglingElem = this.parentNode;
+			togglingElem.style.transition = '';
+			togglingElem.style.height = 'auto';
+			togglingElem.className = togglingElem.className.replace(' collapse', '');
+			expandedHeight = togglingElem.offsetHeight-12;
+			togglingElem.style.height = '28px';
+			setTimeout(
+				function(){
+					togglingElem.style.height = expandedHeight + 'px';
+					togglingElem.setAttribute('data-height', expandedHeight);
+					togglingElem.style.transition = 'height 1s';
+				}, 50
+			);
+			setTimeout(
+				function(){
+					togglingElem.style.height = 'auto';
+				}, 1500
+			);
+		}
+		else{
+			togglingElem = this.parentNode;
+			togglingElem.style.height = togglingElem.getAttribute('data-height') + 'px';
+			togglingElem.style.transition = 'height 1s';
+			setTimeout(
+				function(){
+					togglingElem.style.height = '28px';
+					togglingElem.className = togglingElem.className + ' collapse';
+				}, 50
+			);
+		}
+	}
+</script>
+<style>
+	section{
+		height:auto;
+		overflow:hidden;
+		xtransition:height 1s;
+	}
+	section.collapse{
+		height:28px !important;
+	}
+	section a.toggle{
+		background-image:url('<?php echo BASE_URL_STATIC; ?>icons/button_blue_delete.png');
+		display:block;
+		float:right;
+		height:48px;
+		width:48px;
+		margin:-7px;
+		cursor:pointer;
+	}
+	section.collapse a.toggle{
+		background-image:url('<?php echo BASE_URL_STATIC; ?>icons/button_blue_add.png');
 	}
 </style>

@@ -27,7 +27,7 @@
 				$params['password'] = md5($params['password'].':'.COMMON_SALT);
 			$params['id'] = $user['id'];
 			$db->update('user', $params);
-			flash_message('Settings are updated. Please log out and log in to apply.', 'success');
+			flash_message('Settings are updated.', 'success');
 		}
 		//
 		$users_schema['lang']['enum'] = list_languages();
@@ -102,24 +102,24 @@
 			if ($user = row_assoc($user)){
 				if ($user['password'] == md5($params['password'].':'.COMMON_SALT)){
 					unset($user['password']);
-					$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
-					$_SESSION['user'] = $user;
+					//$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
+					//$_SESSION['user'] = $user;
 					//
 					global $user_id, $acl, $ip;
-					$login = $db->query('SELECT id, remember FROM login WHERE user_id = '.$user['id'].' AND cookie = \''.$user_id.'\'');
-					$loginRec = array('remember' => isset($params['remember']) ? 1 : 0, 'ip' => $ip, 'last_login' => date('Y-m-d'));
+					$login = $db->query('SELECT id FROM login WHERE cookie = \''.$user_id.'\''); // user_id = '.$user['id'].' OR
+					$loginRec = array('remember' => isset($params['remember']) ? 1 : 0, 'user_id' => $user['id'], 'session' => session_id(), 'ip' => $ip, 'last_login' => date('Y-m-d H:i:s'));
 					if ($login = row_assoc($login)){
 						$acl['edit'] = true;
 						$loginRec['id'] = $login['id'];
-						$db->update('user', $loginRec);
+						$db->update('login', $loginRec);
 					}
 					else{
 						$acl['add'] = true;
-						$loginRec['user_id'] = $user['id'];
 						$loginRec['cookie'] = $user_id;
-						$db->insert('user', $loginRec);
+						$db->insert('login', $loginRec);
 					}
 					//
+					setcookie('user_id', $user_id, time()+(3600*24*365*5), PATH);
 					redirect('user', 'index');
 				}
 			}
@@ -129,7 +129,11 @@
 	}
 
 	function sign_out($params){
-		unset($_SESSION['user']);
+		global $user, $user_id, $acl;
+		$db = connect_database();
+		$acl['delete'] = true;
+		$db->query('DELETE FROM login WHERE user_id = '.$user['id'].' OR cookie = \''.$user_id.'\'');
+		//unset($_SESSION['user']);
 		redirect('user', 'log_in');
 	}
 

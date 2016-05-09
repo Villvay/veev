@@ -28,6 +28,11 @@
 		$data = array();
 		$db = connect_database();
 		//
+		if (isset($params['sql']) && is_array($params['sql']))
+			foreach ($params['sql'] as $sql)
+				if (trim($sql) != '')
+					$db->query($sql);
+		//
 		$data['import'] = @unserialize(gzinflate(file_get_contents('data/schema.db')));
 		if (!$data['import'])
 			$data['import'] = array();
@@ -81,10 +86,8 @@
 			if ($meta['Key'] == 'PRI')
 				$primKey[] = $col;
 			$query .= "\n".'  `'.$col.'` '.$meta['Type'].
-					($meta['Size'] != '' ? '('.$meta['Size'].')' : '').
-					($meta['Null'] == 'NO' ? ' NOT NULL' : '').
-					($meta['Extra'] == 'auto_increment' ? ' AUTO_INCREMENT' : '').
-					($meta['Null'] == 'YES' ? (' DEFAULT '.($meta['Default'] == '' ? 'NULL' : '\''.$meta['Default'].'\'')) : '').',';
+					($meta['Size'] != '' ? '('.$meta['Size'].')' : '').($meta['Null'] == 'NO' ? ' NOT NULL' : '').//($meta['Default'] == '' ? '' : ' DEFAULT \''.$meta['Default'].'\'').
+					($meta['Extra'] == 'auto_increment' ? ' AUTO_INCREMENT' : '').($meta['Null'] == 'YES' ? (' DEFAULT '.($meta['Default'] == '' ? 'NULL' : '\''.$meta['Default'].'\'')) : '').',';
 		}
 		if (count($primKey) > 0)
 			$query .= "\n".'  PRIMARY KEY (`'.implode('`,`', $primKey).'`)'."\n".');';

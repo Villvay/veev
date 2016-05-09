@@ -22,12 +22,18 @@ $params = explode('/', $query_string);
 $params_count = count($params);
 
 
+global $acl;
 //	SESSION/ACL RELATED
+ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
 include 'interfaces/user_tracking.php';
-//ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
 session_start();
-if (isset($_SESSION['user']))
-	$user = $_SESSION['user'];
+$db = connect_database();
+$acl = array('view' => true);
+$login = $db->query('SELECT id, user_id FROM login WHERE cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
+if ($login = row_assoc($login)){
+	$user = row_assoc($db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth FROM `user` WHERE id = '.$login['user_id']));
+	$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
+}
 else
 	$user = array('id' => -1, 'cid' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
 
@@ -76,7 +82,6 @@ $module = str_replace('-', '_', $module);
 
 // Include the Module
 $submodule = false;
-global $acl;
 if (file_exists('modules/'.$module.'/@'.$module.'.module.php')){
 	$acl = checkIfAuthorized($user, $module);
 	if ($acl !== false){
