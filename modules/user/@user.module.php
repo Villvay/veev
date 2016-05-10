@@ -26,6 +26,7 @@
 			redirect('user', 'log_in');
 		//
 		global $users_schema, $logins_schema;
+		$users_schema['timezone']['enum'] = json_decode(file_get_contents('data/timezones.json'));
 		$db = connect_database();
 		//
 		if (isset($params['email'])){
@@ -39,6 +40,7 @@
 			$params['reset_code'] = '';
 			$db->update('user', $params);
 			flash_message('Settings are updated.', 'success');
+			redirect('user');
 		}
 		//
 		$users_schema['lang']['enum'] = list_languages();
