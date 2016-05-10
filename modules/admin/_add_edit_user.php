@@ -53,10 +53,16 @@
 		for (var i = 0; i < chk.form.elements.length; i++)
 			if (chk.form.elements[i].name.startsWith(name[0]+'['+name[1]+'/') && (name[2] == 'full' || chk.form.elements[i].name.endsWith(']['+name[2]+']'))){
 				chk.form.elements[i].disabled = !chk.checked;
-				if (!chk.checked)
+				if (!chk.checked){
 					chk.form.elements[i].checked = false;
+					aclSelect(chk.form.elements[i]);
+				}
 			}
 	}
+	var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+	for (var i = 0; i < checkboxes.length; i++)
+		if (!checkboxes[i].name.endsWith('[full]'))
+			aclSelect(checkboxes[i]);
 </script>
 <style>
 	table.ACL{

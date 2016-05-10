@@ -10,15 +10,24 @@
 						'lang' 		=> array('Language', 	'form-width' => '50'),
 					);
 
+	$logins_schema = array(
+						'id' 			=> array('ID', 		'table' => false, 'key' => true),
+						'cookie' 		=> array('Browser', 	'display' => 'password'),
+						'remember' 	=> array('Remember', 	'enum' => array('', 'Selected')),
+						'ip' 			=> array('IP Address'),
+						'last_login' 	=> array('Last Login', 	'display' => 'calendar'),
+						'log_out' 		=> array('Log Out', 	'cmd' => 'user/remote-logout/{key}')
+					);
+
 	function index($params){
 		global $method, $user;
 		if ($user['id'] == -1 && $method != 'log_in')
 			redirect('user', 'log_in');
 		//
-		global $users_schema;
+		global $users_schema, $logins_schema;
+		$db = connect_database();
 		//
 		if (isset($params['email'])){
-			$db = connect_database();
 			if ($params['password'] == '[encrypted]')
 				unset($params['password']);
 			else if ($params['password'] != $params['password_conf'])
@@ -26,6 +35,7 @@
 			else
 				$params['password'] = md5($params['password'].':'.COMMON_SALT);
 			$params['id'] = $user['id'];
+			$params['reset_code'] = '';
 			$db->update('user', $params);
 			flash_message('Settings are updated.', 'success');
 		}
@@ -33,7 +43,8 @@
 		$users_schema['lang']['enum'] = list_languages();
 		$user['password'] = '[encrypted]';
 		$user['password_conf'] = '';
-		$data = array('schema' => $users_schema, 'user' => $user);
+		$data = array('schema' => $users_schema, 'logins_schema' => $logins_schema, 'user' => $user);
+		$data['logins'] = $db->query('SELECT id, cookie, remember, ip, last_login FROM login WHERE user_id = '.$user['id']);
 		//
 		$data['html_head'] = array('title' => 'My Account');
 		return $data;
@@ -98,16 +109,18 @@
 	function log_in($params){
 		if (isset($params['username'])){
 			$db = connect_database();
-			$user = $db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth FROM `user` WHERE username = \''.$params['username'].'\'');
+			$user = $db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth, reset_code FROM `user` WHERE username = \''.$params['username'].'\'');
 			if ($user = row_assoc($user)){
 				if ($user['password'] == md5($params['password'].':'.COMMON_SALT)){
 					unset($user['password']);
 					//$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
 					//$_SESSION['user'] = $user;
+					if ($user['reset_code'] != '')
+						flash_message('Someone has requested to reset your password. We recommend you change your password now.', 'warning');
 					//
 					global $user_id, $acl, $ip;
 					$login = $db->query('SELECT id FROM login WHERE cookie = \''.$user_id.'\''); // user_id = '.$user['id'].' OR
-					$loginRec = array('remember' => isset($params['remember']) ? 1 : 0, 'user_id' => $user['id'], 'session' => session_id(), 'ip' => $ip, 'last_login' => date('Y-m-d H:i:s'));
+					$loginRec = array('remember' => isset($params['remember']) ? 1 : 0, 'user_id' => $user['id'], 'session' => session_id(), 'ip' => $ip, 'last_login' => date('Y-m-d H:i:s'), 'useragent' => $_SERVER['HTTP_USER_AGENT']);
 					if ($login = row_assoc($login)){
 						$acl['edit'] = true;
 						$loginRec['id'] = $login['id'];
@@ -120,7 +133,13 @@
 					}
 					//
 					setcookie('user_id', $user_id, time()+(3600*24*365*5), PATH);
-					redirect('user', 'index');
+					if (isset($_SESSION['REDIRECT_AFTER_SIGNIN']) && $user['reset_code'] == ''){
+						$tmp = $_SESSION['REDIRECT_AFTER_SIGNIN'];
+						unset($_SESSION['REDIRECT_AFTER_SIGNIN']);
+						header('location:'.(substr($tmp, 0, strlen(BASE_URL)) == BASE_URL ? '' : BASE_URL).$tmp);
+					}
+					else
+						redirect('user', 'index');
 				}
 			}
 			flash_message('Wrong username or password.', 'error');

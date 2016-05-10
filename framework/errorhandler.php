@@ -8,12 +8,19 @@ function errorHandler($errno, $errstr, $errfile, $errline/*, $errcontext*/){
 		return;
 	$errorHandlerLatch = true;
 	set_include_path(dirname(dirname(__FILE__)).'/');
+	require_once dirname(__FILE__).'/render.php';
 	//
-	if (substr($errfile, strlen($errfile)-21) == '/framework/render.php'){
+	if (substr($errfile, strlen($errfile)-20) == 'framework/render.php'){
 		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		$errstr = 'Render/Schema Error: '.$errstr;
-		$errfile = $backtrace[1]['file'];
-		$errline = $backtrace[1]['line'];
+		$i = 0;
+		while (substr($backtrace[$i]['file'], strlen($backtrace[$i]['file'])-20) == 'framework/render.php')
+			$i += 1;
+		if ($errstr == 'Undefined variable: key')
+			$errstr = 'Define a key field on the schema';
+		else
+			$errstr = 'Render/Schema Error: '.$errstr;
+		$errfile = $backtrace[$i]['file'];
+		$errline = $backtrace[$i]['line'];
 	}
 	ob_clean();
 	$yield = '';
@@ -46,12 +53,13 @@ register_shutdown_function(
 	function(){
 		global $yield, $errorHandlerLatch;
 		if ($errorHandlerLatch)
-			die();
+			die();//$errorHandlerLatch = true;
 		else if ($yield == ''){
 			global $lex, $user;
-			require_once 'render.php';
 			$yield = strip_tags(ob_get_contents()).' ';
 			ob_end_clean();
+			if ($yield == ' ')
+				die();
 			$errline = strpos($yield, 'on line')+8;
 			if ($errline == 8)
 				errorHandler(0, $yield, '', '');

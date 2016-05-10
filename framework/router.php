@@ -1,5 +1,6 @@
 <?php
 header('Content-type: text/html; charset=utf-8');
+header('X-Powered-By: Veev by Vishva@Villvay.com');
 $db_connection = false;
 
 
@@ -22,13 +23,13 @@ $params = explode('/', $query_string);
 $params_count = count($params);
 
 
-global $acl;
 //	SESSION/ACL RELATED
+session_start();
 ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
 include 'interfaces/user_tracking.php';
-session_start();
-$db = connect_database();
+global $acl;
 $acl = array('view' => true);
+$db = connect_database();
 $login = $db->query('SELECT id, user_id FROM login WHERE cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
 if ($login = row_assoc($login)){
 	$user = row_assoc($db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth FROM `user` WHERE id = '.$login['user_id']));

@@ -17,7 +17,7 @@
 		global $lex, $lang, $page;
 		$db = connect_database();
 		//
-		$content = $db->query('SELECT title, content FROM content WHERE lang = \''.$lang.'\' AND slug = \''.$page.'\'');
+		$content = $db->query('SELECT title, content FROM content WHERE lang = \''.$lang.'\' AND slug = \''.str_replace('_', '-', $page).'\'');
 		if ($data = row_assoc($content)){}
 		else
 			$data = array('title' => $lex['not-found'], 'content' => $lex['translation-not-found']);
