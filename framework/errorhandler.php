@@ -1,6 +1,8 @@
 <?php
 
 $errorHandlerLatch = false;
+if (!defined('DEBUG_BACKTRACE_IGNORE_ARGS'))
+	define('DEBUG_BACKTRACE_IGNORE_ARGS', 0);
 
 function errorHandler($errno, $errstr, $errfile, $errline/*, $errcontext*/){
 	global $errorHandlerLatch;
