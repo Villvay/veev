@@ -157,6 +157,7 @@ function textareaHandler(messageText){
 	var messageTextHeight = messageText.scrollHeight;
 	messageText.style.overflow = 'hidden';
 	messageText.style.maxWidth = '100%';
+	messageText.style.width = '100%';
 	messageText.onkeyup = function(event){
 		var bkpOffsetHeight = this.offsetHeight;
 		messageText.style.overflow = 'auto';

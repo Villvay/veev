@@ -335,7 +335,7 @@ tinymce.init({
 				$link['module'] = 'index';
 			if (!isset($link['method']))
 				$link['method'] = 'index';
-			if (checkIfAuthorized($user, $link['module']) !== false){ ?>
+			if (!function_exists('checkIfAuthorized') || checkIfAuthorized($user, $link['module']) !== false){ ?>
 					<li<?php echo ($module == $link['module'] || $module.'/'.$submodule == $link['module']) && ($method == $link['method'] || $page == $link['method']) ? ' class="current"' : ''; ?>>
 <?php 			if (isset($link['submenu'])){ ?>
 						<label>
