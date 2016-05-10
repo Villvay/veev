@@ -30,13 +30,30 @@ include 'interfaces/user_tracking.php';
 global $acl;
 $acl = array('view' => true);
 $db = connect_database();
-$login = $db->query('SELECT id, user_id FROM login WHERE cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
+$login = $db->query('SELECT id, user_id, useragent, session FROM login WHERE cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
 if ($login = row_assoc($login)){
-	$user = row_assoc($db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth FROM `user` WHERE id = '.$login['user_id']));
-	$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
+	if (!isset($_SESSION['USERAGENT'])){	//	Protect from session and cookie hijacking
+		include 'interfaces/user_agent_parser.php';
+		$_SESSION['USERAGENT'] = parse_user_agent($_SERVER['HTTP_USER_AGENT']);
+	}
+	$login['useragent'] = json_decode($login['useragent'], true);
+	print_r($login['useragent']);
+	print_r($_SESSION['USERAGENT']);
+	if ($login['useragent']['platform'] != $_SESSION['USERAGENT']['platform'] || $login['useragent']['browser'] != $_SESSION['USERAGENT']['browser']){
+		$acl['delete'] = true;				//	Cookie does not match Browser and OS
+		$db->query('DELETE FROM login WHERE id = '.$login['id']);
+	}
+	else{
+		$user = row_assoc($db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth FROM `user` WHERE id = '.$login['user_id']));
+		$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
+	}
 }
-else
+if (!isset($user))
 	$user = array('id' => -1, 'cid' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
+if ($login['session'] != session_id()){
+	$acl['edit'] = true;
+	$db->update('login', array('id' => $login['id'], 'session' => session_id(), 'useragent' => $_SESSION['USERAGENT']));
+}
 
 $lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
 if (file_exists('data/lang/'.$lang.'.json'))

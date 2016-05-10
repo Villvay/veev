@@ -461,7 +461,7 @@ tinymce.init({
 		$time = is_numeric($datetime) ? $datetime : strtotime($datetime);
 		if ($time == 0)
 			return '-';
-		return date('Y-M-d', $time);
+		//return date('Y-M-d', $time);
 		$now = time();
 		$diff = $now - $time;
 		if ($time == 0)
@@ -472,15 +472,15 @@ tinymce.init({
 			else if ($diff < 5)
 				return 'Just now';
 			else if ($diff < 60)
-				return $diff.'Seconds ago';
+				return $diff.' Seconds ago';
 			else{
 				$diff = floor($diff / 60);
 				if ($diff < 60)
-					return $diff.'Minutes ago';
+					return $diff.' Minutes ago';
 				else if (date('j', $now) == date('j', $time))
-					return date('g:i', $time).date('a', $time);
+					return date('g:i a', $time);
 				else
-					return 'Yesterday'.' '.date('g', $time).' '.date('a', $time);
+					return 'Yesterday '.date('g', $time).' '.date('a', $time);
 			}
 		}
 		else
@@ -495,7 +495,7 @@ tinymce.init({
 			else
 				return date('M', $time).' '.date('Y', $time);
 	}
-	/*function _beautify_datetime_future($datetime){
+	function _beautify_datetime_future($datetime){
 		$time = strtotime($datetime);
 		$now = time();
 		$diff = $time - $now;
@@ -508,24 +508,24 @@ tinymce.init({
 				$diff = floor($diff / 60);
 				if ($diff < 60)
 					return 'in '.$diff.' minutes';
-				else if (date("j", $now) == date("j", $time))
-					return date("g:i a", $time);
+				else if (date('j', $now) == date('j', $time))
+					return date('g:i a', $time);
 				else
-					return "Tomorrow ".date("g a", $time);
+					return 'Tomorrow '.date('g a', $time);
 			}
 		}
 		else
-			if (date("Y", $now) == date("Y", $time))
-				if (date("n", $now) == date("n", $time))
-					if (date("W", $now) == date("W", $time))
-						return date("l g a", $time);
+			if (date('Y', $now) == date('Y', $time))
+				if (date('n', $now) == date('n', $time))
+					if (date('W', $now) == date('W', $time))
+						return date('l g a', $time);
 					else
-						return date("jS M g a", $time);
+						return date('jS M g a', $time);
 				else
-					return date("jS M", $time);
+					return date('jS M', $time);
 			else
-				return date("M Y", $time);
-	}*/
+				return date('M Y', $time);
+	}
 
 	function slugify($text){
 		$text = preg_replace('/[\/_|+ -.]+/', '-', $text);

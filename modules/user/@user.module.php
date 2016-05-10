@@ -12,10 +12,11 @@
 
 	$logins_schema = array(
 						'id' 			=> array('ID', 		'table' => false, 'key' => true),
-						'cookie' 		=> array('Browser', 	'display' => 'password'),
+						'cookie' 		=> array('Browser', 	'function' => '_is_current_browser'),
 						'remember' 	=> array('Remember', 	'enum' => array('', 'Selected')),
-						'ip' 			=> array('IP Address'),
-						'last_login' 	=> array('Last Login', 	'display' => 'calendar'),
+						'ip' 			=> array('Location', 	'function' => '_location_by_ip'),
+						'last_login' 	=> array('Last Login', 	'display' => 'calendar+clock'),
+						'useragent' 	=> array('Browser &amp; OS', 'function' => '_browser_os'),
 						'log_out' 		=> array('Log Out', 	'cmd' => 'user/remote-logout/{key}')
 					);
 
@@ -44,10 +45,47 @@
 		$user['password'] = '[encrypted]';
 		$user['password_conf'] = '';
 		$data = array('schema' => $users_schema, 'logins_schema' => $logins_schema, 'user' => $user);
-		$data['logins'] = $db->query('SELECT id, cookie, remember, ip, last_login FROM login WHERE user_id = '.$user['id']);
+		$data['logins'] = $db->query('SELECT id, cookie, remember, ip, last_login, useragent FROM login WHERE user_id = '.$user['id'].' ORDER BY last_login DESC');
 		//
 		$data['html_head'] = array('title' => 'My Account');
 		return $data;
+	}
+	function _is_current_browser($row){
+		global $user_id;
+		if ($row['cookie'] == $user_id)
+			return 'This Device';
+		return '';
+	}
+	function _browser_os($row){
+		$row['useragent'] = json_decode($row['useragent'], true);
+		$browser_icons = array('Chrome' => 'chrome.png', 'Firefox' => 'firefox.png', 'MSIE' => 'internet_explorer.png', 'IEMobile' => 'internet_explorer.png', 'Opera' => 'opera.png', 'Opera Next' => 'opera.png', 'Safari' => 'safari.png', 'OTHER' => 'browser.png');
+		$os_icons = array('Windows' => 'screen_aqua.png', 'Linux' => 'screen_lensflare.png', 'Apple' => 'screen_aurora_snowleopard.png', 'Android' => 'android.png', 'Chrome OS' => 'screen_lensflare.png', 'iPhone' => 'iphone.png', 'PlayStation' => 'game_controller.png', 'OTHER' => 'screen_windows.png');
+		if (isset($browser_icons[$row['useragent']['browser']]))
+			$output = '<img src="'.BASE_URL_STATIC.'icons/'.$browser_icons[$row['useragent']['browser']].'" title="'.$row['useragent']['browser'].'" />';
+		else
+			$output = '<img src="'.BASE_URL_STATIC.'icons/'.$browser_icons['OTHER'].'" title="'.$row['useragent']['browser'].'" />';
+		$output .= ' <small>'.$row['useragent']['version'].'</small>';
+		if (isset($os_icons[$row['useragent']['platform']]))
+			$output .= ' on <img src="'.BASE_URL_STATIC.'icons/'.$os_icons[$row['useragent']['platform']].'" title="'.$row['useragent']['platform'].'" />';
+		else
+			$output .= ' on <img src="'.BASE_URL_STATIC.'icons/'.$os_icons['OTHER'].'" title="'.$row['useragent']['platform'].'" />';
+		return $output;//$row['useragent']['browser'].' on '.$row['useragent']['platform'];
+	}
+	function _location_by_ip($row){
+		$details = file_get_contents('http://api.ipinfodb.com/v3/ip-city/?key=43ccf11857d2bb9eda6c6891f62346852d9b4e4bb0a4e9ace6bbc91e1b2326a8&ip='.$row['ip']);
+		$details = explode(';', $details);
+		if ($details[4] == '-')
+			return '<img src="'.BASE_URL_STATIC.'icons/applications.png" title="localhost" /> localhost';
+		else
+			return '<img src="'.BASE_URL_STATIC.'icons/flags/flag_'.strtolower(str_replace(' ', '_', $details[4])).'.png" title="'.$details[4].'" /> '.$details[5].' '.$details[6];
+	}
+
+	function remote_logout($params){
+		global $acl, $user;
+		$db = connect_database();
+		$acl['delete'] = true;
+		$db->query('DELETE FROM login WHERE user_id = '.$user['id'].' AND id = '.$params[0]);
+		redirect('user');
 	}
 
 	function reset_password($params){
@@ -119,8 +157,11 @@
 						flash_message('Someone has requested to reset your password. We recommend you change your password now.', 'warning');
 					//
 					global $user_id, $acl, $ip;
+					include 'interfaces/user_agent_parser.php';
 					$login = $db->query('SELECT id FROM login WHERE cookie = \''.$user_id.'\''); // user_id = '.$user['id'].' OR
-					$loginRec = array('remember' => isset($params['remember']) ? 1 : 0, 'user_id' => $user['id'], 'session' => session_id(), 'ip' => $ip, 'last_login' => date('Y-m-d H:i:s'), 'useragent' => $_SERVER['HTTP_USER_AGENT']);
+					$loginRec = array('remember' => isset($params['remember']) ? 1 : 0, 'user_id' => $user['id'],
+									'session' => session_id(), 'ip' => $ip, 'last_login' => date('Y-m-d H:i:s'),
+									'useragent' => json_encode(parse_user_agent($_SERVER['HTTP_USER_AGENT'])));
 					if ($login = row_assoc($login)){
 						$acl['edit'] = true;
 						$loginRec['id'] = $login['id'];

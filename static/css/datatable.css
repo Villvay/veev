@@ -40,6 +40,10 @@ table.table-striped tr td a{
 	text-decoration:none;
 }
 
+table.table-striped tr td img{
+	vertical-align:middle;
+}
+
 table.table-striped tr td a.button{
 	margin: -7px 0px -7px 5px;
 	padding: 4px 6px;
