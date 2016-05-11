@@ -12,6 +12,11 @@ function errorHandler($errno, $errstr, $errfile, $errline/*, $errcontext*/){
 	set_include_path(dirname(dirname(__FILE__)).'/');
 	require_once dirname(__FILE__).'/render.php';
 	//
+	/*if (substr($errfile, strlen($errfile)-23) == 'interfaces/database.php'){
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		print_r($backtrace);
+		die();
+	}*/
 	if (substr($errfile, strlen($errfile)-20) == 'framework/render.php'){
 		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$i = 0;

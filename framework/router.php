@@ -47,7 +47,7 @@ if ($login = row_assoc($login)){
 	}
 	if ($login['session'] != session_id()){
 		$acl['edit'] = true;
-		$db->update('login', array('id' => $login['id'], 'session' => session_id(), 'useragent' => $_SESSION['USERAGENT']));
+		$db->update('login', array('id' => $login['id'], 'session' => session_id(), 'useragent' => json_encode($_SESSION['USERAGENT'])));
 	}
 }
 if (!isset($user))
