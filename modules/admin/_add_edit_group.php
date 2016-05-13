@@ -3,18 +3,9 @@
 <script src="<?php echo BASE_URL_STATIC; ?>js/acl.js"></script>
 <h2><?php echo $html_head['title']; ?></h2>
 
-<?php 	render_form($schema, $a_user, 'admin/save-user', false,
+<?php 	render_form($schema, $a_user, 'admin/save-group', false,
 					//	Form Extra
 					function($schema, $data){ ?>
-		<div class="form-group row">
-			<label for="auth">Groups</label>
-			<div>
-<?php 					$data['groups'] = explode(', ', $data['groups']);
-						foreach ($schema['groups']['enum'] as $id => $title){ ?>
-				<label><input type="checkbox" name="groups[<?php echo $id; ?>]"<?php echo in_array($id, $data['groups']) ? ' checked' : ''; ?> /><?php echo $title; ?></label>
-<?php 					} ?>
-			</div>
-		</div>
 		<div class="form-group row">
 			<label for="auth">Access Control</label>
 			<table class="ACL">

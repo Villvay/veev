@@ -1,4 +1,5 @@
 <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/datatable.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/admin-database.css" />
 <h2>Database</h2>
 
 <p>This allows you synchronize database schema changes between two or more deployments of a Veev app.</p>
@@ -78,7 +79,6 @@ After updating the project (with your favourite VCS), any database change will b
 <?php 		foreach ($schema as $col => $meta){
 				$changedIn = false;
 				if ($changed){
-//echo $col .':'. $row[$col] .':'. $import[$table][$field][$col];
 					$changedIn = $row[$col] != $import[$table][$field][$col];
 				} ?>
 				<td class="<?php echo $changedIn ? 'changed' : ''; ?>"><?php echo $changedIn ? $import[$table][$field][$col].' =&gt; ' : ''; ?><?php echo $row[$col]; ?></td>
@@ -87,135 +87,4 @@ After updating the project (with your favourite VCS), any database change will b
 <?php
 	} ?>
 
-<style>
-	h3{
-		margin:0px 0px 6px 0px;
-	}
-	section{
-		padding:5px;
-		margin:-6px;
-		border-radius:5px;
-	}
-	textarea{
-		font-family:monospace;
-		margin-top:6px;
-		max-width:100%;
-		width:100%;
-	}
-	/* ----- */
-	section.exist{
-		border:1px solid #FFFF88;
-		background-color:#FFFFCC;
-	}
-	section.exist textarea{
-		background-color:#FFFFEE;
-		color:#666600;
-	}
-	section.new{
-		border:1px solid #88FF88;
-		background-color:#CCFFCC;
-	}
-	section.new textarea{
-		background-color:#EEFFEE;
-		color:#006600;
-	}
-	section.old{
-		border:1px solid #FF8888;
-		background-color:#FFCCCC;
-	}
-	section.old textarea{
-		background-color:#FFEEEE;
-		color:#660000;
-	}
-	/* ----- */
-	section.new tr td, section.exist tr.new td{
-		background-color:#CCF4CC;
-	}
-	section.new tr:nth-child(odd) td, section.exist tr.new:nth-child(odd) td{
-		background-color:#CFEBCF;
-	}
-	/* ----- */
-	section.old tr td, section.exist tr.old td{
-		background-color:#F4CCCC;
-	}
-	section.old tr:nth-child(odd) td, section.exist tr.old:nth-child(odd) td{
-		background-color:#EBCFCF;
-	}
-	/* ----- */
-	section.exist tr td.changed{
-		background-color:#F4F4CC;
-	}
-	section.exist tr:nth-child(odd) td.changed{
-		background-color:#EBEBCF;
-	}
-	/* ----- */
-	table.table-striped tr:hover td {
-		background-color: #FFFFD0 !important;
-	}
-</style>
-
-<script>
-var sections = document.querySelectorAll('section');
-for (var i = 0; i < sections.length; i++){
-	//sections[i].style.height = sections[i].offsetHeight+'px';
-	sections[i].setAttribute('data-height', sections[i].offsetHeight);
-}
-var toggles = document.querySelectorAll('section a.toggle');
-var togglingElem, expandedHeight;
-for (var i = 0; i < toggles.length; i++)
-	toggles[i].onclick = function(){
-		if (this.parentNode.className.indexOf('collapse') > 0){
-			togglingElem = this.parentNode;
-			togglingElem.style.transition = '';
-			togglingElem.style.height = 'auto';
-			togglingElem.className = togglingElem.className.replace(' collapse', '');
-			expandedHeight = togglingElem.offsetHeight-12;
-			togglingElem.style.height = '28px';
-			setTimeout(
-				function(){
-					togglingElem.style.height = expandedHeight + 'px';
-					togglingElem.setAttribute('data-height', expandedHeight);
-					togglingElem.style.transition = 'height 1s';
-				}, 50
-			);
-			setTimeout(
-				function(){
-					togglingElem.style.height = 'auto';
-				}, 1500
-			);
-		}
-		else{
-			togglingElem = this.parentNode;
-			togglingElem.style.height = togglingElem.getAttribute('data-height') + 'px';
-			togglingElem.style.transition = 'height 1s';
-			setTimeout(
-				function(){
-					togglingElem.style.height = '28px';
-					togglingElem.className = togglingElem.className + ' collapse';
-				}, 50
-			);
-		}
-	}
-</script>
-<style>
-	section{
-		height:auto;
-		overflow:hidden;
-		xtransition:height 1s;
-	}
-	section.collapse{
-		height:28px !important;
-	}
-	section a.toggle{
-		background-image:url('<?php echo BASE_URL_STATIC; ?>icons/button_blue_delete.png');
-		display:block;
-		float:right;
-		height:48px;
-		width:48px;
-		margin:-7px;
-		cursor:pointer;
-	}
-	section.collapse a.toggle{
-		background-image:url('<?php echo BASE_URL_STATIC; ?>icons/button_blue_add.png');
-	}
-</style>
+<script src="<?php echo BASE_URL_STATIC; ?>js/admin-database.js"></script>

@@ -85,7 +85,7 @@
 	function remote_logout($params){
 		global $acl, $user;
 		$db = connect_database();
-		$acl['delete'] = true;
+		$acl[] = 'delete';
 		$db->query('DELETE FROM login WHERE user_id = '.$user['id'].' AND id = '.$params[0]);
 		redirect('user');
 	}
@@ -100,7 +100,7 @@
 				include 'interfaces/email.php';
 				$reset_code = base64_encode(sha1(microtime().'-'.$ip, true));
 				send_email($user['email'], array('code' => $reset_code), 'password', 'Reset your password');
-				$acl['edit'] = true;	//	Override Access Control for unauthorized user - special case
+				$acl[] = 'edit';		//	Override Access Control for unauthorized user - special case
 				$db->update('user', array('id' => $user['id'], 'reset_code' => $reset_code));
 				redirect('user', 'reset-password/step-2');
 			}
@@ -123,7 +123,7 @@
 			if ($params['password'] == $params['password_conf']){
 				global $acl;
 				$db = connect_database();
-				$acl['edit'] = true;	//	Override Access Control for unauthorized user - special case
+				$acl[] = 'edit';		//	Override Access Control for unauthorized user - special case
 				$db->update('user', array('id' => $_SESSION['PASSWORD_RESET_USER_ID'], 'password' => md5($params['password'].':'.COMMON_SALT), 'reset_code' => ''));
 				unset($_SESSION['PASSWORD_RESET_USER_ID']);
 				flash_message('Your password is updated. You can log-in with the new password now', 'success');
@@ -165,12 +165,12 @@
 									'session' => session_id(), 'ip' => $ip, 'last_login' => date('Y-m-d H:i:s'),
 									'useragent' => json_encode(parse_user_agent($_SERVER['HTTP_USER_AGENT'])));
 					if ($login = row_assoc($login)){
-						$acl['edit'] = true;
+						$acl[] = 'edit';
 						$loginRec['id'] = $login['id'];
 						$db->update('login', $loginRec);
 					}
 					else{
-						$acl['add'] = true;
+						$acl[] = 'add';
 						$loginRec['cookie'] = $user_id;
 						$db->insert('login', $loginRec);
 					}
@@ -193,7 +193,7 @@
 	function sign_out($params){
 		global $user, $user_id, $acl;
 		$db = connect_database();
-		$acl['delete'] = true;
+		$acl[] = 'delete';
 		$db->query('DELETE FROM login WHERE user_id = '.$user['id'].' OR cookie = \''.$user_id.'\'');
 		//unset($_SESSION['user']);
 		redirect('user', 'log_in');

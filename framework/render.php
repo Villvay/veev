@@ -84,7 +84,7 @@
 		</div>
 <?php 		}
 		}
-		if (isset($acl['edit']) && $edit_action != false){ ?>
+		if (in_array('edit', $acl) && $edit_action != false){ ?>
 		<input class="btn" type="button" value="Edit" onclick="window.location='<?php echo BASE_URL.$edit_action; ?>';" />
 <?php 	} ?>
 		<input class="btn" type="button" value="Back" onclick="window.history.back();" />
@@ -220,9 +220,9 @@ tinymce.init({
 
 	function render_table($schema, $data, $classname = false){
 		global $acl;
-		if (!isset($acl['edit']))
+		if (!in_array('edit', $acl))
 			unset($schema['edit']);
-		if (!isset($acl['delete']))
+		if (!in_array('delete', $acl))
 			unset($schema['delete']);
 		$found = false; ?>
 	<table width="100%" class="table table-striped<?php echo $classname != false ? ' '.$classname : ''; ?>"><thead><tr>

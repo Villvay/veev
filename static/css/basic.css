@@ -23,6 +23,17 @@ p{
 p img{
 	max-width:100%;
 }
+pre{
+	white-space:pre-wrap;
+	color:#401919;
+	background-color:#F9F8F5;
+	border:1px solid #E8E8E8;
+	border-radius:3px;
+	font-size:10pt;
+	padding:4px;
+	overflow:auto;
+	max-height:300px;
+}
 
 nav.scrolling{
 	border-bottom:1px solid #303030;

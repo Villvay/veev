@@ -38,20 +38,40 @@ if ($login = row_assoc($login)){
 	}
 	$login['useragent'] = json_decode($login['useragent'], true);
 	if ($login['useragent']['platform'] != $_SESSION['USERAGENT']['platform'] || $login['useragent']['browser'] != $_SESSION['USERAGENT']['browser']){
-		$acl['delete'] = true;				//	Cookie does not match Browser and OS
+		$acl[] = 'delete';				//	Cookie does not match Browser and OS
 		$db->query('DELETE FROM login WHERE id = '.$login['id']);
 	}
 	else{
-		$user = row_assoc($db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth FROM `user` WHERE id = '.$login['user_id']));
-		$user['auth'] = array_merge(json_decode(PUBLIC_MODULES, true), json_decode($user['auth'], true));
+		$user = row_assoc($db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth, groups FROM `user` WHERE id = '.$login['user_id']));
+		$user['auth'] = json_decode($user['auth'], true);
+		acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
+		if ($user['groups'] != ''){			//	Load group permissions
+			$groups = $db->query('SELECT auth FROM `user` WHERE id IN ('.$user['groups'].')');
+			while ($group = row_assoc($groups)){
+				$group = json_decode($group['auth'], true);
+				acl_union($user['auth'], $group);
+			}
+		}
 	}
 	if ($login['session'] != session_id()){
-		$acl['edit'] = true;
+		$acl[] = 'edit';
 		$db->update('login', array('id' => $login['id'], 'session' => session_id(), 'useragent' => json_encode($_SESSION['USERAGENT'])));
 	}
 }
 if (!isset($user))
 	$user = array('id' => -1, 'cid' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
+
+function acl_union(&$dest, $add){
+	foreach ($add as $module => $acl){
+		if (isset($dest[$module])){
+			foreach ($acl as $permission)
+				if (!in_array($permission, $dest[$module]))
+					$dest[$module][] = $permission;
+		}
+		else
+			$dest[$module] = $acl;
+	}
+}
 
 $lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
 if (file_exists('data/lang/'.$lang.'.json'))
@@ -66,7 +86,7 @@ function checkIfAuthorized($user, $module, $submodule = false){
 	if (!isset($user['auth'][$module.($submodule==false?'':'/'.$submodule)]))
 		return false;
 	else
-		return array_flip($user['auth'][$module.($submodule==false?'':'/'.$submodule)]);
+		return $user['auth'][$module.($submodule==false?'':'/'.$submodule)];
 }
 
 

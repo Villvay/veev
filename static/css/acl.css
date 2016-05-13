@@ -1,0 +1,30 @@
+
+table.ACL{
+	border-collapse:collapse;
+}
+
+table.ACL tr td, table.ACL tr td:first-child{
+	padding-top:0px;
+	padding-bottom:0px;
+}
+
+table.ACL tr.level-0 td{
+	padding-top:10px;
+}
+
+table.ACL tr.level-1 td{
+	font-size:10pt;
+}
+
+table.ACL tr th{
+	font-weight:normal;
+	border-bottom:1px solid #808080;
+}
+
+table.ACL tr th, table.ACL tr td{
+	text-align:center;
+}
+
+table.ACL tr th:first-child, table.ACL tr td:first-child{
+	text-align:left;
+}

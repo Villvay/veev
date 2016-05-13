@@ -30,7 +30,8 @@
 <?php 	$navigation = array();
 		$navigation[] = array('title' => 'Pages', 'icon' => 'fa-newspaper-o', 'module' => 'admin', 'method' => 'pages');
 		$navigation[] = array('title' => 'Inquiry', 'icon' => 'fa-envelope-o', 'module' => 'admin', 'method' => 'inquiry');
-		$navigation[] = array('title' => 'Users', 'icon' => 'fa-users', 'module' => 'admin', 'method' => 'users');
+		$navigation[] = array('title' => 'Users', 'icon' => 'fa-user', 'module' => 'admin', 'method' => 'users');
+		$navigation[] = array('title' => 'Groups', 'icon' => 'fa-users', 'module' => 'admin', 'method' => 'groups');
 		$navigation[] = array('title' => 'Version Control', 'icon' => 'fa-upload', 'module' => 'admin/developer', 'method' => 'vcs');
 		$navigation[] = array('title' => 'Database', 'icon' => 'fa-database', 'module' => 'admin/developer', 'method' => 'database');
 		$navigation[] = array('title' => 'View Site', 'icon' => 'fa-globe', 'module' => 'index');

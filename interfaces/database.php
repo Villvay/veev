@@ -31,10 +31,10 @@ class MySQL{
       $type = explode(' ', $Query_String);
       $type = strtoupper($type[0]);
       global $acl;
-      if ((in_array($type, array('SELECT', 'DESCRIBE', 'SHOW')) && !isset($acl['view'])) ||
-		(in_array($type, array('INSERT', 'CREATE')) && !isset($acl['add'])) ||
-		(in_array($type, array('UPDATE', 'ALTER')) && !isset($acl['edit'])) ||
-		(in_array($type, array('DELETE', 'DROP', 'TRUNCATE')) && !isset($acl['delete']))){
+      if ((in_array($type, array('SELECT', 'DESCRIBE', 'SHOW')) && !in_array('view', $acl)) ||
+		(in_array($type, array('INSERT', 'CREATE')) && !in_array('add', $acl)) ||
+		(in_array($type, array('UPDATE', 'ALTER')) && !in_array('edit', $acl)) ||
+		(in_array($type, array('DELETE', 'DROP', 'TRUNCATE')) && !in_array('delete', $acl))){
 	 ob_clean();
 	 global $lex, $user, $errorHandlerLatch;
 	 $errorHandlerLatch = true;
