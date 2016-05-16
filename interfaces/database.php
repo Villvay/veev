@@ -154,11 +154,11 @@ class MySQL{
 	return mysqli_insert_id($this->Link_ID);
    }
 
-   function delete($table, $id, $conditions = false){
-	if ($conditions == false)
-		$sql = 'DELETE FROM '.$table.' WHERE id = '.$id;
+   function delete($table, $id){
+	if (is_numeric($id))
+		$sql = 'DELETE FROM `'.$table.'` WHERE id = '.$id;
 	else
-		$sql = 'DELETE FROM '.$table.' WHERE '.$conditions;
+		$sql = 'DELETE FROM `'.$table.'` WHERE '.$id;
 	$this->query($sql);
    }
 

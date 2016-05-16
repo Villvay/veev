@@ -151,6 +151,7 @@
 		//
 		$auth = array();
 		foreach ($params['auth'] as $module => $acl){
+			//unset($acl['full']);
 			$acl = array_diff($acl, ['full']);
 			$auth[$module] = array_keys($acl);
 		}

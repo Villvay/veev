@@ -63,8 +63,8 @@ set_error_handler('errorHandler', E_ALL);
 //set_exception_handler('exceptionHandler');
 register_shutdown_function(
 	function(){
-		global $yield, $errorHandlerLatch;
-		if ($errorHandlerLatch)
+		global $yield, $errorHandlerLatch, $template_file;
+		if ($errorHandlerLatch || $template_file == 'json')
 			die();//$errorHandlerLatch = true;
 		else if ($yield == ''){
 			global $lex, $user;
