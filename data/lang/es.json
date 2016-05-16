@@ -2,7 +2,7 @@
 "language": "Español",
 "flag": "icons/flags/flag_spain.png",
 
-"title": "Website Title",
+"title": "A Veev Website",
 "subtitle": "Website Subtitle",
 
 "log-in": "Iniciar sesión",
@@ -19,9 +19,10 @@
 "privacy-policy": "Política de Privacidad",
 "terms-of-use": "Términos de Uso",
 
-"news": "Noticias",
-"my-news": "Mis noticias",
+"content": "Noticias",
+"my-content": "Mis noticias",
 
 "not-found": "404 No Encontrado",
+"page-not-found": "La página solicitada no se encuentra.",
 "translation-not-found": "La página solicitada no está disponible en el idioma que ha seleccionado."
 }

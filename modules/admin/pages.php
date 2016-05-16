@@ -5,5 +5,6 @@
 		render_table($schema, $pages, 'tbl-pages');
 	}
 	else{
-		render_form($schema, $content, 'admin/page/'.$content['slug']);
+		render_form($schema, $content, 'admin/pages/'.$content['slug']);
+?><style>iframe#content_ifr{height:300px !important; width:99.8% !important;}</style><?php
 	} ?>

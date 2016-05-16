@@ -8,7 +8,7 @@
 			$_SESSION['lang'] = $params[0];
 		header('location:'.$_SERVER['HTTP_REFERER']);
 	}
-	if (in_array($method, array('index', 'about', 'privacy_policy', 'terms_of_use', 'contact'))){
+	if (in_array($method, array('index', 'home', 'about', 'privacy_policy', 'terms_of_use', 'contact'))){
 		$page = $method == 'index' ? 'home' : $method;
 		$method = '_generic_page';
 	}
@@ -20,7 +20,7 @@
 		$content = $db->query('SELECT title, content FROM content WHERE lang = \''.$lang.'\' AND slug = \''.str_replace('_', '-', $page).'\'');
 		if ($data = row_assoc($content)){}
 		else
-			$data = array('title' => $lex['not-found'], 'content' => $lex['translation-not-found']);
+			$data = array('title' => $lex['not-found'], 'content' => '<p>'.$lex['translation-not-found'].'</p>');
 		//
 		$data['page'] = $page;
 		$data['html_head'] = array('title' => $data['title'], 'description' => shorten_string($data['title'], 250));

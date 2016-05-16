@@ -4,7 +4,7 @@ $errorHandlerLatch = false;
 if (!defined('DEBUG_BACKTRACE_IGNORE_ARGS'))
 	define('DEBUG_BACKTRACE_IGNORE_ARGS', 0);
 
-function errorHandler($errno, $errstr, $errfile, $errline/*, $errcontext*/){
+function errorHandler($errno = false, $errstr, $errfile = false, $errline = false/*, $errcontext*/){
 	global $errorHandlerLatch;
 	if ($errorHandlerLatch)
 		return;
@@ -34,7 +34,7 @@ function errorHandler($errno, $errstr, $errfile, $errline/*, $errcontext*/){
 	//
 	if (ON_ERROR == 'DISPLAY'){
 		$errfile = substr($errfile, strlen(__FILE__)-26);
-		$yield = '<b>'.$errno.'</b>: '.$errstr.'<br/>'.$errfile.'<br/>line ['.$errline.']';
+		$yield = ($errno == false ? '' : '<b>'.$errno.'</b>: ').$errstr.($errfile == false ? '' : '<br/>'.$errfile.($errline == false ? '' : '<br/>line ['.$errline.']'));
 	}
 	else if (ON_ERROR == 'LOG')
 		file_put_contents('data/'.date('Y-m-d').'-error.log', json_encode(array('errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile, 'errline' => $errline)).",\n", FILE_APPEND);
@@ -45,7 +45,12 @@ function errorHandler($errno, $errstr, $errfile, $errline/*, $errcontext*/){
 	}
 	//
 	global $lex, $user;
-	require_once 'templates/error_500.php';
+	if ($errno == false && $errfile == false && $errline == false){
+		$yield = '<pre>'.$yield.'</pre>';
+		require_once 'templates/home.php';
+	}
+	else
+		require_once 'templates/error_500.php';
 	die();
 }
 
@@ -98,5 +103,17 @@ else if (ON_ERROR == 'IGNORE'){
 	ini_set('display_startup_errors', 0);
 	error_reporting(0);
 }*/
+
+if (!function_exists('http_response_code')){
+	function http_response_code($newcode = NULL){
+		static $code = 200;
+		if ($newcode !== NULL){
+			header('X-PHP-Response-Code: '.$newcode, true, $newcode);
+			if (!headers_sent())
+				$code = $newcode;
+		}
+		return $code;
+	}
+}
 
 ?>

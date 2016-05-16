@@ -179,6 +179,9 @@
 				else{ ?>
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
 <?php 			} ?>
+<?php 			if (isset($field['tip'])){ ?>
+				<small><?php echo $field['tip']; ?></small>
+<?php 			} ?>
 			</div>
 		</div>
 <?php 		}
@@ -194,7 +197,8 @@
 <script>
 tinymce.init({
 	selector: "textarea.richtext", plugins: ["link image code fullscreen textcolor"], convert_urls: false,
-	toolbar: "bold italic | forecolor backcolor | fontsizeselect | alignleft aligncenter alignright | bullist numlist"
+	toolbar: "bold italic | forecolor backcolor | fontsizeselect | alignleft aligncenter alignright | bullist numlist",
+	css: "http://localhost/veev/static/css/basic.css"
 });
 </script>
 <?php 	}

@@ -27,6 +27,19 @@ class MySQL{
    }
 
    function query($Query_String){
+	if (defined('DB_TUNNEL')){
+		$opts = array('http' =>
+		    array(
+			'method'  => 'POST',
+			'header'  => 'Content-Type: application/binary, Content-Transfer-Encoding: base64',
+			'content' => base64_encode(gzcompress($Query_String))
+		    )
+		);
+		$result = file_get_contents(DB_TUNNEL, false, stream_context_create($opts));
+		$result = gzuncompress(base64_decode($result));
+		$result = json_decode($result, true);
+		return array('data' => $result, 'ptr' => 0);
+	}
       $this->connect();
       $type = explode(' ', $Query_String);
       $type = strtoupper($type[0]);

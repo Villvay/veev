@@ -74,7 +74,9 @@
 		return $output;
 	}
 	function _location_by_ip($row){
-		$details = file_get_contents('http://api.ipinfodb.com/v3/ip-city/?key=43ccf11857d2bb9eda6c6891f62346852d9b4e4bb0a4e9ace6bbc91e1b2326a8&ip='.$row['ip']);
+		$details = @file_get_contents('http://api.ipinfodb.com/v3/ip-city/?key=43ccf11857d2bb9eda6c6891f62346852d9b4e4bb0a4e9ace6bbc91e1b2326a8&ip='.$row['ip']);
+		if ($details === false)
+			return $row['ip'];
 		$details = explode(';', $details);
 		if ($details[4] == '-')
 			return '<img src="'.BASE_URL_STATIC.'icons/applications.png" title="localhost" /> localhost';
@@ -149,7 +151,7 @@
 	function log_in($params){
 		if (isset($params['username'])){
 			$db = connect_database();
-			$user = $db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth, reset_code FROM `user` WHERE username = \''.$params['username'].'\'');
+			$user = $db->query('SELECT id, organization, email, username, `password`, lang, timezone, auth, reset_code FROM `user` WHERE username = \''.$params['username'].'\'');
 			if ($user = row_assoc($user)){
 				if ($user['password'] == md5($params['password'].':'.COMMON_SALT)){
 					unset($user['password']);
@@ -197,6 +199,21 @@
 		$db->query('DELETE FROM login WHERE user_id = '.$user['id'].' OR cookie = \''.$user_id.'\'');
 		//unset($_SESSION['user']);
 		redirect('user', 'log_in');
+	}
+
+	// --------------------------------------------------------------------
+
+	function oauth2($params){
+		global $user;
+		if ($user['id'] < 0){
+			$_SESSION['REDIRECT_AFTER_SIGNIN'] = $_SERVER['REQUEST_URI'];
+			redirect('user', 'log-in');
+		}
+		//
+		$data = array();
+		//
+		$data['html_head'] = array('title' => 'Authorize');
+		return $data;
 	}
 
 	// --------------------------------------------------------------------

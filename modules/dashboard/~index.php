@@ -6,10 +6,10 @@
 
 <?php }else{ ?>
 
-<h2><?php echo $lex['news']; ?></h2>
+<h2><?php echo $lex['content']; ?></h2>
 
-<ul class="news">
-<?php 	while ($article = row_assoc($news)){ ?>
+<ul class="content">
+<?php 	while ($article = row_assoc($content)){ ?>
 	<li>
 		<a href="<?php echo BASE_URL; ?>news/<?php echo $page; ?>/<?php echo $article['id']; ?>/<?php echo slugify($article['title']); ?>">
 			<small><?php echo beautify_datetime($article['published']); ?></small>

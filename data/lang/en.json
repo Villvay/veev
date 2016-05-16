@@ -2,7 +2,7 @@
 "language": "English",
 "flag": "icons/flags/flag_usa.png",
 
-"title": "Website Title",
+"title": "A Veev Website",
 "subtitle": "Website Subtitle",
 
 "log-in": "Log in",
@@ -19,9 +19,10 @@
 "privacy-policy": "Privacy Policy",
 "terms-of-use": "Terms of Use",
 
-"news": "News",
-"my-news": "My News",
+"content": "Content",
+"my-content": "My Content",
 
-"not-found": "404: Not Found",
+"not-found": "404 Not Found",
+"page-not-found": "The page you requested is not found.",
 "translation-not-found": "The page you requested is not available in the language you have selected."
 }

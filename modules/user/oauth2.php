@@ -1,0 +1,1 @@
+<h2><?php echo $html_head['title']; ?></h2>

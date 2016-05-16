@@ -38,13 +38,11 @@
 				</ul>
 				<a id="hamberger"></a>
 <?php 	$navigation = array(
-			array('title' => $lex['news'], 'icon' => 'fa-newspaper-o', 'module' => 'news'),
 			array('title' => $lex['about'], 'icon' => 'fa-info-circle', 'method' => 'about'),
 			array('title' => $lex['contact'], 'icon' => 'fa-envelope-o', 'method' => 'contact'));
-		if ($user['id'] > 0){
-			$navigation[] = array('title' => $lex['my-news'], 'icon' => 'fa-newspaper-o', 'module' => 'news', 'method' => 'dashboard');
-			$navigation[] = array('title' => $lex['admin-dashboard'], 'icon' => 'fa-dashboard', 'module' => 'admin');
-		}
+		$navigation[] = array('title' => $lex['my-content'], 'icon' => 'fa-newspaper-o', 'module' => 'dashboard');
+		$navigation[] = array('title' => 'Developer', 'icon' => 'fa-code', 'module' => 'dashboard', 'method' => 'developer');
+		$navigation[] = array('title' => $lex['admin-dashboard'], 'icon' => 'fa-dashboard', 'module' => 'admin');
 		render_navigation($navigation); ?>
 			</div>
 		</nav>

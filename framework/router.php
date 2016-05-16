@@ -42,7 +42,7 @@ if ($login = row_assoc($login)){
 		$db->query('DELETE FROM login WHERE id = '.$login['id']);
 	}
 	else{
-		$user = row_assoc($db->query('SELECT id, cid, email, username, `password`, lang, timezone, auth, groups FROM `user` WHERE id = '.$login['user_id']));
+		$user = row_assoc($db->query('SELECT id, organization, email, username, `password`, lang, timezone, auth, groups FROM `user` WHERE id = '.$login['user_id']));
 		$user['auth'] = json_decode($user['auth'], true);
 		acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
 		if ($user['groups'] != ''){			//	Load group permissions
@@ -59,7 +59,7 @@ if ($login = row_assoc($login)){
 	}
 }
 if (!isset($user))
-	$user = array('id' => -1, 'cid' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
+	$user = array('id' => -1, 'organization' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
 
 function acl_union(&$dest, $add){
 	foreach ($add as $module => $acl){
@@ -74,11 +74,13 @@ function acl_union(&$dest, $add){
 }
 
 $lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
+$lex_file = 'data/lang/'.DEFAULT_LANGUAGE.'.json';
 if (file_exists('data/lang/'.$lang.'.json'))
-	$lex = file_get_contents('data/lang/'.$lang.'.json');
-else
-	$lex = file_get_contents('data/lang/'.DEFAULT_LANGUAGE.'.json');
-$lex = json_decode(substr($lex, 3), true);
+	$lex_file = 'data/lang/'.$lang.'.json';
+$lex = file_get_contents($lex_file);
+
+if (!$lex = json_decode(substr($lex, 3), true))
+	errorHandler(2, 'Invalid JSON syntax in language file', dirname(dirname(__FILE__)).'/'.$lex_file, 0);
 
 date_default_timezone_set($user['timezone']);
 
@@ -157,10 +159,14 @@ $method = str_replace('-', '_', $method);
 // Call the Method
 if (function_exists($method)){
 	$data = $method($params);
+	$method_yield = ob_get_contents();
+	ob_end_clean();
 	if ($submodule)
 		$yield = render_view('modules/'.$module.'/'.$submodule.'/'.$method.'.php', $data);
 	else
 		$yield = render_view('modules/'.$module.'/'.$method.'.php', $data);
+	if ($method_yield != '')
+		$yield = '<pre>'.$method_yield.'</pre>'.$yield;
 	if (isset($template_file) && $template_file != '' && (!isset($params['format']) || $params['format'] != 'js'))
 		$yield = render_template($template_file, $yield, (isset($data['html_head']) ? $data['html_head'] : false));
 	// =================

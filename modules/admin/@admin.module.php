@@ -15,14 +15,15 @@
 	$pages_schema = array(
 						'slug' 		=> array('Title', 		'key' => true, 'table' => false),
 						'title' 		=> array('Title'),
-						'lang' 		=> array('Language', 	'enum' => list_languages()),
+						'lang' 		=> array('Language'),
 						'content' 		=> array('Content', 	'display' => 'richtext', 'table' => false),
-						'slides' 		=> array('Slides', 		'display' => 'folder', 'path' => 'user/images/uploads/{slug}', 'table' => false),
+						'slides' 		=> array('Slides', 		'display' => 'folder', 'path' => 'dashboard/images/uploads/{slug}', 'table' => false),
 						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
 						'view' 		=> array('View', 		'form' => false, 'cmd' => '{key}')
 					);
 	function pages($params){
 		global $pages_schema;
+		$pages_schema['lang']['enum'] = list_languages();
 		$data = array('schema' => $pages_schema);
 		$db = connect_database();
 		//
@@ -36,9 +37,9 @@
 				$found = true;
 			}
 			//
-			if (isset($params['en'])){
+			if (isset($params['content'])){
 				if ($found)
-					$db->update('content', array('ch' => $params['ch'], 'en' => $params['en']), 'slug = \''.$params['slug'].'\'');
+					$db->update('content', $params, 'slug = \''.$params['slug'].'\'');
 				else
 					$db->insert('content', $params);
 				flash_message('Content is saved', 'success');
@@ -83,7 +84,7 @@
 		$data = array('schema' => $users_schema);
 		$db = connect_database();
 		//
-		$data['users'] = $db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND password != \'[GROUP]\'');
+		$data['users'] = $db->query('SELECT * FROM `user` WHERE organization = '.$user['organization'].' AND password != \'[GROUP]\'');
 		//
 		$data['html_head'] = array('title' => 'User Accounts');
 		return $data;
@@ -97,7 +98,7 @@
 		//
 		$db = connect_database();
 		$users_schema['groups']['enum'] = array();
-		$groups = $db->query('SELECT id, username FROM `user` WHERE cid = '.$user['cid'].' AND password = \'[GROUP]\'');
+		$groups = $db->query('SELECT id, username FROM `user` WHERE organization = '.$user['organization'].' AND password = \'[GROUP]\'');
 		while ($group = row_assoc($groups))
 			$users_schema['groups']['enum'][$group['id']] = $group['username'];
 		//
@@ -133,7 +134,7 @@
 		$data = _add_edit_user($params);
 		$db = connect_database();
 		//
-		$data['a_user'] = row_assoc($db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND id = '.$params[0]));
+		$data['a_user'] = row_assoc($db->query('SELECT * FROM `user` WHERE organization = '.$user['organization'].' AND id = '.$params[0]));
 		$data['a_user']['password'] = '[encrypted]';
 		//
 		$data['html_head'] = array('title' => 'Edit User Account');
@@ -158,7 +159,7 @@
 		//
 		if ($params['id'] == 'new'){
 			unset($params['id']);
-			$params['cid'] = $user['cid'];
+			$params['organization'] = $user['organization'];
 			$db->insert('user', $params);
 		}
 		else
@@ -178,7 +179,7 @@
 		$data = array('schema' => $users_schema);
 		$db = connect_database();
 		//
-		$data['groups'] = $db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND password = \'[GROUP]\'');
+		$data['groups'] = $db->query('SELECT * FROM `user` WHERE organization = '.$user['organization'].' AND password = \'[GROUP]\'');
 		//
 		$data['html_head'] = array('title' => 'User Groups');
 		return $data;
@@ -212,7 +213,7 @@
 		global $user;
 		$data = _add_edit_group($params);
 		$db = connect_database();
-		$data['a_user'] = row_assoc($db->query('SELECT * FROM `user` WHERE cid = '.$user['cid'].' AND id = '.$params[0]));
+		$data['a_user'] = row_assoc($db->query('SELECT * FROM `user` WHERE organization = '.$user['organization'].' AND id = '.$params[0]));
 		//
 		$data['html_head'] = array('title' => 'Edit User Group');
 		return $data;
@@ -232,7 +233,7 @@
 		//
 		if ($params['id'] == 'new'){
 			unset($params['id']);
-			$params['cid'] = $user['cid'];
+			$params['organization'] = $user['organization'];
 			$db->insert('user', $params);
 		}
 		else

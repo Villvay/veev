@@ -152,8 +152,8 @@ $thirty2k_secret = base64_encode(md5($thirty2k_app_id.'NaCl', true));
 			'define (\'BASE_URL_STATIC\', \''+document.config.base_url_static.value+'\');\n'+
 			'define (\'STATIC_FILES_ROOT\', \''+document.config.static_files_root.value+'\');\n'+
 			'\n// Security\n'+
-			'define (\'PUBLIC_MODULES\', \'{"index":["view"], "user":["view", "edit"]}\');\n'+
-			'define (\'COMMON_SALT\', \'NaCl\');\n'+
+			'define (\'PUBLIC_MODULES\', \'{"index":["view"], "user":["view"]}\');\n'+
+			'define (\'COMMON_SALT\', \'KCl\'); // Changing this later will invalidate all user passwords.\n'+
 			'\n// Logging\n'+
 			'define (\'ON_ERROR\', \'DISPLAY\');//{DISPLAY, LOG, IGNORE, EMAIL}\n'+
 			'define (\'DATABASE_LOGGING\', \'OFF\');\n'+
