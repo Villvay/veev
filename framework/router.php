@@ -24,42 +24,74 @@ $params_count = count($params);
 
 
 //	SESSION/ACL RELATED
-session_start();
-ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
-include 'interfaces/user_tracking.php';
-global $acl;
-$acl = array('view' => true);
-$db = connect_database();
-$login = $db->select('id, user_id, useragent, session', 'login', 'cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
-if ($login = row_assoc($login)){
-	if (!isset($_SESSION['USERAGENT'])){	//	Protect from session and cookie hijacking
-		include 'interfaces/user_agent_parser.php';
-		$_SESSION['USERAGENT'] = parse_user_agent($_SERVER['HTTP_USER_AGENT']);
-	}
-	$login['useragent'] = json_decode($login['useragent'], true);
-	if ($login['useragent']['platform'] != $_SESSION['USERAGENT']['platform'] || $login['useragent']['browser'] != $_SESSION['USERAGENT']['browser']){
-		$acl[] = 'delete';				//	Cookie does not match Browser and OS
-		$db->delete('login', $login['id']);
-	}
-	else{
-		$user = row_assoc($db->select('id, organization, email, username, `password`, lang, timezone, auth, groups', 'user', $login['user_id']));
-		$user['auth'] = json_decode($user['auth'], true);
-		acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
-		if ($user['groups'] != ''){			//	Load group permissions
-			$groups = $db->select('auth', 'user', 'id IN ('.$user['groups'].')');
-			while ($group = row_assoc($groups)){
-				$group = json_decode($group['auth'], true);
-				acl_union($user['auth'], $group);
+$request_headers = apache_request_headers();
+if (!isset($request_headers['authentication'])){
+	session_start();
+	ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
+	include 'interfaces/user_tracking.php';
+	global $acl;
+	$acl = array('view' => true);
+	$db = connect_database();
+	$login = $db->select('id, user_id, useragent, session', 'login', 'cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
+	if ($login = row_assoc($login)){
+		if (!isset($_SESSION['USERAGENT'])){	//	Protect from session and cookie hijacking
+			include 'interfaces/user_agent_parser.php';
+			$_SESSION['USERAGENT'] = parse_user_agent($_SERVER['HTTP_USER_AGENT']);
+		}
+		$login['useragent'] = json_decode($login['useragent'], true);
+		if ($login['useragent']['platform'] != $_SESSION['USERAGENT']['platform'] || $login['useragent']['browser'] != $_SESSION['USERAGENT']['browser']){
+			$acl[] = 'delete';				//	Cookie does not match Browser and OS
+			$db->delete('login', $login['id']);
+		}
+		else{
+			$user = row_assoc($db->select('id, organization, email, username, lang, timezone, auth, groups', 'user', $login['user_id']));
+			$user['auth'] = json_decode($user['auth'], true);
+			acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
+			if ($user['groups'] != ''){			//	Load group permissions
+				$groups = $db->select('auth', 'user', 'id IN ('.$user['groups'].')');
+				while ($group = row_assoc($groups)){
+					$group = json_decode($group['auth'], true);
+					acl_union($user['auth'], $group);
+				}
 			}
 		}
+		if ($login['session'] != session_id()){
+			$acl[] = 'edit';
+			$db->update('login', array('id' => $login['id'], 'session' => session_id(), 'useragent' => json_encode($_SESSION['USERAGENT'])));
+		}
 	}
-	if ($login['session'] != session_id()){
-		$acl[] = 'edit';
-		$db->update('login', array('id' => $login['id'], 'session' => session_id(), 'useragent' => json_encode($_SESSION['USERAGENT'])));
-	}
+	if (!isset($user))
+		$user = array('id' => -1, 'organization' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
 }
-if (!isset($user))
-	$user = array('id' => -1, 'organization' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
+else{
+	$token = base64_decode(substr($request_headers['authentication'], 7));
+	$signature = strpos($token, '{');
+	$signature = substr($token, 0, $signature);
+	$token = substr($token, strlen($signature));
+	if ($signature != base64_encode(md5($token.':'.COMMON_SALT, true)))
+		die(json_encode(array('error' => '401 Unauthorized')));
+	$token = json_decode($token, true);
+	//
+	global $acl;
+	$acl = array('view' => true);
+	$db = connect_database();
+	$user = row_assoc($db->query('SELECT id, organization, email, username, lang, timezone, auth, groups FROM `user` WHERE id = '.$token['userid']));
+	$user['auth'] = json_decode($user['auth'], true);
+	acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
+	if ($user['groups'] != ''){			//	Load group permissions
+		$groups = $db->query('SELECT auth FROM `user` WHERE id IN ('.$user['groups'].')');
+		while ($group = row_assoc($groups)){
+			$group = json_decode($group['auth'], true);
+			acl_union($user['auth'], $group);
+		}
+	}
+	foreach ($user['auth'] as $key => $acl)
+		if (!in_array($key, $token['scopes']))
+			unset($user['auth'][$key]);
+	print_r($user);
+	$template_file = 'json';
+	die('-- Under Construction --');
+}
 
 function acl_union(&$dest, $add){
 	foreach ($add as $module => $acl){
@@ -165,7 +197,7 @@ if (function_exists($method)){
 		$yield = render_view('modules/'.$module.'/'.$submodule.'/'.$method.'.php', $data);
 	else
 		$yield = render_view('modules/'.$module.'/'.$method.'.php', $data);
-	if ($method_yield != '')
+	if ($method_yield != '' && $template_file != '')
 		$yield = '<pre>'.$method_yield.'</pre>'.$yield;
 	if (isset($template_file) && $template_file != '' && (!isset($params['format']) || $params['format'] != 'js'))
 		$yield = render_template($template_file, $yield, (isset($data['html_head']) ? $data['html_head'] : false));
