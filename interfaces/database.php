@@ -60,8 +60,11 @@ class MySQL{
       $this->Errno = mysqli_errno($this->Link_ID);
       $this->Error = mysqli_error($this->Link_ID);
       if (!$this->Query_ID){
-	 $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-	 errorHandler(1, $this->Error.'<br/><pre>'.str_replace(array('FROM', 'WHERE', 'AND', 'ORDER'), array('<br/>FROM', '<br/>WHERE', '<br/> &nbsp; AND', '<br/>ORDER'), $Query_String).'</pre>', $backtrace[0]['file'], $backtrace[0]['line']);
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		$i = 0;
+		while (substr($backtrace[$i]['file'], strlen($backtrace[$i]['file'])-23) == 'interfaces/database.php')
+			$i += 1;
+		errorHandler(1, $this->Error.'<br/><pre>'.str_replace(array('FROM', 'WHERE', 'AND', 'ORDER'), array('<br/>FROM', '<br/>WHERE', '<br/> &nbsp; AND', '<br/>ORDER'), $Query_String).'</pre>', $backtrace[$i]['file'], $backtrace[$i]['line']);
       }
       return $this->Query_ID;
    }
@@ -85,7 +88,7 @@ class MySQL{
 		$qpart .= '`'.$table.'`';
 	if ($conditions == false){}
 	else if (is_numeric($conditions))
-		$qpart .= ' WHERE `'.$table[0].'`.id = '.$conditions;
+		$qpart .= ' WHERE `'.(is_array($table) ? $table[0] : $table).'`.id = '.$conditions;
 	else
 		$qpart .= ' WHERE '.$conditions;
 	//

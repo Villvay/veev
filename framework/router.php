@@ -30,7 +30,7 @@ include 'interfaces/user_tracking.php';
 global $acl;
 $acl = array('view' => true);
 $db = connect_database();
-$login = $db->query('SELECT id, user_id, useragent, session FROM login WHERE cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
+$login = $db->select('id, user_id, useragent, session', 'login', 'cookie = \''.$user_id.'\' AND (remember = 1 OR session = \''.session_id().'\')');
 if ($login = row_assoc($login)){
 	if (!isset($_SESSION['USERAGENT'])){	//	Protect from session and cookie hijacking
 		include 'interfaces/user_agent_parser.php';
@@ -39,14 +39,14 @@ if ($login = row_assoc($login)){
 	$login['useragent'] = json_decode($login['useragent'], true);
 	if ($login['useragent']['platform'] != $_SESSION['USERAGENT']['platform'] || $login['useragent']['browser'] != $_SESSION['USERAGENT']['browser']){
 		$acl[] = 'delete';				//	Cookie does not match Browser and OS
-		$db->query('DELETE FROM login WHERE id = '.$login['id']);
+		$db->delete('login', $login['id']);
 	}
 	else{
-		$user = row_assoc($db->query('SELECT id, organization, email, username, `password`, lang, timezone, auth, groups FROM `user` WHERE id = '.$login['user_id']));
+		$user = row_assoc($db->select('id, organization, email, username, `password`, lang, timezone, auth, groups', 'user', $login['user_id']));
 		$user['auth'] = json_decode($user['auth'], true);
 		acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
 		if ($user['groups'] != ''){			//	Load group permissions
-			$groups = $db->query('SELECT auth FROM `user` WHERE id IN ('.$user['groups'].')');
+			$groups = $db->select('auth', 'user', 'id IN ('.$user['groups'].')');
 			while ($group = row_assoc($groups)){
 				$group = json_decode($group['auth'], true);
 				acl_union($user['auth'], $group);

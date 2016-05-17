@@ -51,7 +51,7 @@ After updating the project (with your favourite VCS), any database change will b
 			foreach ($import[$table] as $col => $meta){
 				if (!isset($tblSchema[$col])){
 					render_rw($col, $import[$table][$col], array(), $table, $schema, 'old', $sql);
-					$sql .= ($sql != '' ? ',' : '')."\n".'  DROP COLUMN '.$col;
+					$sql .= ($sql != '' ? ',' : '')."\n".'  DROP COLUMN `'.$col.'`';
 				}
 			}
 			$changedAny = true;
@@ -76,10 +76,23 @@ After updating the project (with your favourite VCS), any database change will b
 		} ?>
 			<tr class="<?php echo $exist ? 'exist' : $direction; ?>">
 				<td><?php echo $field; ?></td>
-<?php 		foreach ($schema as $col => $meta){
+<?php 		$type_changed = false;
+			foreach ($schema as $col => $meta){
 				$changedIn = false;
 				if ($changed){
 					$changedIn = $row[$col] != $import[$table][$field][$col];
+					if ($changedIn){
+						if ($col == 'Type' || $col == 'Size'){
+							$sql .= $type_changed ? '' : ' '.$row['Type'].'('.$row['Size'].')';
+							$type_changed = true;
+						}
+						else if ($col == 'Null')
+							$sql .= $row['Null'] == 'NO' ? ' NOT NULL' : ' NULL';
+						else if ($col == 'Extra' && $row['Extra'] == 'auto_increment')
+							$sql .= ' AUTO_INCREMENT';
+						else if ($col == 'Default')
+							$sql .= ' DEFAULT '.($row['Default'] == '' ? 'NULL' : '\''.$row['Default'].'\'');
+					}
 				} ?>
 				<td class="<?php echo $changedIn ? 'changed' : ''; ?>"><?php echo $changedIn ? $import[$table][$field][$col].' =&gt; ' : ''; ?><?php echo $row[$col]; ?></td>
 <?php 		} ?>

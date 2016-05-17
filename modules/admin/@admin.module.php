@@ -31,7 +31,7 @@
 			$data['page'] = $params[0];
 			//
 			$found = false;
-			$content = $db->query('SELECT slug, lang, title, content FROM content WHERE slug = \''.$params[0].'\'');
+			$content = $db->select('slug, lang, title, content', 'content', 'slug = \''.$params[0].'\'');
 			if ($content = row_assoc($content)){
 				$data['content'] = $content;
 				$found = true;
@@ -47,7 +47,7 @@
 			}
 		}
 		else
-			$data['pages'] = $db->query('SELECT slug, lang, title FROM content');
+			$data['pages'] = $db->select('slug, lang, title', 'content');
 		//
 		$data['html_head'] = array('title' => 'Pages: Admin Dashboard');
 		return $data;
@@ -155,7 +155,7 @@
 			$auth[$module] = array_keys($acl);
 		}
 		$params['auth'] = json_encode($auth);
-		$params['groups'] = implode(', ', array_flip($params['groups']));
+		$params['groups'] = isset($params['groups']) ? implode(', ', array_flip($params['groups'])) : '';
 		//
 		if ($params['id'] == 'new'){
 			unset($params['id']);

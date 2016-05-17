@@ -7,7 +7,7 @@
 			'title' 	=> array('Title'),
 			'clientid' 	=> array('Client ID',			'display' => 'readonly'),
 			'secret' 	=> array('Client Secret',		'display' => 'readonly'),
-			'urls' 	=> array('Authorized URLs', 	'display' => 'textarea', 'tip' => 'Enter each URL one under another in seperate lines'),
+			'urls' 	=> array('Authorized URLs', 	'display' => 'textarea', 'tip' => 'Enter URLs one per line'),
 			'view' 	=> array('Details', 			'form' => false, 'cmd' => 'dashboard/developer/{key}'),
 		);
 
