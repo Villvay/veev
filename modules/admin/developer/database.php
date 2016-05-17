@@ -57,7 +57,7 @@ After updating the project (with your favourite VCS), any database change will b
 			$changedAny = true;
 		}
 		if ($changedAny && $sql != '')
-			$sql = 'ALTER TABLE '.$table.$sql.';'; ?>
+			$sql = 'ALTER TABLE `'.$table.'` '.$sql.';'; ?>
 		</tbody>
 	</table>
 	<textarea name="sql[]"><?php echo $sql; ?></textarea>
@@ -72,7 +72,7 @@ After updating the project (with your favourite VCS), any database change will b
 			$exist = true;
 			$changed = serialize($row) != serialize($import[$table][$field]);
 			if ($changed)
-				$sql .= ($sql != '' ? ',' : '')."\n".'  MODIFY `'.$field.'`';
+				$sql .= ($sql != '' ? ',' : '')."\n".'  MODIFY `'.$field.'` `'.$field.'`';
 		} ?>
 			<tr class="<?php echo $exist ? 'exist' : $direction; ?>">
 				<td><?php echo $field; ?></td>
@@ -81,18 +81,16 @@ After updating the project (with your favourite VCS), any database change will b
 				$changedIn = false;
 				if ($changed){
 					$changedIn = $row[$col] != $import[$table][$field][$col];
-					if ($changedIn){
-						if ($col == 'Type' || $col == 'Size'){
-							$sql .= $type_changed ? '' : ' '.$row['Type'].'('.$row['Size'].')';
-							$type_changed = true;
-						}
-						else if ($col == 'Null')
-							$sql .= $row['Null'] == 'NO' ? ' NOT NULL' : ' NULL';
-						else if ($col == 'Extra' && $row['Extra'] == 'auto_increment')
-							$sql .= ' AUTO_INCREMENT';
-						else if ($col == 'Default')
-							$sql .= ' DEFAULT '.($row['Default'] == '' ? 'NULL' : '\''.$row['Default'].'\'');
+					if ($col == 'Type' || $col == 'Size'){
+						$sql .= $type_changed ? '' : ' '.$row['Type'].($row['Size'] == '' ? '' : '('.$row['Size'].')');
+						$type_changed = true;
 					}
+					else if ($col == 'Null')
+						$sql .= $row['Null'] == 'NO' ? ' NOT NULL' : ' NULL';
+					else if ($col == 'Extra' && $row['Extra'] == 'auto_increment')
+						$sql .= ' AUTO_INCREMENT';
+					else if ($col == 'Default')
+						$sql .= ' DEFAULT '.($row['Default'] == '' ? 'NULL' : '\''.$row['Default'].'\'');
 				} ?>
 				<td class="<?php echo $changedIn ? 'changed' : ''; ?>"><?php echo $changedIn ? $import[$table][$field][$col].' =&gt; ' : ''; ?><?php echo $row[$col]; ?></td>
 <?php 		} ?>

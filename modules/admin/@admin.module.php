@@ -150,11 +150,12 @@
 			$params['password'] = md5($params['password'].':'.COMMON_SALT);
 		//
 		$auth = array();
-		foreach ($params['auth'] as $module => $acl){
-			//unset($acl['full']);
-			$acl = array_diff($acl, ['full']);
-			$auth[$module] = array_keys($acl);
-		}
+		if (isset($params['auth']))
+			foreach ($params['auth'] as $module => $acl){
+				//unset($acl['full']);
+				$acl = array_diff($acl, ['full']);
+				$auth[$module] = array_keys($acl);
+			}
 		$params['auth'] = json_encode($auth);
 		$params['groups'] = isset($params['groups']) ? implode(', ', array_flip($params['groups'])) : '';
 		//

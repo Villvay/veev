@@ -6,17 +6,19 @@
 <?php 	render_form($schema, $a_user, 'admin/save-user', false,
 					//	Form Extra
 					function($schema, $data){ ?>
+<?php 					if (count($schema['groups']['enum']) > 0){ ?>
 		<div class="form-group row">
 			<label for="auth">Groups</label>
 			<div>
-<?php 					$data['groups'] = explode(', ', $data['groups']);
-						if (count($schema['groups']['enum']) == 0)
-							echo '<i>No user groups defined.</i>';
-						foreach ($schema['groups']['enum'] as $id => $title){ ?>
+<?php 						$data['groups'] = explode(', ', $data['groups']);
+							if (count($schema['groups']['enum']) == 0)
+								echo '<i>No user groups defined.</i>';
+							foreach ($schema['groups']['enum'] as $id => $title){ ?>
 				<label><input type="checkbox" name="groups[<?php echo $id; ?>]"<?php echo in_array($id, $data['groups']) ? ' checked' : ''; ?> /><?php echo $title; ?></label>
-<?php 					} ?>
+<?php 						} ?>
 			</div>
 		</div>
+<?php 					} ?>
 		<div class="form-group row">
 			<label for="auth">Access Control</label>
 			<table class="ACL">
