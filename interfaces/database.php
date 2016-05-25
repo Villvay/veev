@@ -79,7 +79,9 @@ class MySQL{
 		$n_table = count($table);
 		if ($n_table > 1)
 			for ($i = 1; $i < $n_table; $i++)
-				if (count($table[$i]) == 2)
+				if (!is_array($table[$i]))
+					$qpart .= ' LEFT JOIN `'.$table[$i].'` ON `'.$table[$i].'`.id = `'.$table[0].'`.'.$table[$i].'_id';
+				else if (count($table[$i]) == 2)
 					$qpart .= ' LEFT JOIN `'.$table[$i][0].'` ON `'.$table[$i][0].'`.`'.$table[$i][1].'` = `'.$table[0].'`.`'.$table[$i][2].'`';
 				else
 					$qpart .= ' LEFT JOIN `'.$table[$i][0].'` ON `'.$table[$i][0].'`.id = `'.$table[0].'`.`'.$table[$i][1].'`';

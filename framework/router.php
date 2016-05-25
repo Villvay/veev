@@ -112,7 +112,7 @@ if (file_exists('data/lang/'.$lang.'.json'))
 $lex = file_get_contents($lex_file);
 
 if (!$lex = json_decode(substr($lex, 3), true))
-	errorHandler(2, 'Invalid JSON syntax in language file', dirname(dirname(__FILE__)).'/'.$lex_file, 0);
+	errorHandler(4, 'Invalid JSON syntax in language file', dirname(dirname(__FILE__)).'/'.$lex_file, 0);
 
 date_default_timezone_set($user['timezone']);
 

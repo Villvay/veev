@@ -2,16 +2,21 @@
 
 	function render_view($view, $data){
 		global $user, $acl, $module, $method, $lex, $lang;
-		// Turn $data array to variables
-		if (isset($data))
-			foreach ($data as $key => $val)
-				$$key = $val;
 		// Render view to the output_buffer
 		ob_start();
-			if (file_exists($view))
+			if (file_exists($view)){
+				// Turn $data array to variables
+				if (isset($data))
+					foreach ($data as $key => $val)
+						$$key = $val;
 				include $view;
-			else
-				require_once 'templates/error_404.php';
+			}
+			else{
+				echo '<pre>';
+				print_r($data);
+				echo '</pre>';
+				//require_once 'templates/error_404.php';
+			}
 			$yield = ob_get_contents();
 		ob_end_clean();
 		return $yield;

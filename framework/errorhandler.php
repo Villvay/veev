@@ -31,8 +31,14 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 		$errfile = substr($errfile, strlen(__FILE__)-26);
 		$yield = ($errno == false ? '' : '<b>'.$errno.'</b>: ').$errstr.($errfile == false ? '' : '<br/>'.$errfile.($errline == false ? '' : '<br/>line ['.$errline.']'));
 	}
-	else if (ON_ERROR == 'LOG')
-		file_put_contents('data/'.date('Y-m-d').'-error.log', json_encode(array('errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile, 'errline' => $errline)).",\n", FILE_APPEND);
+	else if (ON_ERROR == 'LOG'){
+		$hash = md5($errno.':'.$errstr.':'.$errfile.':'.$errline);
+		$error_data = json_encode(array('level' => $errno, 'message' => $errstr, 'file' => $errfile, 'line' => $errline)).",\n";
+		file_put_contents('data/'.date('Y-m-d').'-error.log', time().':'.$error_data.",\n".'--------', FILE_APPEND);
+		if (!file_exists('data/error-'.$hash.'.log'))
+			file_put_contents('data/error-'.$hash.'.log', $error_data);
+		file_put_contents('data/error-'.$hash.'.log', ",\n".time(), FILE_APPEND);
+	}
 	else if (ON_ERROR == 'EMAIL'){
 		global $server_name;
 		include 'interfaces/email.php';
@@ -41,7 +47,6 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	//
 	global $lex, $user;
 	if ($errno == false && $errfile == false && $errline == false){
-		$yield = '<pre>'.$yield.'</pre>';
 		require_once 'templates/home.php';
 	}
 	else
