@@ -24,8 +24,7 @@ $params_count = count($params);
 
 
 //	SESSION/ACL RELATED
-$request_headers = apache_request_headers();
-if (!isset($request_headers['authentication'])){
+if (!isset($_SERVER['HTTP_AUTHENTICATION'])){
 	session_start();
 	ini_set('session.cookie_domain', ltrim($server_name, SUBDOMAIN.'.'));
 	include 'interfaces/user_tracking.php';
@@ -64,7 +63,7 @@ if (!isset($request_headers['authentication'])){
 		$user = array('id' => -1, 'organization' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
 }
 else{
-	$token = base64_decode(substr($request_headers['authentication'], 7));
+	$token = base64_decode(substr($_SERVER['HTTP_AUTHENTICATION'], 7));
 	$signature = strpos($token, '{');
 	$signature = substr($token, 0, $signature);
 	$token = substr($token, strlen($signature));

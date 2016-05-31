@@ -59,7 +59,7 @@
 		$data = array();
 		$db = connect_database();
 		//
-		$data['testing'] = $db->select('*', array('loginx', 'user'), 24);
+		$data['testing'] = $db->select('*', array('login', 'user'), 24);
 		//	SELECT * FROM login LEFT JOIN `user` ON `user`.id = login.user_id WHERE login.id = 24
 		//
 		$data['html_head'] = array('title' => 'Errors: Admin Dashboard');

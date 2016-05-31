@@ -117,6 +117,13 @@ function validate(){
 					return false;
 				}
 			}
+			else if (type == 'required'){
+				if (this.elements[i].value.trim() == ''){
+					alert('Please fill this field');
+					this.elements[i].focus();
+					return false;
+				}
+			}
 		}
 	}
 }
@@ -164,7 +171,7 @@ function textareaHandler(messageText){
 		this.style.height = '33px';
 		if (messageTextHeight != this.scrollHeight){
 			var bkpScrollHeight = this.scrollHeight;
-			this.style.height = /*bkpOffsetHeight*/messageTextHeight + 'px';
+			this.style.height = messageTextHeight + 'px';
 			this.scrollTop = 0;
 			//
 			setTimeout(
@@ -176,7 +183,7 @@ function textareaHandler(messageText){
 					messageText.style.height = messageTextHeight + 'px';
 				}, 5);
 			//
-			messageTextHeight = bkpScrollHeight;//this.scrollHeight;
+			messageTextHeight = bkpScrollHeight;
 			//
 			setTimeout(
 				function(){
@@ -185,7 +192,6 @@ function textareaHandler(messageText){
 					messageText.style.mozTransition = '';
 				}, 500);
 			//
-			//this.style.height = this.scrollHeight + 'px';
 			messageText.style.overflow = 'hidden';
 		}
 		else{
@@ -209,7 +215,179 @@ function textareaHandler(messageText){
 	}
 }
 
-var forms = document.querySelectorAll('form');
+//	Controller for Numeric masked input field
+function masked_input(input, format){
+	if (input == null || input == undefined)
+		return false;
+	input.setAttribute('data-format', format);
+	//
+	this.input_box = input;
+	this.input_format = format;
+	var _self = this;
+	//
+	var output = format.replace(/9/g, '_').replace(/A/g, '_');
+	var originalLength = output.length;
+	//
+	input.onkeydown = function(e){
+		e = e || event;
+		var target = e.target || e.srcElement;
+		if ((e.keyCode > 36 && e.keyCode < 41) || e.keyCode == 9)
+			return true;
+		else if (e.keyCode == 46){
+			e.cancelBubble = true;
+			return false;
+		}
+		else if (e.keyCode == 8){
+			var selStart;
+			var totLen = target.value.length;
+			if (document.selection){
+				var oSel = document.selection.createRange();
+				oSel.moveStart ('character', -originalLength);
+				selStart = oSel.text.length;
+			}
+			else
+				selStart = target.selectionStart;
+			//
+			if (selStart == 0)
+				return false;
+			//
+			if (target.value.substring(selStart-1, selStart) != '_' && isNumber(target.value.substring(selStart-1, selStart)))
+				target.value = target.value.substring(0, selStart-1) + '_' + target.value.substring(selStart, totLen);
+			try{
+				target.setSelectionRange(selStart-1, selStart-1);
+			}catch(e){	//	IE 8 support (fir IE testing)
+				var range = target.createTextRange();
+				range.collapse(true);
+				range.moveStart('character', selStart+1);
+				range.moveEnd('character', 0);
+				range.select();
+			}
+			//
+			e.cancelBubble = true;
+			return false;
+		}
+	}
+	//
+	input.onkeypress = function(e){
+		e = e || event;
+		var target = e.target || e.srcElement
+		var ch = String.fromCharCode(e.charCode || e.keyCode);
+		if ((e.keyCode > 36 && e.keyCode < 41) || e.keyCode == 9)
+			return true;
+		else if (!isNumber(ch) || ch == '\t'){
+			e.cancelBubble = true;
+			return false;
+		}
+		var format = target.getAttribute('data-format');
+		var output = format.replace(/9/g, '_').replace(/A/g, '_');
+		var totLen = target.value.length;
+		//
+		var selStart;
+		if (document.selection){
+			var oSel = document.selection.createRange();
+			oSel.moveStart ('character', -originalLength);
+			selStart = oSel.text.length;
+		}
+		else
+			selStart = target.selectionStart;
+		//
+		if (totLen == selStart){
+			e.cancelBubble = true;
+			return false;
+		}
+		//
+		while (selStart < totLen && (target.value.substring(selStart, selStart+1) != '_' && !isNumber(target.value.substring(selStart, selStart+1))))
+			selStart += 1;
+		target.value = target.value.substring(0, selStart) + ch + target.value.substring(selStart+1, totLen);
+		try{
+			target.setSelectionRange(selStart+1, selStart+1);
+		}
+		catch(e){	//	IE 8 support (for IE testing)
+			var range = target.createTextRange();
+			range.collapse(true);
+			range.moveStart('character', selStart+1);
+			range.moveEnd('character', 0);
+			range.select();
+		}
+		//
+		e.cancelBubble = true;
+		return false;
+	}
+	//
+	input.onmouseup = input.onfocus = function(e){
+		if (this.value == '')
+			this.value = output;
+		if (this.value == output)	//	Do not put 'else' on this line
+			try{
+				this.setSelectionRange(0, 0);
+			}
+			catch(e){	//	IE 8 support (for IE testing)
+				var range = this.createTextRange();
+				range.collapse(true);
+				range.moveStart('character', 0);
+				range.moveEnd('character', 0);
+				range.select();
+			}
+	}
+	//
+	input.onblur = function(e){
+		if (this.value == output)
+			this.value = '';
+	}
+}
+
+//	Alpha only fields
+function alpha_only(input){
+	input.onkeydown = function(e){0
+		var keyCode = e.keyCode || e.which;
+		//
+		if (keyCode == 9 || (keyCode > 36 && keyCode < 41))
+			return true;
+		//
+		e = e || window.event;
+		var charCode = e.charCode || e.keyCode;
+		if (charCode == 32 || charCode == 8 || charCode == 46)
+			return true;	//	Allow backspace / delete / space
+		if (charCode < 65 || charCode > 90)
+			return false;	//	Deny anything not a latin character
+	}
+	input.onchange = function(e){
+		this.value = this.value.replace(/[^A-Z a-z]/g, '');
+	}
+}
+var alpha_fields = document.querySelectorAll('.alpha-only');
+for (var i = 0; i < alpha_fields.length; i++)
+	new alpha_only(alpha_fields[i]);
+
+//	Numeric only fields
+function numer_only(input){
+	var maxlength = input.getAttribute('maxlength') == undefined ? -1 : input.getAttribute('maxlength')*1;
+	input.onkeydown = function(e){
+		e = e || window.event;
+		var keyCode = e.keyCode || e.which;
+		var charCode = e.charCode || e.keyCode;
+		var shiftCode = e.shiftKey || false;	//	THIS IS NOT A SAFE DERIVATIVE. CODE BREAKS ON FF & IE.!!!
+		//
+		if (keyCode == 9 || (keyCode > 36 && keyCode < 41))
+			return true;
+                //
+		if ((charCode == 8 || charCode == 46) && shiftCode == false)
+			return true;	//	Allow backspace / delete
+		if (maxlength > -1 && this.value.toString().length >= maxlength)
+			return false;	//	Deny
+		if (((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 106)) && shiftCode == false)
+			return true;	//	Allow numbers
+		else
+			return false;	//	Deny
+	}
+	//	For iPad
+	input.onkeyup = input.onchange = function(e){
+		this.value = this.value.replace(/[^0-9]/g, '').substring(0, maxlength);
+	}
+}
+
+
+var forms = document.querySelectorAll('form.autopilot');
 if (forms.length > 0){
 	forms[0].onsubmit = validate;
 	var type;
