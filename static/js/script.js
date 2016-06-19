@@ -127,17 +127,79 @@ function validate(){
 		}
 	}
 }
+
 function numericInputHandler(input){
-	input.onkeyup = function(){
-		if (isNumeric(this.value))
-			this.style.color = '';
+	var maxlength = input.getAttribute('maxlength') == undefined ? -1 : input.getAttribute('maxlength')*1;
+	input.onkeydown = function(e){
+		e = e || window.event;
+		var keyCode = e.keyCode || e.which;
+		var charCode = e.charCode || e.keyCode;
+		var shiftCode = e.shiftKey || false;
+		//
+		if (keyCode == 9 || (keyCode > 36 && keyCode < 41))
+			return true;
+                //
+		if ((charCode == 32 || charCode == 8 || charCode == 46))// && shiftCode == false
+			return true;	//	Allow backspace / delete
+		if (maxlength > -1 && this.value.toString().length >= maxlength)
+			return false;	//	Deny
+		if (((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 106)) && shiftCode == false)
+			return true;	//	Allow numbers
 		else
-			this.style.color = 'red';
-	};
+			return false;	//	Deny
+	}
 	input.onfocus = function(){
 		setTimeout(function(){input.select();}, 10);
 	};
+	input.onkeyup = input.onchange = function(e){
+		if (maxlength > -1)
+			this.value = this.value.replace(/[^0-9]/g, '').substring(0, maxlength);
+	}
 }
+
+function alphaInputHandler(input){
+	input.onkeydown = function(e){0
+		e = e || window.event;
+		var keyCode = e.keyCode || e.which;
+		//
+		if (keyCode == 9 || (keyCode > 36 && keyCode < 41))
+			return true;
+		//
+		e = e || window.event;
+		var charCode = e.charCode || e.keyCode;
+		if (charCode == 32 || charCode == 8 || charCode == 46)
+			return true;	//	Allow backspace / delete / space
+		if (charCode < 65 || charCode > 90)
+			return false;	//	Deny anything not a latin character
+	}
+	input.onchange = function(e){
+		this.value = this.value.replace(/[^A-Z a-z]/g, '');
+	}
+}
+
+function alphaNumericInputHandler(input){
+	input.onkeydown = function(e){
+		e = e || window.event;
+		var keyCode = e.keyCode || e.which;
+		var charCode = e.charCode || e.keyCode;
+		var shiftCode = e.shiftKey || false;
+		//
+		if (((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 106)) && shiftCode == false)
+			return true;	//	Allow numbers
+		//
+		if (keyCode == 9 || (keyCode > 36 && keyCode < 41))
+			return true;
+		//
+		if (charCode == 32 || charCode == 8 || charCode == 46)
+			return true;	//	Allow backspace / delete / space
+		//if (charCode < 65 || charCode > 90)
+		return false;	//	Deny anything not an alphanumeric character
+	}
+	input.onchange = function(e){
+		this.value = this.value.replace(/[^A-Z a-z 0-9]/g, '');
+	}
+}
+
 function currencyInputHandler(input){
 	input.onkeyup = function(){
 		if (isNumeric(this.value.replace(/,/g, '')))
@@ -154,11 +216,13 @@ function currencyInputHandler(input){
 		setTimeout(function(){input.select();}, 10);
 	};
 }
+
 function dateInputHandler(input){
 	input.onchange = function(){
 		this.style.color = '';
 	};
 }
+
 function textareaHandler(messageText){
 	messageText.style.overflow = 'auto';
 	var messageTextHeight = messageText.scrollHeight;
@@ -215,17 +279,12 @@ function textareaHandler(messageText){
 	}
 }
 
-//	Controller for Numeric masked input field
-function masked_input(input, format){
-	if (input == null || input == undefined)
-		return false;
-	input.setAttribute('data-format', format);
-	//
+function maskedInputHandler(input, mask){
 	this.input_box = input;
-	this.input_format = format;
+	this.input_mask = mask;
 	var _self = this;
 	//
-	var output = format.replace(/9/g, '_').replace(/A/g, '_');
+	var output = mask.replace(/9/g, '_').replace(/A/g, '_');
 	var originalLength = output.length;
 	//
 	input.onkeydown = function(e){
@@ -278,8 +337,7 @@ function masked_input(input, format){
 			e.cancelBubble = true;
 			return false;
 		}
-		var format = target.getAttribute('data-format');
-		var output = format.replace(/9/g, '_').replace(/A/g, '_');
+		var output = _self.input_mask.replace(/9/g, '_').replace(/A/g, '_');
 		var totLen = target.value.length;
 		//
 		var selStart;
@@ -336,76 +394,35 @@ function masked_input(input, format){
 	}
 }
 
-//	Alpha only fields
-function alpha_only(input){
-	input.onkeydown = function(e){0
-		var keyCode = e.keyCode || e.which;
-		//
-		if (keyCode == 9 || (keyCode > 36 && keyCode < 41))
-			return true;
-		//
-		e = e || window.event;
-		var charCode = e.charCode || e.keyCode;
-		if (charCode == 32 || charCode == 8 || charCode == 46)
-			return true;	//	Allow backspace / delete / space
-		if (charCode < 65 || charCode > 90)
-			return false;	//	Deny anything not a latin character
-	}
-	input.onchange = function(e){
-		this.value = this.value.replace(/[^A-Z a-z]/g, '');
-	}
-}
-var alpha_fields = document.querySelectorAll('.alpha-only');
-for (var i = 0; i < alpha_fields.length; i++)
-	new alpha_only(alpha_fields[i]);
-
-//	Numeric only fields
-function numer_only(input){
-	var maxlength = input.getAttribute('maxlength') == undefined ? -1 : input.getAttribute('maxlength')*1;
-	input.onkeydown = function(e){
-		e = e || window.event;
-		var keyCode = e.keyCode || e.which;
-		var charCode = e.charCode || e.keyCode;
-		var shiftCode = e.shiftKey || false;	//	THIS IS NOT A SAFE DERIVATIVE. CODE BREAKS ON FF & IE.!!!
-		//
-		if (keyCode == 9 || (keyCode > 36 && keyCode < 41))
-			return true;
-                //
-		if ((charCode == 8 || charCode == 46) && shiftCode == false)
-			return true;	//	Allow backspace / delete
-		if (maxlength > -1 && this.value.toString().length >= maxlength)
-			return false;	//	Deny
-		if (((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 106)) && shiftCode == false)
-			return true;	//	Allow numbers
-		else
-			return false;	//	Deny
-	}
-	//	For iPad
-	input.onkeyup = input.onchange = function(e){
-		this.value = this.value.replace(/[^0-9]/g, '').substring(0, maxlength);
-	}
-}
-
-
 var forms = document.querySelectorAll('form.autopilot');
-if (forms.length > 0){
-	forms[0].onsubmit = validate;
+for (var j = 0; j < forms.length; j++){
+	forms[j].onsubmit = validate;
 	var type;
-	for (var i = 0; i < forms[0].elements.length; i++){
-		type = forms[0].elements[i].getAttribute('data-validate');
+	for (var i = 0; i < forms[j].elements.length; i++){
+		type = forms[j].elements[i].getAttribute('data-validate');
+		var mask = forms[j].elements[i].getAttribute('data-mask');
 		if (type != null){
-			if (type == 'numeric'){
-				new numericInputHandler(forms[0].elements[i]);
+			if (type == 'alpha'){
+				new alphaInputHandler(forms[j].elements[i]);
+			}
+			else if (type == 'numeric'){
+				new numericInputHandler(forms[j].elements[i]);
+			}
+			else if (type == 'alphanumeric'){
+				new alphaNumericInputHandler(forms[j].elements[i]);
 			}
 			else if (type == 'currency'){
-				new currencyInputHandler(forms[0].elements[i]);
+				new currencyInputHandler(forms[j].elements[i]);
 			}
 			else if (type == 'date'){
-				new dateInputHandler(forms[0].elements[i]);
+				new dateInputHandler(forms[j].elements[i]);
+			}
+			else if (mask != undefined){
+				new maskedInputHandler(forms[j].elements[i], mask);
 			}
 		}
-		if (forms[0].elements[i].tagName == 'TEXTAREA')
-			new textareaHandler(forms[0].elements[i]);
+		if (forms[j].elements[i].tagName == 'TEXTAREA')
+			new textareaHandler(forms[j].elements[i]);
 	}
 }
 

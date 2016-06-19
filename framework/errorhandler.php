@@ -12,6 +12,22 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	set_include_path(dirname(dirname(__FILE__)).'/');
 	require_once dirname(__FILE__).'/render.php';
 	//
+	$backtrace = false;
+	if (substr($errstr, 0, 16) == 'Missing argument' && class_exists('ReflectionFunction')){
+		$p0 = strpos($errstr, ' ', 18);
+		$arg = substr($errstr, 17, $p0-17);
+		$p0 = strpos($errstr, 'for', 10);
+		$p0 = strpos($errstr, ' ', $p0);
+		$p1 = strpos($errstr, '(', $p0);
+		$p0 = substr($errstr, $p0+1, $p1-$p0-1);
+		$parameters = new ReflectionFunction($p0);
+		$parameters = $parameters->getParameters();
+		//for render_form(), called in /var/www/html/veev/modules/admin/errors.php on line 6
+		$errstr = 'Missing argument '.$arg.' ['.$parameters[$arg-1]->name.'] for ['.$p0.']';
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		$errfile = $backtrace[1]['file'];
+		$errline = $backtrace[1]['line'];
+	}
 	if (substr($errfile, strlen($errfile)-20) == 'framework/render.php'){
 		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$i = 0;
@@ -32,12 +48,17 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 		$yield = ($errno == false ? '' : '<b>'.$errno.'</b>: ').$errstr.($errfile == false ? '' : '<br/>'.$errfile.($errline == false ? '' : '<br/>line ['.$errline.']'));
 	}
 	else if (ON_ERROR == 'LOG'){
-		$hash = md5($errno.':'.$errstr.':'.$errfile.':'.$errline);
-		$error_data = json_encode(array('level' => $errno, 'message' => $errstr, 'file' => $errfile, 'line' => $errline)).",\n";
-		file_put_contents('data/'.date('Y-m-d').'-error.log', time().':'.$error_data.",\n".'--------', FILE_APPEND);
-		if (!file_exists('data/error-'.$hash.'.log'))
-			file_put_contents('data/error-'.$hash.'.log', $error_data);
-		file_put_contents('data/error-'.$hash.'.log', ",\n".time(), FILE_APPEND);
+		global $user, $params;
+		$adata = array('useragent' => $_SESSION['USERAGENT'], 'user_id' => $user['id'], 'params' => $params);
+		if ($backtrace == false)
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		$error_data = base64_encode(gzdeflate(json_encode(array('message' => $errstr, 'backtrace' => $backtrace, 'additional_data' => $adata)), 9));
+		//
+		$errfile = substr($errfile, strlen(__FILE__)-26);
+		$hash = str_replace(array('/', '='), array('-', '_'), base64_encode(gzdeflate($errno.':'.$errfile.':'.$errline)));
+		//if (!file_exists('data/errors/'.$hash.'.log'))
+		//	file_put_contents('data/errors/'.$hash.'.log', $error_data."\n");
+		file_put_contents('data/errors/'.$hash.'.log', time().':'.$error_data."\n", FILE_APPEND);
 	}
 	else if (ON_ERROR == 'EMAIL'){
 		global $server_name;

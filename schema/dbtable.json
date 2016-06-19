@@ -1,0 +1,8 @@
+{
+	"Type":{"0":"Type","function":"_type"},
+	"Size":{"0":"Size","function":"_type_length"},
+	"Null":["Null"],
+	"Key":["Key"],
+	"Default":["Default"],
+	"Extra":["Extra"]
+}

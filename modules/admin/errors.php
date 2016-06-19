@@ -1,6 +1,6 @@
 <pre>
 <?php
-	while ($row = row_assoc($testing)){
+	foreach ($errors as $row){
 		print_r($row);
 	}
 ?>

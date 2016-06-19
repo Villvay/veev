@@ -2,14 +2,14 @@
 
 	$template_file = 'admin.php';
 
-	$table_schema = array(
+	/*$table_schema = array(
 			'Type' 	=> array('Type', 	'function' => '_type'),
 			'Size' 	=> array('Size', 	'function' => '_type_length'),
 			'Null' 	=> array('Null'),
 			'Key' 	=> array('Key'),
 			'Default' 	=> array('Default'),
 			'Extra' 	=> array('Extra'),
-		);
+		);*/
 
 	function _type($row){
 		$tmp = explode('(', $row['Type']);
@@ -24,7 +24,8 @@
 	}
 
 	function database($params){
-		global $table_schema;
+		/*global $table_schema;
+		write_schema('dbtable', $table_schema);*/
 		$data = array();
 		$db = connect_database();
 		//
@@ -54,7 +55,7 @@
 			}
 			$data['tables'][$table[0]] = $tmp;
 		}
-		$data['schema'] = $table_schema;
+		$data['schema'] = load_schema('dbtable');
 		//
 		if (isset($params[0]) && $params[0] == 'export'){	//	CHECK IF THERE ARE CONFLICTS
 			$result = file_put_contents('data/schema.db', gzdeflate(serialize($data['tables'])));

@@ -11,18 +11,10 @@
 
 	// --------------------------------------------------------------------
 
-	$pages_index = array('home' => 'Home Page', 'about' => 'About Us', 'contact' => 'Contact Us');
-	$pages_schema = array(
-						'slug' 		=> array('Title', 		'key' => true, 'table' => false),
-						'title' 		=> array('Title'),
-						'lang' 		=> array('Language'),
-						'content' 		=> array('Content', 	'display' => 'richtext', 'table' => false),
-						'slides' 		=> array('Slides', 		'display' => 'folder', 'path' => 'dashboard/images/uploads/{slug}', 'table' => false),
-						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'admin/pages/{key}', 'default' => true),
-						'view' 		=> array('View', 		'form' => false, 'cmd' => '{key}')
-					);
+	//$pages_index = array('home' => 'Home Page', 'about' => 'About Us', 'contact' => 'Contact Us');
+
 	function pages($params){
-		global $pages_schema;
+		$pages_schema = load_schema('page');
 		$pages_schema['lang']['enum'] = list_languages();
 		$data = array('schema' => $pages_schema);
 		$db = connect_database();
@@ -56,12 +48,18 @@
 	// --------------------------------------------------------------------
 
 	function errors($params){
-		$data = array();
-		$db = connect_database();
-		//
-		$data['testing'] = $db->select('*', array('login', 'user'), 24);
-		//	SELECT * FROM login LEFT JOIN `user` ON `user`.id = login.user_id WHERE login.id = 24
-		//
+		$directory = scandir('./data/errors/');
+		$files = array();
+		foreach ($directory as $file)
+			if (!in_array($file, array('.', '..')))
+				$files[$file] = filemtime('./data/errors/'.$file);
+		arsort($files);
+		$errors = array();
+		foreach ($files as $file => $mtime){
+			$file = explode(':', gzinflate(base64_decode(str_replace(array('-', '_'), array('/', '='), substr($file, 0, -4)))));
+			$errors[] = array('time' => beautify_datetime($mtime), 'level' => $file[0], 'file' => $file[1], 'line' => $file[2]);
+		}
+		$data['errors'] = $errors;
 		$data['html_head'] = array('title' => 'Errors: Admin Dashboard');
 		return $data;
 	}
@@ -79,20 +77,9 @@
 
 	// --------------------------------------------------------------------
 
-	$users_schema = array(
-						'id' 			=> array('ID', 				'table' => false, 'key' => true),
-						'username' 	=> array('Username', 		'form-width' => '50'),
-						'password' 	=> array('Password', 		'table' => false, 'display' => 'password', 'form-width' => '50'),
-						'email' 		=> array('Email'),
-						'timezone' 	=> array('Time Zone', 		'form-width' => '50'),
-						'groups' 		=> array('Groups', 			'table' => false, 'form' => false),
-						'lang' 		=> array('Language', 		'form-width' => '50'),
-						'auth' 		=> array('Authorized Modules', 'enum' => array(), 'table' => false, 'form' => false),
-						'edit' 		=> array('Edit', 			'form' => false, 'cmd' => 'admin/edit-user/{key}', 'default' => true)
-					);
-
 	function users($params){
-		global $users_schema, $user;
+		global $user;
+		$users_schema = load_schema('user');
 		$users_schema['lang']['enum'] = list_languages();
 		$data = array('schema' => $users_schema);
 		$db = connect_database();
@@ -104,7 +91,8 @@
 	}
 
 	function _add_edit_user($params){
-		global $users_schema, $user, $method;
+		global $user, $method;
+		$users_schema = load_schema('user');
 		$method = '_add_edit_user';
 		$users_schema['timezone']['enum'] = json_decode(file_get_contents('data/timezones.json'));
 		$users_schema['lang']['enum'] = list_languages();
@@ -123,7 +111,7 @@
 	function _subfolders($path){
 		$dh = opendir($path);
 		$data = array();
-		$public_modules = array_merge(array('.', '..'));//, array_keys(json_decode(PUBLIC_MODULES, true))
+		$public_modules = array_merge(array('.', '..'));
 		while (($file = readdir($dh)) !== false){
 			if (!in_array($file, $public_modules) && is_dir($path.$file)){
 				$data[] = array($file, _subfolders($path.$file.'/'));
@@ -136,7 +124,7 @@
 	function add_user($params){
 		global $user;
 		$data = _add_edit_user($params);
-		$data['a_user'] = array('id' => 'new', 'username' => '', 'password' => '', 'email' => '', 'timezone' => $user['timezone'], 'lang' => $user['lang'], 'auth' => '{}');
+		$data['a_user'] = array('id' => 'new', 'username' => '', 'password' => '', 'email' => '', 'groups' => '', 'timezone' => $user['timezone'], 'lang' => $user['lang'], 'auth' => '{}');
 		//
 		$data['html_head'] = array('title' => 'Add User Account');
 		return $data;
@@ -185,7 +173,8 @@
 	// --------------------------------------------------------------------
 
 	function groups($params){
-		global $users_schema, $user;
+		global $user;
+		$users_schema = load_schema('user');
 		unset($users_schema['password']);
 		unset($users_schema['email']);
 		unset($users_schema['timezone']);
@@ -201,7 +190,8 @@
 	}
 
 	function _add_edit_group($params){
-		global $users_schema, $method;
+		global $method;
+		$users_schema = load_schema('user');
 		$method = '_add_edit_group';
 		$users_schema['username'][0] = 'Group Name';
 		unset($users_schema['username']['form-width']);

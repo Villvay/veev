@@ -208,9 +208,18 @@ function row_array($resource){
 }
 
 function load_schema($file){
-	if (!$file = file_get_contents('schema/'.$file.'.json'))
-		return array();
-	return json_decode($file, true);
+	if (file_exists('schema/'.$file.'.json')){
+		$data = json_decode(file_get_contents('schema/'.$file.'.json'), true);
+		if (!$data)
+			$error = 'Invalid Schema JSON format in: schema/'.$file.'.json';
+	}
+	else
+		$error = 'Schema JSON file not found. Expected: schema/'.$file.'.json';
+	if (isset($error)){
+		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		errorHandler(1, $error, $backtrace[0]['file'], $backtrace[0]['line']);
+	}
+	return $data;
 }
 
 function write_schema($file, $schema){

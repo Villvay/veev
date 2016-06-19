@@ -121,7 +121,7 @@
 	<script src="<?php echo BASE_URL_STATIC; ?>js/select2filter.js"></script>
 	<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/select2filter.css" />
 <?php 	} ?>
-	<form method="post" class="data-form" action="<?php echo BASE_URL.$action; ?>"<?php echo $file_upload ? ' enctype="multipart/form-data"' : ''; ?> <?php echo $onsubmit == false ? 'onsubmit="return validate(this);"' : $onsubmit; ?> autocomplete="off">
+	<form method="post" class="data-form autopilot" action="<?php echo BASE_URL.$action; ?>"<?php echo $file_upload ? ' enctype="multipart/form-data"' : ''; ?> <?php echo $onsubmit == false ? 'onsubmit="return validate(this);"' : $onsubmit; ?> autocomplete="off">
 <?php 	foreach ($schema as $key => $field){
 			if (isset($field['key']) && $field['key'] || (isset($field['display']) && $field['display'] == 'hidden')){ ?>
 		<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
@@ -157,8 +157,8 @@
 				<span>$</span>
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" data-validate="currency" />
 <?php 				}
-					else if ($field['display'] == 'numeric'){ ?>
-				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" data-validate="numeric" />
+					else if (in_array($field['display'], array('alpha', 'numeric', 'alphanumeric'))){ ?>
+				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" data-validate="<?php echo $field['display']; ?>" />
 <?php 				}
 					else if ($field['display'] == 'check' || $field['display'] == 'checkbox'){ ?>
 				<input type="checkbox" class="form-control" name="<?php echo $key; ?>"<?php echo $data[$key] ? ' checked' : ''; ?> />
@@ -181,6 +181,9 @@
 				<iframe src="<?php echo BASE_URL; ?><?php echo $path; ?>" class="form-control"></iframe>
 <?php 				}
 				}
+				else if (isset($field['mask'])){ ?>
+				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" data-mask="<?php echo $field['mask']; ?>" />
+<?php 			}
 				else{ ?>
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
 <?php 			} ?>

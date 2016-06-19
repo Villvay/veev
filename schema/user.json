@@ -1,0 +1,10 @@
+{
+	"id":{"0":"ID","table":false,"key":true},
+	"username":{"0":"Username","form-width":"50"},
+	"password":{"0":"Password","table":false,"display":"password","form-width":"50"},
+	"email":["Email"],"timezone":{"0":"Time Zone","form-width":"50"},
+	"groups":{"0":"Groups","table":false,"form":false},
+	"lang":{"0":"Language","form-width":"50"},
+	"auth":{"0":"Authorized Modules","enum":[],"table":false,"form":false},
+	"edit":{"0":"Edit","form":false,"cmd":"admin\/edit-user\/{key}","default":true}
+}

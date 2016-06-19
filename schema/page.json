@@ -1,0 +1,9 @@
+{
+	"slug":{"0":"Title","key":true,"table":false},
+	"title":["Title"],
+	"lang":["Language"],
+	"content":{"0":"Content","display":"richtext","table":false},
+	"slides":{"0":"Slides","display":"folder","path":"dashboard\/images\/uploads\/{slug}","table":false},
+	"edit":{"0":"Edit","form":false,"cmd":"admin\/pages\/{key}","default":true},
+	"view":{"0":"View","form":false,"cmd":"{key}"}
+}
