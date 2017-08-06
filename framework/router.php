@@ -49,7 +49,6 @@ if (!isset($_SERVER['HTTP_AUTHENTICATION'])){
 			acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
 			if ($user['groups'] != ''){			//	Load group permissions
 				$groups = $db->select('id, username, auth', 'user', 'id IN ('.$user['groups'].')');
-				//$ugroups = explode(',', $user['groups']);
 				$user['groups'] = array();
 				while ($group = row_assoc($groups)){
 					$user['groups'][ $group['id'] ] = $group['username'];
@@ -136,14 +135,23 @@ if (isset($headers['content-type']) && $headers['content-type'] == 'application/
 		$params[$key] = $val;
 }
 
-require_once 'render.php';
-
-$module = str_replace('-', '_', $module);
-
 date_default_timezone_set($user['timezone']);
+
+//	Load languages
+require_once 'render.php';
+$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
+
+$lex_file = 'data/lang/'.DEFAULT_LANGUAGE.'.json';
+if (file_exists('data/lang/'.$lang.'.json'))
+	$lex_file = 'data/lang/'.$lang.'.json';
+$lex = file_get_contents($lex_file);
+
+if (!$lex = json_decode(substr($lex, 3), true))
+	errorHandler(4, 'Invalid JSON syntax in language file', dirname(dirname(__FILE__)).'/'.$lex_file, 0);
 
 
 // Include the Module
+$module = str_replace('-', '_', $module);
 $submodule = false;
 if (file_exists('modules/'.$module.'/@'.$module.'.module.php')){
 	$acl = checkIfAuthorized($user, $module);
@@ -179,17 +187,6 @@ else{
 		require_once 'templates/error_401.php';
 }
 $method = str_replace('-', '_', $method);
-
-//	Load languages
-$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
-
-$lex_file = 'data/lang/'.DEFAULT_LANGUAGE.'.json';
-if (file_exists('data/lang/'.$lang.'.json'))
-	$lex_file = 'data/lang/'.$lang.'.json';
-$lex = file_get_contents($lex_file);
-
-if (!$lex = json_decode(substr($lex, 3), true))
-	errorHandler(4, 'Invalid JSON syntax in language file', dirname(dirname(__FILE__)).'/'.$lex_file, 0);
 
 function checkIfAuthorized($user, $module, $submodule = false){
 	if (!isset($user['auth'][$module.($submodule==false?'':'/'.$submodule)]))
@@ -267,7 +264,7 @@ function redirect($module, $method = false, $params = false, $redirect_after = f
 	if(!$method)
 		$method = 'index';
 	header('location:'.BASE_URL.$module.'/'.$method.$params_list);
-	die();
+	exit;
 }
 
 ?>

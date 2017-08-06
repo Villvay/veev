@@ -1,4 +1,5 @@
 .htaccess
 web.config
+stdout.log
 framework/config.php
 static/uploads/*

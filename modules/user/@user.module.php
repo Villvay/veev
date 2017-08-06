@@ -23,7 +23,7 @@
 		if ($user['id'] == -1 && $method != 'log_in')
 			redirect('user', 'log_in');
 		//
-		global $users_schema, $logins_schema;
+		global $users_schema, $logins_schema, $acl;
 		$users_schema['timezone']['enum'] = json_decode(file_get_contents('data/timezones.json'));
 		$db = connect_database();
 		//
@@ -36,6 +36,7 @@
 				$params['password'] = md5($params['password'].':'.COMMON_SALT);
 			$params['id'] = $user['id'];
 			$params['reset_code'] = '';
+			$acl['edit'] = true;
 			$db->update('user', $params);
 			flash_message('Settings are updated.', 'success');
 			redirect('user');
@@ -190,6 +191,7 @@
 			flash_message('Wrong username or password.', 'error');
 		}
 		$data['html_head'] = array('title' => 'Log In');
+		return $data;
 	}
 
 	function sign_out($params){
@@ -215,20 +217,20 @@
 				global $template_file;
 				$template_file = 'json';
 				if (!isset($params['code']))
-					die(json_encode(array('error' => 'Authorization code not defined')));
+					return json_encode(array('error' => 'Authorization code not defined'));
 				else if (!isset($params['client_secret']))
-					die(json_encode(array('error' => 'Client Secret not defined')));
+					return json_encode(array('error' => 'Client Secret not defined'));
 				else if (!file_exists('data/oauthtokenstmp/'.$params['code'].'.token'))
-					die(json_encode(array('error' => 'Token expired or invalid')));
+					return json_encode(array('error' => 'Token expired or invalid'));
 				else{
 					$clientid = explode('-', $params['code']);
 					$app = row_assoc($db->select('*', 'app', 'clientid = \''.$clientid[0].'\''));
 					if ($app['secret'] != $params['client_secret'])
-						die(json_encode(array('error' => 'Client Secret is invalid')));
+						return json_encode(array('error' => 'Client Secret is invalid'));
 					else{
 						$token = file_get_contents('data/oauthtokenstmp/'.$params['code'].'.token');
 						unlink('data/oauthtokenstmp/'.$params['code'].'.token');
-						die(json_encode(array('access_token' => $token)));
+						return json_encode(array('access_token' => $token));
 					}
 				}
 			}
@@ -293,10 +295,10 @@
 					)
 				);
 			$result = file_get_contents('http://localhost/veev/user/oauth2/token', false, stream_context_create($opts));
-			die($result);
+			return $result;
 		}
 		else if (isset($params['error'])){
-			die($params['error']);
+			return $params['error'];
 		}
 	}
 
