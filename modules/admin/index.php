@@ -44,6 +44,12 @@
 			<br/>Pages
 		</a>
 	</li>
+	<li>
+		<a href="<?php echo BASE_URL; ?>admin/categories" class="sel">
+			<img src="<?php echo BASE_URL_STATIC; ?>icons/tag_white_barcode.png" />
+			<br/>Categories
+		</a>
+	</li>
 </ul>
 <style>
 ul.prods li img {

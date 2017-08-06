@@ -29,13 +29,13 @@
 			$html_head = array('title' => ucfirst($module).' '.ucfirst(str_replace('_', ' ', $method)));
 		}
 		ob_start();
-			if (file_exists('templates/'.$template)){
+			if (file_exists('templates/'.$template))
 				include 'templates/'.$template;
-				$yield = ob_get_contents();
-			}
-			else{
+			//
+			else
 				require_once 'templates/error_404.php';
-			}
+			//
+			$yield = ob_get_contents();
 		ob_end_clean();
 		//
 		return $yield;
@@ -75,7 +75,7 @@
 								$segment = $segment[0].$data[$segment[1]];
 							}
 						$path = implode($path); ?>
-				<iframe src="<?php echo BASE_URL; ?>dashboard/folder/view/<?php echo $path; ?>" class="form-control"></iframe>
+				<iframe src="<?php echo BASE_URL; ?><?php echo $path; ?>" class="form-control"></iframe>
 <?php 				}
 					else if ($field['display'] == 'textarea' || $field['display'] == 'richtext'){
 						echo $data[$key];
@@ -126,10 +126,10 @@
 			if (isset($field['key']) && $field['key'] || (isset($field['display']) && $field['display'] == 'hidden')){ ?>
 		<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
 <?php 		}
-			else if (!isset($field['form']) || $field['form']){ ?>
+			else if ((!isset($field['form']) || $field['form']) && !isset($field['cmd'])){ ?>
 		<div class="form-group row<?php echo isset($field['form-width']) ? ' width-'.$field['form-width'] : ''; ?>">
 			<div class="col-xs-6 col-md-4<?php echo isset($field['required']) && $field['required'] ? ' required' : ''; ?><?php echo isset($field['display']) && $field['display'] == 'currency' ? ' currency' : ''; ?>">
-				<label for="<?php echo $key; ?>"><?php echo $field[0]; ?></label>
+				<label for="<?php echo $key; ?>"><?php if (isset($field[0])) { echo $field[0]; } else { print_r($field); } ?></label>
 <?php 			if (isset($field['enum']) /*&& is_array($field['enum'])*/){
 					render_dropdown($key, $field['enum'], $data[$key]);
 				}
@@ -139,10 +139,13 @@
 				}
 				else if (isset($field['display'])){
 					if ($field['display'] == 'calendar'){ ?>
-				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo substr($data[$key], 0, 10); ?>" data-validate="date" onfocus="ShowCalendar(this);" readonly="true" />
+				<input type="date" class="form-control" name="<?php echo $key; ?>" value="<?php echo substr($data[$key], 0, 10); ?>" data-validate="date" onfocus="ShowCalendar(this);" readonly="true" />
 <?php 				}
 					if ($field['display'] == 'calendar+clock'){ ?>
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo substr($data[$key], 0, 10); ?>" data-validate="date" onfocus="ShowCalendar(this, 'clock');" readonly="true" />
+<?php 				}
+					if ($field['display'] == 'clock'){ ?>
+				<input type="time" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
 <?php 				}
 					else if ($field['display'] == 'password'){ ?>
 				<input type="password" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" />
@@ -167,8 +170,11 @@
 				<input type="text" class="form-control" name="<?php echo $key; ?>" value="<?php echo $data[$key]; ?>" readonly="true" />
 <?php 				}
 					else if ($field['display'] == 'file'){ ?>
-				<input type="file" class="form-control" name="<?php echo $key; ?>" />
-				<br/><br/><img src="<?php echo BASE_URL_STATIC.$data[$key].'-thumb.jpg'; ?>" width="240" />
+				<label class="file-input-wrap">
+					<b>Choose File</b> <i class="fa fa-folder-open"></i><?php /* br/><br/--><img src="<?php echo BASE_URL_STATIC.$data[$key]; ?>" width="80" / */ ?>
+					<span><?php echo $data[$key]; ?></span>
+					<input type="file" class="form-control" name="<?php echo $key; ?>" onchange="this.parentNode.querySelector('span').innerHTML=this.value.substring(this.value.lastIndexOf('\\')+1);" />
+				</label>
 <?php 				}
 					else if ($field['display'] == 'folder'){
 						$path = explode('}', $field['path']);
@@ -196,9 +202,10 @@
 		}
 		if ($extra)
 			$extra($schema, $data); ?>
-		<div class="row">
-			<input class="btn" type="submit" value="Save" />
-			<input class="btn" type="button" value="Cancel" onclick="window.history.back();" />
+		<div class="form-group row last-row">
+			<!--input class="btn" type="submit" value="Save" /-->
+			<button type="submit" name="save"><i class="fa fa-floppy-o"></i> Save</button>
+			<input class="btn" type="button" value="Cancel" onclick="<?php echo isset($_SERVER['HTTP_REFERER']) ? 'document.location=\''.$_SERVER['HTTP_REFERER'].'\';' : 'window.history.back();' ?>" />
 		</div>
 	</form>
 <?php 	if ($richtext){ ?>
@@ -231,6 +238,12 @@ tinymce.init({
 	// ========================================================
 
 	function render_table($schema, $data, $classname = false){
+		//print_r($schema);
+		//echo '['.count($schema).']';
+		if (!is_array($schema) || count($schema) == 0)
+			errorHandler(2, 'Empty Schema');
+		if ($data == false)
+			errorHandler(2, 'Empty Query Result');//throw new Exception('Empty query result');
 		global $acl;
 		if (!in_array('edit', $acl))
 			unset($schema['edit']);
@@ -270,7 +283,7 @@ tinymce.init({
 			foreach ($schema as $col => $meta){
 				if (isset($meta['key']) && $meta['key'])
 					$key = $row[$col];
-			} ?><tr onclick="return row_click(this);"<?php echo isset($key) ? 'data-key="'.$key.'"' : ''; ?>><?php
+			} ?><tr onclick="return row_click(this);" ondblclick="return row_dblclick(this);"<?php echo isset($key) ? 'data-key="'.$key.'"' : ''; ?>><?php
 			$cmd_opened = false;
 			foreach ($schema as $col => $meta){
 				if (isset($meta['link'])){
@@ -293,6 +306,10 @@ tinymce.init({
 					if (isset($meta['table-display'])){
 						if ($meta['table-display'] == 'enum')	//echo '<small>'.$row[$col].'</small>';
 							render_dropdown($col.'['.$key.']', $meta['enum'], $row[$col], $col, (isset($meta['onchange']) ? $meta['onchange'] : false), true);
+						else if ($meta['table-display'] == 'input')
+							echo '<input type="text" class="form-control '.$col.'" name="'.$col.'['.$key.']" value="'.$row[$col].'"'.(isset($meta['display']) && $meta['display'] == 'numeric' ? ' data-validate="numeric"' : '').' />';
+						else if ($meta['table-display'] == 'checkbox')
+							echo '<input type="checkbox" name="'.$col.'['.$key.']"'.($row[$col]==1 ? ' checked' : '').' />';
 						else if ($meta['table-display'] == 'calendar')
 							echo '<input type="text" class="form-control '.$col.'" name="'.$col.'['.$key.']" value="'.substr($row[$col], 0, 10).'" '.(isset($meta['onchange']) ? 'onchange="'.$meta['onchange'].'"' : '').'onfocus="return ShowCalendar(this);" readonly="true" />';
 						else if ($meta['table-display'] == 'calendar+clock')
@@ -348,7 +365,7 @@ tinymce.init({
 			if (!isset($link['method']))
 				$link['method'] = 'index';
 			if (!function_exists('checkIfAuthorized') || checkIfAuthorized($user, $link['module']) !== false){ ?>
-					<li<?php echo ($module == $link['module'] || $module.'/'.$submodule == $link['module']) && ($method == $link['method'] || $page == $link['method']) ? ' class="current"' : ''; ?>>
+					<li<?php echo ($module == $link['module'] || $module.'/'.$submodule == $link['module']) && (str_replace('_', '-', $method) == $link['method'] || $page == $link['method']) ? ' class="current"' : ''; ?>>
 <?php 			if (isset($link['submenu'])){ ?>
 						<label>
 							<?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><input type="checkbox" class="nav-chk" name="<?php echo str_replace('/', '-', $path); ?>"><?php echo $link['title']; ?>
@@ -356,7 +373,7 @@ tinymce.init({
 <?php 				render_navigation($link['submenu']);
 				}
 				else{ ?>
-						<a href="<?php echo BASE_URL.$path; ?>"><?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><?php echo $link['title']; ?></a>
+						<a href="<?php echo BASE_URL.$path; ?>"<?php echo isset($link['target']) ? ' target="'.$link['target'].'"' : ''; ?>><?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><?php echo $link['title']; ?></a>
 <?php 			} ?>
 					</li>
 <?php 		}
@@ -393,10 +410,14 @@ tinymce.init({
 
 	function list_languages(){
 		$files_path = dirname(dirname(__FILE__)).'/data/lang/';
-		$indexCreatedOn = @filemtime($files_path.'index.db');
-		$index = @unserialize(gzinflate(file_get_contents($files_path.'index.db')));
-		if (!$index)
+		if (file_exists($files_path.'index.db')){
+			$indexCreatedOn = @filemtime($files_path.'index.db');
+			$index = @unserialize(gzinflate(file_get_contents($files_path.'index.db')));
+		}
+		else{ /*$index = false; if (!$index)*/
+			$indexCreatedOn = 0;
 			$index = array();
+		}
 		$langs = array();
 		$indexChanged = false;
 		$dh = opendir($files_path);
@@ -416,6 +437,7 @@ tinymce.init({
 				unset($index[$key]);
 		if ($indexChanged)
 			file_put_contents($files_path.'index.db', gzdeflate(serialize($index)));
+		krsort($index);
 		return $index;
 	}
 
@@ -470,6 +492,10 @@ tinymce.init({
 
 	function beautify_datetime($datetime){
 		global $lang;
+		$dateOnly = false;
+		if (!is_numeric($datetime) && (strlen($datetime) < 11 || substr($datetime, -8) == '00:00:00'))
+			$dateOnly = true;
+		//
 		$time = is_numeric($datetime) ? $datetime : strtotime($datetime);
 		if ($time == 0)
 			return '-';
@@ -481,6 +507,10 @@ tinymce.init({
 		if ($diff < 86400){
 			if ($diff < 0)
 				return _beautify_datetime_future($datetime);
+			else if ($dateOnly && date('j', $now) == date('j', $time))
+				return 'Today';
+			else if ($dateOnly)
+				return 'Yesterday';
 			else if ($diff < 5)
 				return 'Just now';
 			else if ($diff < 60)
@@ -499,20 +529,28 @@ tinymce.init({
 			if (date('Y', $now) == date('Y', $time))
 				if (date('n', $now) == date('n', $time))
 					if (date('W', $now) == date('W', $time))
-						return date('l', $time).' '.date('g', $time).' '.date('a', $time);
+						return date('l', $time). ( $dateOnly ? '' : ' '.date('g', $time).' '.date('a', $time) );
 					else
-						return date('j', $time).date('S', $time).' '.date('M', $time).' '.date('g', $time).' '.date('a', $time);
+						return date('j', $time).date('S', $time).' '.date('M', $time). ( $dateOnly ? '' : ' '.date('g', $time).' '.date('a', $time) );
 				else
 					return date('j', $time).date('S', $time).' '.date('M', $time);
 			else
-				return date('M', $time).' '.date('Y', $time);
+				return date('M', $time).' '.date('Y', $time);//date('j', $time).' '.
 	}
 	function _beautify_datetime_future($datetime){
+		$dateOnly = false;
+		if (!is_numeric($datetime) && (strlen($datetime) < 11 || substr($datetime, -8) == '00:00:00'))
+			$dateOnly = true;
+		//
 		$time = strtotime($datetime);
 		$now = time();
 		$diff = $time - $now;
 		if ($diff < 86400){
-			if ($diff < 5)
+			if ($dateOnly && date('j', $now) == date('j', $time))
+				return 'Today';
+			else if ($dateOnly)
+				return 'Tomorrow';
+			else if ($diff < 5)
 				return 'Just now';
 			else if ($diff < 60)
 				return 'in '.$diff.' seconds';
@@ -530,13 +568,13 @@ tinymce.init({
 			if (date('Y', $now) == date('Y', $time))
 				if (date('n', $now) == date('n', $time))
 					if (date('W', $now) == date('W', $time))
-						return date('l g a', $time);
+						return date('l', $time). ( $dateOnly ? '' : ' '.date('g a', $time) );
 					else
-						return date('jS M g a', $time);
+						return date('jS M', $time). ( $dateOnly ? '' : ' '.date('g a', $time) );
 				else
 					return date('jS M', $time);
 			else
-				return date('M Y', $time);
+				return date('jS M Y', $time);
 	}
 
 	function slugify($text){

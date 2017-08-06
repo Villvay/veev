@@ -22,6 +22,7 @@ if (strpos($query_string, '?') !== false)
 $params = explode('/', $query_string);
 $params_count = count($params);
 
+$headers = array_change_key_case(getallheaders(), CASE_LOWER);
 
 //	SESSION/ACL RELATED
 if (!isset($_SERVER['HTTP_AUTHENTICATION'])){
@@ -47,8 +48,11 @@ if (!isset($_SERVER['HTTP_AUTHENTICATION'])){
 			$user['auth'] = json_decode($user['auth'], true);
 			acl_union($user['auth'], json_decode(PUBLIC_MODULES, true));
 			if ($user['groups'] != ''){			//	Load group permissions
-				$groups = $db->select('auth', 'user', 'id IN ('.$user['groups'].')');
+				$groups = $db->select('id, username, auth', 'user', 'id IN ('.$user['groups'].')');
+				//$ugroups = explode(',', $user['groups']);
+				$user['groups'] = array();
 				while ($group = row_assoc($groups)){
+					$user['groups'][ $group['id'] ] = $group['username'];
 					$group = json_decode($group['auth'], true);
 					acl_union($user['auth'], $group);
 				}
@@ -59,8 +63,6 @@ if (!isset($_SERVER['HTTP_AUTHENTICATION'])){
 			$db->update('login', array('id' => $login['id'], 'session' => session_id(), 'useragent' => json_encode($_SESSION['USERAGENT'])));
 		}
 	}
-	if (!isset($user))
-		$user = array('id' => -1, 'organization' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
 }
 else{
 	$token = base64_decode(substr($_SERVER['HTTP_AUTHENTICATION'], 7));
@@ -91,6 +93,8 @@ else{
 	$template_file = 'json';
 	die('-- Under Construction --');
 }
+if (!isset($user))
+	$user = array('id' => -1, 'organization' => -1, 'lang' => DEFAULT_LANGUAGE, 'timezone' => DEFAULT_TIMEZONE, 'auth' => json_decode(PUBLIC_MODULES, true));
 
 function acl_union(&$dest, $add){
 	foreach ($add as $module => $acl){
@@ -102,24 +106,6 @@ function acl_union(&$dest, $add){
 		else
 			$dest[$module] = $acl;
 	}
-}
-
-$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
-$lex_file = 'data/lang/'.DEFAULT_LANGUAGE.'.json';
-if (file_exists('data/lang/'.$lang.'.json'))
-	$lex_file = 'data/lang/'.$lang.'.json';
-$lex = file_get_contents($lex_file);
-
-if (!$lex = json_decode(substr($lex, 3), true))
-	errorHandler(4, 'Invalid JSON syntax in language file', dirname(dirname(__FILE__)).'/'.$lex_file, 0);
-
-date_default_timezone_set($user['timezone']);
-
-function checkIfAuthorized($user, $module, $submodule = false){
-	if (!isset($user['auth'][$module.($submodule==false?'':'/'.$submodule)]))
-		return false;
-	else
-		return $user['auth'][$module.($submodule==false?'':'/'.$submodule)];
 }
 
 
@@ -144,9 +130,17 @@ foreach ($_POST as $key => $val)
 foreach ($_GET as $key => $val)
 	$params[$key] = $val;
 
+if (isset($headers['content-type']) && $headers['content-type'] == 'application/json'){
+	$req_body = json_decode(file_get_contents('php://input'), true);
+	foreach ($req_body as $key => $val)
+		$params[$key] = $val;
+}
+
 require_once 'render.php';
 
 $module = str_replace('-', '_', $module);
+
+date_default_timezone_set($user['timezone']);
 
 
 // Include the Module
@@ -186,18 +180,40 @@ else{
 }
 $method = str_replace('-', '_', $method);
 
+//	Load languages
+$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : $user['lang'];
+
+$lex_file = 'data/lang/'.DEFAULT_LANGUAGE.'.json';
+if (file_exists('data/lang/'.$lang.'.json'))
+	$lex_file = 'data/lang/'.$lang.'.json';
+$lex = file_get_contents($lex_file);
+
+if (!$lex = json_decode(substr($lex, 3), true))
+	errorHandler(4, 'Invalid JSON syntax in language file', dirname(dirname(__FILE__)).'/'.$lex_file, 0);
+
+function checkIfAuthorized($user, $module, $submodule = false){
+	if (!isset($user['auth'][$module.($submodule==false?'':'/'.$submodule)]))
+		return false;
+	else
+		return $user['auth'][$module.($submodule==false?'':'/'.$submodule)];
+}
+
 
 // Call the Method
 if (function_exists($method)){
+	ob_start();
 	$data = $method($params);
 	$method_yield = ob_get_contents();
 	ob_end_clean();
-	if ($submodule)
-		$yield = render_view('modules/'.$module.'/'.$submodule.'/'.$method.'.php', $data);
+	//
+	if (is_array($data))
+		if ($submodule)
+			$yield = render_view('modules/'.$module.'/'.$submodule.'/'.$method.'.php', $data);
+		else
+			$yield = render_view('modules/'.$module.'/'.$method.'.php', $data);
 	else
-		$yield = render_view('modules/'.$module.'/'.$method.'.php', $data);
-	if ($method_yield != '' && $template_file != '')
-		$yield = '<pre>'.$method_yield.'</pre>'.$yield;
+		$yield = $data;
+	//
 	if (isset($template_file) && $template_file != '' && (!isset($params['format']) || $params['format'] != 'js'))
 		$yield = render_template($template_file, $yield, (isset($data['html_head']) ? $data['html_head'] : false));
 	// =================
@@ -208,15 +224,19 @@ if (function_exists($method)){
 		$encoding = 'gzip';
 	else
 		$encoding = false;
+	$size = strlen($yield);
 	if ($encoding){
-		$size = strlen($yield);
-		if ($size > 2048){
-			header('Content-Encoding: '.$encoding);
-			print("\x1f\x8b\x08\x00\x00\x00\x00\x00");
-			$yield = gzcompress($yield, 9);
-		}
+		//if ($size > 2048){
+		header('Content-Encoding: '.$encoding);
+		print("\x1f\x8b\x08\x00\x00\x00\x00\x00");
+		$yield = gzcompress($yield, 9);
+		//}
 	}
 	echo $yield;
+	//
+	$method_yield = "\n[".date('Y-m-d H:i:s').'] /'.$query_string.' '.http_response_code().' '.$size.($method_yield == '' ? '' : "\n".$method_yield."\n-------");
+	if (is_writable('stdout.log'))//$method_yield != '' && 
+		file_put_contents('stdout.log', $method_yield, FILE_APPEND);
 }
 else{
 	require_once 'templates/error_404.php';

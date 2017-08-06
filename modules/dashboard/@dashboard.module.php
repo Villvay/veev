@@ -1,58 +1,22 @@
 <?php
 
 	$template_file = 'home.php';
-	//if (isset($params[0]) && is_numeric($params[0]))
-	/*if (is_numeric($method) || $method == '*'){
-		$method = 'index';
-	}
 
 	function index($params){
 		global $user;
-		$data = array();
-		$db = connect_database();
-		//
-		$page = 1;
-		if (isset($params[0]) && $params[0] > 0)
-			$page = $params[0];
-		if (isset($params[0])){
-			$data['article'] = row_assoc($db->query('SELECT id, published, title, content FROM content WHERE id = '.$params[0]));
-		}
-		else{
-			$per_page = 5;
-			$data['content'] = $db->query('SELECT id, published, title, content FROM content WHERE author = '.$user['id'].' ORDER BY published DESC LIMIT '.($per_page * ($page - 1)).', '.$per_page);
-			$pages = row_array($db->query('SELECT COUNT(*) FROM content WHERE author = '.$user['id']));
-			$data['pages'] = ceil($pages[0] / $per_page);
-		}
-		$data['page'] = $page;
-		//
-		$data['html_head'] = array('title' => 'News: Website Title');
-		return $data;
-	}*/
-
-	// --------------------------------------------------------------------
-
-	$content_schema = array(
-						'id' 			=> array('ID', 			'table' => false, 'key' => true),
-						'title' 		=> array('Title'),
-						'slug' 		=> array('Slug', 		'form-width' => 50),
-						'lang' 		=> array('Language', 	'form-width' => 50),
-						'content' 		=> array('Content', 	'table' => false, 'display' => 'richtext'),
-						'published' 	=> array('Published on', 	'form' => false),
-						'slides' 		=> array('Slides', 		'display' => 'folder', 'path' => 'dashboard/images/uploads/{slug}', 'table' => false),
-						'edit' 		=> array('Edit', 		'form' => false, 'cmd' => 'dashboard/edit/{key}', 'default' => true),
-						'delete' 		=> array('Delete', 		'form' => false, 'cmd' => 'dashboard/delete/{key}', 'confirm' => true),
-						//'view' 		=> array('View', 		'form' => false, 'cmd' => '*/{key}')
-					);
-
-	function index($params){
-		global $content_schema;
+		$content_schema = load_schema('content');
 		$content_schema['lang']['enum'] = list_languages();
+		//
+		unset($content_schema['title']['form-width']);
+		unset($content_schema['category']);
+		//$content_schema['category']['enum'] = list_categories();
 		$data = array('schema' => $content_schema);
 		$db = connect_database();
 		//
 		if (isset($params['title'])){
 			if ($params['id'] == 'new'){
 				$params['published'] = date('Y-m-d H:i:s');
+				$params['author'] = $user['id'];
 				$db->insert('content', $params);
 			}
 			else
@@ -66,7 +30,7 @@
 			if (isset($params[0]))
 				$page = $params[0];
 			$data['page'] = $page;
-			$data['news'] = $db->query('SELECT id, published, slug, lang, title FROM content ORDER BY published DESC LIMIT '.($per_page * ($page - 1)).', '.$per_page);
+			$data['news'] = $db->query('SELECT id, category, published, slug, lang, title FROM content WHERE author = '.$user['id'].' ORDER BY published DESC LIMIT '.($per_page * ($page - 1)).', '.$per_page);
 			$pages = row_array($db->query('SELECT COUNT(*) FROM content'));
 			$data['pages'] = ceil($pages[0] / $per_page);
 		}
@@ -76,26 +40,36 @@
 	}
 
 	function add($params){
-		global $content_schema, $method, $lang;
+		global $method, $lang;
 		$method = 'index';
+		$content_schema = load_schema('content');
 		$content_schema['lang']['enum'] = list_languages();
+		//
+		unset($content_schema['title']['form-width']);
+		unset($content_schema['category']);
+		//$content_schema['category']['enum'] = list_categories();
 		$data = array('schema' => $content_schema);
 		$db = connect_database();
 		//
-		$data['article'] = array('id' => 'new', 'slug' => '', 'lang' => $lang, 'published' => date('Y-m-d H:i:s'), 'title' => '', 'content' => '');
+		$data['article'] = array('id' => 'new', 'category' => 0, 'slug' => '', 'lang' => $lang, 'published' => date('Y-m-d H:i:s'), 'title' => '', 'content' => '');
 		//
 		$data['html_head'] = array('title' => 'Add Content');
 		return $data;
 	}
 
 	function edit($params){
-		global $content_schema, $method;
+		global $method;
 		$method = 'index';
+		$content_schema = load_schema('content');
 		$content_schema['lang']['enum'] = list_languages();
+		//
+		unset($content_schema['title']['form-width']);
+		unset($content_schema['category']);
+		//$content_schema['category']['enum'] = list_categories();
 		$data = array('schema' => $content_schema);
 		$db = connect_database();
 		//
-		$data['article'] = row_assoc($db->query('SELECT id, slug, lang, published, title, content FROM content WHERE id = '.$params[0]));
+		$data['article'] = row_assoc($db->query('SELECT id, category, slug, lang, published, title, content FROM content WHERE id = '.$params[0]));
 		//
 		$data['html_head'] = array('title' => 'Edit Content');
 		return $data;
@@ -113,6 +87,15 @@
 	}
 
 	// --------------------------------------------------------------------
+
+	/*function list_categories(){
+		$db = connect_database();
+		$categories = array();
+		$cats = $db->select('id, title', 'category');
+		while ($cat = row_assoc($cats))
+			$categories[$cat['id']] = $cat['title'];
+		return $categories;
+	}*/
 
 	function images($params){
 		global $template_file;
