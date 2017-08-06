@@ -72,7 +72,7 @@ After updating the project (with your favourite VCS), any database change will b
 			$exist = true;
 			$changed = serialize($row) != serialize($import[$table][$field]);
 			if ($changed)
-				$sql .= ($sql != '' ? ',' : '')."\n".'  MODIFY `'.$field.'` `'.$field.'`';
+				$sql .= ($sql != '' ? ',' : '')."\n".'  MODIFY `'.$field.'`';//.'` `'.$field
 		} ?>
 			<tr class="<?php echo $exist ? 'exist' : $direction; ?>">
 				<td><?php echo $field; ?></td>
