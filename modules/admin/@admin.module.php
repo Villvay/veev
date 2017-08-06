@@ -14,34 +14,81 @@
 	//$pages_index = array('home' => 'Home Page', 'about' => 'About Us', 'contact' => 'Contact Us');
 
 	function pages($params){
-		$pages_schema = load_schema('page');
-		$pages_schema['lang']['enum'] = list_languages();
-		$data = array('schema' => $pages_schema);
 		$db = connect_database();
+		$pages_schema = load_schema('content');
+		$pages_schema['lang']['enum'] = list_languages();
+		$pages_schema['edit']['cmd'] = 'admin/pages/edit/{key}';
+		$pages_schema['delete']['cmd'] = 'admin/pages/delete/{key}';
 		//
-		if (isset($params[0])){
-			$data['page'] = $params[0];
-			//
-			$found = false;
-			$content = $db->select('slug, lang, title, content', 'content', 'slug = \''.$params[0].'\'');
-			if ($content = row_assoc($content)){
-				$data['content'] = $content;
-				$found = true;
-			}
-			//
-			if (isset($params['content'])){
-				if ($found)
-					$db->update('content', $params, 'slug = \''.$params['slug'].'\'');
-				else
-					$db->insert('content', $params);
-				flash_message('Content is saved', 'success');
+		$pages_schema['category']['enum'] = array();
+		$cats = $db->select('id, title', 'category');
+		while ($cat = row_assoc($cats))
+			$pages_schema['category']['enum'][$cat['id']] = $cat['title'];
+		//
+		$data = array('schema' => $pages_schema);
+		//
+		if (isset($params['content'])){
+			if ($params['id'] == 'new')
+				$db->insert('content', $params);
+			else
+				$db->update('content', $params);
+			flash_message('Content is saved', 'success');
+			redirect('admin', 'pages');
+		}
+		else if (isset($params[1])){
+			if ($params[0] == 'delete'){
+				$db->delete('content', $params[1]);
 				redirect('admin', 'pages');
+			}
+			else if ($params[0] == 'edit'){
+				$content = $db->select('id, category, slug, lang, title, content', 'content', $params[1]);
+				$data['content'] = row_assoc($content);
+			}
+			else if ($params[0] == 'page'){
+				//$data['page'] = $params[0];
+			}
+		}
+		else if (isset($params[0])){
+			if ($params[0] == 'add'){
+				global $lang;
+				$data['content'] = array('id' => 'new', 'category' => 0, 'slug' => '', 'lang' => $lang, 'title' => '', 'content' => '');
 			}
 		}
 		else
-			$data['pages'] = $db->select('slug, lang, title', 'content');
+			$data['pages'] = $db->select('id, category, slug, lang, title, published', 'content');
 		//
 		$data['html_head'] = array('title' => 'Pages: Admin Dashboard');
+		return $data;
+	}
+
+	function categories($params){
+		$category_schema = array('id' => array('ID', 'key'=>true, 'display' => 'readonly'), 'title' => array('Title'), 'edit' => array('Edit', 'cmd' => 'admin/categories/{key}'), 'delete' => array('Delete', 'confirm' => true, 'cmd' => 'admin/categories/delete/{key}'));//load_schema('category');
+		$data = array('schema' => $category_schema);
+		$db = connect_database();
+		//
+		if (isset($params[1]) && $params[0] == 'delete')
+			$db->delete('category', $params[1]);
+		else if (isset($params[0])){
+			if (isset($params['id'])){
+				if ($params['id'] == 'new')
+					$db->insert('category', $params);
+				else
+					$db->update('category', $params);
+				flash_message('Category is saved', 'success');
+				redirect('admin', 'categories');
+			}
+			else{
+				$category = $db->select('id, title', 'category', 'id = \''.$params[0].'\'');
+				if ($category = row_assoc($category))
+					$data['category'] = $category;
+				else
+					$data['category'] = array('id' => 'new', 'title' => '');
+			}
+		}
+		else
+			$data['categories'] = $db->select('id, title', 'category');
+		//
+		$data['html_head'] = array('title' => 'Categories: Admin Dashboard');
 		return $data;
 	}
 
@@ -154,7 +201,7 @@
 		if (isset($params['auth']))
 			foreach ($params['auth'] as $module => $acl){
 				//unset($acl['full']);
-				$acl = array_diff($acl, ['full']);
+				$acl = array_diff($acl, array('full'));
 				$auth[$module] = array_keys($acl);
 			}
 		$params['auth'] = json_encode($auth);

@@ -1,0 +1,38 @@
+{
+	"id":{
+		"0":"ID",
+		"table":false,
+		"key":true},
+	"title":{
+		"0": "Title",
+		"form-width":50
+		},
+	"category":{
+		"0": "Category",
+		"form-width":50},
+	"slug":{
+		"0":"Slug",
+		"form-width":50},
+	"lang":{
+		"0":"Language",
+		"form-width":50},
+	"content":{
+		"0":"Content",
+		"table":false,
+		"display":"richtext"},
+	"published":{
+		"0":"Published on",
+		"form":false},
+	"slides":{
+		"0":"Slides",
+		"display":"folder","path":"dashboard\/images\/uploads\/{slug}",
+		"table":false},
+	"edit":{
+		"0":"Edit",
+		"cmd":"dashboard\/edit\/{key}",
+		"default":true},
+	"delete":{
+		"0":"Delete",
+		"cmd":"dashboard\/delete\/{key}",
+		"confirm":true}
+}

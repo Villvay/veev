@@ -9,10 +9,12 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	if ($errorHandlerLatch)
 		return;
 	$errorHandlerLatch = true;
+	header('Content-Type: text/html');
 	set_include_path(dirname(dirname(__FILE__)).'/');
 	require_once dirname(__FILE__).'/render.php';
 	//
-	$backtrace = false;
+	//$backtrace = false;
+	$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 	if (substr($errstr, 0, 16) == 'Missing argument' && class_exists('ReflectionFunction')){
 		$p0 = strpos($errstr, ' ', 18);
 		$arg = substr($errstr, 17, $p0-17);
@@ -24,12 +26,12 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 		$parameters = $parameters->getParameters();
 		//for render_form(), called in /var/www/html/veev/modules/admin/errors.php on line 6
 		$errstr = 'Missing argument '.$arg.' ['.$parameters[$arg-1]->name.'] for ['.$p0.']';
-		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		//$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$errfile = $backtrace[1]['file'];
 		$errline = $backtrace[1]['line'];
 	}
 	if (substr($errfile, strlen($errfile)-20) == 'framework/render.php'){
-		$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		//$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$i = 0;
 		while (substr($backtrace[$i]['file'], strlen($backtrace[$i]['file'])-20) == 'framework/render.php')
 			$i += 1;
@@ -45,7 +47,7 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	//
 	if (ON_ERROR == 'DISPLAY'){
 		$errfile = substr($errfile, strlen(__FILE__)-26);
-		$yield = ($errno == false ? '' : '<b>'.$errno.'</b>: ').$errstr.($errfile == false ? '' : '<br/>'.$errfile.($errline == false ? '' : '<br/>line ['.$errline.']'));
+		$yield = ($errno == false ? '' : '<b>'.$errno.'</b>: ').$errstr.($errfile == false ? '' : '<br/>'.$errfile.($errline == false ? '' : '<br/>line ['.$errline.']').'<br/><small>'.print_r($backtrace, true).'</small>');
 	}
 	else if (ON_ERROR == 'LOG'){
 		global $user, $params;
@@ -63,9 +65,11 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	else if (ON_ERROR == 'EMAIL'){
 		global $server_name;
 		include 'interfaces/email.php';
-		send_email(ADMIN_EMAIL, array('errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile, 'errline' => $errline), 'error', 'Error in Veev app at '.$server_name, false);//, array($errfile) // Attached the file with error to the email
+		send_email(ADMIN_EMAIL, array('errno' => $errno, 'errstr' => $errstr, 'errfile' => $errfile, 'errline' => $errline, 'backtrace' => $backtrace), 'error', 'Error in Veev app at '.$server_name, false);//, array($errfile) // Attached the file with error to the email
 	}
 	//
+	if ($errno < 3)
+		return false;
 	global $lex, $user;
 	if ($errno == false && $errfile == false && $errline == false){
 		require_once 'templates/home.php';
@@ -80,11 +84,14 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	die();
 }*/
 
+//*/
 set_error_handler('errorHandler', E_ALL);
+/*/
 //set_exception_handler('exceptionHandler');
 register_shutdown_function(
 	function(){
 		global $yield, $errorHandlerLatch, $template_file;
+		//echo '['.$yield.']';
 		if ($errorHandlerLatch || $template_file == 'json')
 			die();//$errorHandlerLatch = true;
 		else if ($yield == ''){
@@ -108,6 +115,7 @@ register_shutdown_function(
 			die();
 		}
 	});
+//*/
 
 if (ON_ERROR == 'DISPLAY'){
 	ini_set('display_errors', 1);

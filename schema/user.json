@@ -6,5 +6,5 @@
 	"groups":{"0":"Groups","table":false,"form":false},
 	"lang":{"0":"Language","form-width":"50"},
 	"auth":{"0":"Authorized Modules","enum":[],"table":false,"form":false},
-	"edit":{"0":"Edit","form":false,"cmd":"admin\/edit-user\/{key}","default":true}
+	"edit":{"0":"Edit","cmd":"admin\/edit-user\/{key}","default":true}
 }

@@ -34,7 +34,7 @@
 				if (trim($sql) != '')
 					$db->query($sql);
 		//
-		$data['import'] = @unserialize(gzinflate(file_get_contents('data/schema.db')));
+		$data['import'] = @json_decode(file_get_contents('data/schema.db'), true);
 		if (!$data['import'])
 			$data['import'] = array();
 		//print_r($file);
@@ -58,7 +58,7 @@
 		$data['schema'] = load_schema('dbtable');
 		//
 		if (isset($params[0]) && $params[0] == 'export'){	//	CHECK IF THERE ARE CONFLICTS
-			$result = file_put_contents('data/schema.db', gzdeflate(serialize($data['tables'])));
+			$result = file_put_contents('data/schema.db', json_encode($data['tables'], JSON_PRETTY_PRINT));
 			if ($result)
 				flash_message('Database schema is exported', 'success');
 			else
