@@ -1,2 +1,3 @@
 .htaccess
 framework/config.php
+static/uploads/*
