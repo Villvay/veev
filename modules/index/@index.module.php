@@ -15,25 +15,28 @@
 
 	//	background process
 	function bgproc_example($params){
-		if (isset($params[0])){
+		$data = array();
+		if (isset($params[0]) && $params[0] != 'index'){
 			global $template_file;
 			$template_file = '';
+			//
+			//	Object to communicate with b ackground processes
 			$bg = new background();
 			//
+			//	Starts a new background process
 			if ($params[0] == 'start'){
 				$data = $bg->process('index', 'example', array());
 				$_SESSION['background-job-id'] = $data['jobId'];
 				return json_encode($data);
 			}
+			//
+			//	Get status of a background process
 			else if ($params[0] == 'status'){
-				$data = $bg->status($params[1]);
+				$data = $bg->status($_SESSION['background-job-id']);//$params[1]
 				return json_encode($data, JSON_PRETTY_PRINT);
 			}
 		}
-		else{
-			$data = array();
-			return $data;
-		}
+		return $data;
 	}
 
 	function _generic_page($params){

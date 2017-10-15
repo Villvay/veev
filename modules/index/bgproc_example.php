@@ -11,7 +11,7 @@ var dispStatus = q('pre#status')[0];
 var startBtn = q('input[type="button"]')[0];
 var invalidKey = '{\n    "error": "invalid-key"\n}';
 function updateStatus(){
-	arc.ajax('<?php echo BASE_URL; ?>bgproc_example/status/'+jobId,
+	arc.ajax('<?php echo BASE_URL; ?>bgproc_example/status',//+/jobId
 		{
 			method: GET,
 			callback: function(data){
