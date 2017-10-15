@@ -263,7 +263,7 @@ class background{
 	function status($key){
 		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/status/'.$key);
 		if ($result == false)
-			return array('error' => 'invalid key');
+			return array('error' => 'background service is not running');//invalid key
 		return json_decode($result, true);
 	}
 }

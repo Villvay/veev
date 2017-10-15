@@ -15,18 +15,25 @@
 
 	//	background process
 	function bgproc_example($params){
-		$bg = new background();
-		$data = array();
-		//$data['stat'] = $bg->process('index', 'example', array());
-		return $data;
-	}
-	function _bgstat($params){
-		global $template_file;
-		$template_file = '';
-		//
-		$bg = new background();
-		$data = $bg->status($params[0]);
-		return json_encode($data);
+		if (isset($params[0])){
+			global $template_file;
+			$template_file = '';
+			$bg = new background();
+			//
+			if ($params[0] == 'start'){
+				$data = $bg->process('index', 'example', array());
+				$_SESSION['background-job-id'] = $data['jobId'];
+				return json_encode($data);
+			}
+			else if ($params[0] == 'status'){
+				$data = $bg->status($params[1]);
+				return json_encode($data, JSON_PRETTY_PRINT);
+			}
+		}
+		else{
+			$data = array();
+			return $data;
+		}
 	}
 
 	function _generic_page($params){
