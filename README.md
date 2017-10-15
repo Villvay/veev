@@ -280,7 +280,7 @@ You can use the static/css/datatable.css for a fine visual style compatible with
 
 ### render_form
 
-On the module:
+@module:
 ```php
 global $pages_schema;
 $data = array();
@@ -313,6 +313,7 @@ On the templates/home.php you can find <?php flash_message_dump(); ?> line.
 From the module or view, you can put a flash message to be displayed there (on top of the page, right under the masthead.
 
 To put a message there, call this function:
+@module
 ```php
 flash_message('Blog post saved', 'success');
 
@@ -332,6 +333,7 @@ This renders an associative array to a select input
 ### render_navigation
 Navigation Builder generates a ul>li mark-up for a navigation menu for an array of meta data.
 You have to define the links in a php array in the following format:
+
 ```php
 $navigation = array(
 	array('title' => 'Home', 'icon' => 'fa-home'),
@@ -374,6 +376,8 @@ We have discussed about database abstraction/interface earlier.
 
 ### Email
 To send an Email:
+
+@module
 ```php
 include 'interfaces/email.php';
 send_email('to@example.com', array('name' => 'John', 'message' => 'Hello John, This is Email body'), 'template', 'Email Subject');
@@ -406,9 +410,11 @@ If you don't want to crop, only provide the width or height. If both provided, i
 You can custom crop an image with this function. Providing all the intricate parameters is up to you.
 This is the base function used by the above functions.
 
+```php
 $rect = array('width' => 80, 'height' => 80, 'top' => 10, 'left' => 10)
 
 $new_size = array('width' => 80, 'height' => 80)
+```
 
 
 
