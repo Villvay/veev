@@ -1,30 +1,36 @@
-# veev
+# Veev
 #### Lightweight php framework for rapid web weaving
 
-*This is the 2015 version of the TinyFx php framework.*
+Veev is NOT an MVC framework. This is a modular design pattern.
+There are modules, schema, interfaces and templates.
+A module is a folder that has a controller and multiple views. A module can also have sub-modules.
+Also a module can have Node JS files that can be run as background processes.
+Similar to models in MVC paradigm, Veev has "schema" files written in either JSON or php arrays.
+A schema describes a database table and how a database table should appear in HTML/XML or insert/update form.
+Interfaces allow the app to be connected to external resources such as Database, Email, SMS, Google, Facebook, etc..
+A view can be excapsulated inside a template. You can have seperate templates for various sections of a web site.
 
-This version comes with:
-- Self and Minimal Configuration
-- Improved schema based table and form builder
-- Advanced form inputs such as Currency, Numeric, Richtext, File, Folder, Autocomplete etc..
+Veev has:
+- Automated minimal configuration
+- SEO Friendly URL auto-routing
+- Schema based data-table and form builder
+- User groups and access control to modules
+- Sophisticated form inputs such as Currency, Numeric, Richtext, File, Folder, Autocomplete etc..
+- A smart alternative for object relational mapping (read on)
+- Database schema migration helper (with your preferred version control system)
+- Managed background process handler written in Node JS
+- Comprehensive error reporting and logs indexing
+- Easy localization / globalization
+- Award Winning Arc JS front-end framework is included - for Single Page Applications
 - TinyMCE and FontAwsome integrated BoilerPlate templates
 - Example App with User Management and Blogging
 
-This version is not compatible with the previous version.
-This version implements a new modular design pattern.
-This is NOT an MVC framework. This is much easier to work with.
-This is a completely different perspective
-There are modules, interfaces and templates.
-A module hs a module controller and views. A module also can have sub-modules.
-Similar to models in an MVC framework, here you can create "schema" files written in either JSON or php arrays.
-
 
 ## Instructions - Getting Started
-1. Clone this repo to a folder under var/www/html or htdocs
+1. Clone this repo (or extract the zip file) to a folder under var/www/html or htdocs
 2. Start your web server [Apache / WAMP / MAMP / LAMP]
-~~3. Create database from the provided database.sql~~
-3. Make sure apache can write in to the directory (or you will have to manually write the .htaccess and framework/config.php)
-4. Navigate to http://localhost/veev or wherever the folder you cloned this repo into.
+3. Make sure apache can write to the directory (or you will have to manually write the .htaccess and framework/config.php)
+4. Navigate to http://localhost/veev or the folder you cloned this repo into.
 5. Provide database server username/password, and modify default settings as needed.
 6. Set-up script will populate the database (from database.sql), generate .htaccess and framework/config.php
 
@@ -32,12 +38,16 @@ Similar to models in an MVC framework, here you can create "schema" files writte
 - N.B: If you rename or move the project folder, you will need configure.php; delete .htaccess and framework/config.php to reconfigure.
 Do the same when deployed to staging or production server. On production server, delete the configure.php once configured.
 
-- Navigate to http://localhost/veev/admin Username:admin , Password:admin
+- Navigate to http://localhost/veev/admin
+In development config, you do not need credentials to access admin dashboard.
 
 
 ## Module
 A module is a section of a website, like Admin section, Dashboard, Shopping cart, Blog etc..
 All contents of each of these modules is put inside a single folder. There is a module controller for every module.
+```
+@example.module.php
+```
 There can be many functions in a module controller, and a view file corresponding to each of these functions.
 An HTTP request will load a module, execute a function and render the view.
 
@@ -401,4 +411,37 @@ $rect = array('width' => 80, 'height' => 80, 'top' => 10, 'left' => 10)
 $new_size = array('width' => 80, 'height' => 80)
 
 
+
+## Background Process
+
+php is executed for each request; and after the response is delivered, it is no longer running.
+With Veev you can write Node JS modules and invoke them from php code.
+Node JS modules are loaded by the accompanying background service which is continuously running.
+You can monitor, start and stop this background service from Veev admin dashboard.
+
+```php
+$bg = new background();
+$job = $bg->process('index', 'example', array());
+$_SESSION['background-job-id'] = $job['jobId'];
+...
+$status = $bg->status($_SESSION['background-job-id']);
+```
+
+```js
+module.exports = {
+	run: function(database, stat, params){
+		//	Target steps
+		stat.total = 2;
+		//
+		//	Notify back completion of a single step
+		stat.hitStep();
+		//
+		stat.result = 'Result of the Process';
+		//
+		stat.hitStep();
+	}
+}
+```
+
+See bgproc_example on index module for a working example
 
