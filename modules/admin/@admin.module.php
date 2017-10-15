@@ -11,6 +11,117 @@
 
 	// --------------------------------------------------------------------
 
+	function config($params){
+		if (!is_writable('.htaccess'))
+			flash_message('Apache cannot write `.htaccess` file', 'warning');
+		if (!is_writable('framework/config.php'))
+			flash_message('Apache cannot write `framework/config.php` file', 'warning');
+		if (!is_writable('data/schema.db'))
+			flash_message('Apache cannot write to `data` directory', 'warning');
+		if (!is_writable('static/uploads/test'))
+			flash_message('Apache cannot write to `static/uploads` directory', 'warning');
+		//
+		if (isset($params['htaccess']) && isset($params['config'])){
+			$data = $params;
+			//
+			//	Try to connect to database server with db-name
+			$conn = mysqli_connect($params['db_host'], $params['db_user'], $params['db_pass'], $params['db_name']);
+			if (!$conn){
+				//	Maybe we need to create a new database
+				$conn = mysqli_connect($params['db_host'], $params['db_user'], $params['db_pass']);
+				if (!$conn)
+					flash_message('Database credentials are wrong.', 'error');
+				else{
+					mysqli_query($conn, 'CREATE DATABASE `'.$params['db_name'].'`');
+					mysqli_query($conn, 'USE `'.$params['db_name'].'`');
+				}
+			}
+			//	If database connection succesful
+			if (!!$conn){
+				//	Create database schema from script
+				if (file_exists('database.sql')){
+					$lines = file('database.sql');
+					$query = '';
+					foreach ($lines as $line)
+						if (substr($line, 0, 2) == '--' || (substr($line, 0, 2) == '/*' && (substr($line, -4, 3) == '*/;' || substr($line, -3) == '*/;')) || trim($line) == ''){}
+						else{
+							$query .= $line;
+							if (substr($line, -1) == ';' || substr($line, -2, 1) == ';'){
+								mysqli_query($conn, $query);
+								$query = '';
+							}
+						}
+				}
+				//
+				//	Write .htaccess and config file
+				file_put_contents('.htaccess', $params['htaccess']);
+				$result = file_put_contents('framework/config.php', $params['config']);
+				if (!$result)
+					flash_message('Cannot write config file. Please manually upload .htaccess and framework/config.php', 'error');
+				else
+					header('location:http://'.$data['server'].$data['path']);
+			}
+		}
+		else{
+			$data = array();
+			$data['protocol'] = 'http';
+			$data['port'] = '';
+			$data['path'] = rtrim($_SERVER['REQUEST_URI'], 'configure.php');
+			$data['static_files_root'] = './static/';
+			$data['backend_service_port'] = rand(49152, 65535);
+			//
+			$data['db_host'] = 'localhost';
+			$data['db_name'] = str_replace('/', '', $data['path']);
+			$data['db_user'] = 'root';
+			$data['db_pass'] = '';
+			//
+			$data['google_client_id'] = '';
+			$data['google_secret'] = '';
+			$data['facebook_client_id'] = '';
+			$data['facebook_secret'] = '';
+			//
+			$data['htaccess'] = '';
+			$data['config'] = '';
+			$data['instance'] = ($_SERVER['SERVER_NAME'] == 'localhost' ? 'development' : 'production');
+		}
+		$data['server'] = $_SERVER['SERVER_NAME'];
+		//
+		$data['html_head'] = array('title' => 'Setup Veev Site/Web-app');
+		return $data;
+	}
+
+	// --------------------------------------------------------------------
+
+	function services($params){
+		$data = array();
+		//
+		flash_message('Under Construction', 'warning');
+		//
+		$data['html_head'] = array('title' => 'Inquiry: Admin Dashboard');
+		return $data;
+	}
+
+	// --------------------------------------------------------------------
+
+	function logs($params){
+		$directory = scandir('./data/errors/');
+		$files = array();
+		foreach ($directory as $file)
+			if (!in_array($file, array('.', '..')))
+				$files[$file] = filemtime('./data/errors/'.$file);
+		arsort($files);
+		$errors = array();
+		foreach ($files as $file => $mtime){
+			$file = explode(':', gzinflate(base64_decode(str_replace(array('-', '_'), array('/', '='), substr($file, 0, -4)))));
+			$errors[] = array('time' => beautify_datetime($mtime), 'level' => $file[0], 'file' => $file[1], 'line' => $file[2]);
+		}
+		$data['errors'] = $errors;
+		$data['html_head'] = array('title' => 'Errors: Admin Dashboard');
+		return $data;
+	}
+
+	// --------------------------------------------------------------------
+
 	//$pages_index = array('home' => 'Home Page', 'about' => 'About Us', 'contact' => 'Contact Us');
 
 	function pages($params){
@@ -89,36 +200,6 @@
 			$data['categories'] = $db->select('id, title', 'category');
 		//
 		$data['html_head'] = array('title' => 'Categories: Admin Dashboard');
-		return $data;
-	}
-
-	// --------------------------------------------------------------------
-
-	function errors($params){
-		$directory = scandir('./data/errors/');
-		$files = array();
-		foreach ($directory as $file)
-			if (!in_array($file, array('.', '..')))
-				$files[$file] = filemtime('./data/errors/'.$file);
-		arsort($files);
-		$errors = array();
-		foreach ($files as $file => $mtime){
-			$file = explode(':', gzinflate(base64_decode(str_replace(array('-', '_'), array('/', '='), substr($file, 0, -4)))));
-			$errors[] = array('time' => beautify_datetime($mtime), 'level' => $file[0], 'file' => $file[1], 'line' => $file[2]);
-		}
-		$data['errors'] = $errors;
-		$data['html_head'] = array('title' => 'Errors: Admin Dashboard');
-		return $data;
-	}
-
-	// --------------------------------------------------------------------
-
-	function inquiry($params){
-		$data = array();
-		//
-		flash_message('Under Construction', 'warning');
-		//
-		$data['html_head'] = array('title' => 'Inquiry: Admin Dashboard');
 		return $data;
 	}
 

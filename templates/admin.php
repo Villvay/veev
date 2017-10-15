@@ -30,10 +30,11 @@
 <?php 	$navigation = array();
 		$navigation[] = array('title' => 'Users', 'icon' => 'fa-user', 'module' => 'admin', 'method' => 'users');
 		$navigation[] = array('title' => 'Groups', 'icon' => 'fa-users', 'module' => 'admin', 'method' => 'groups');
-		$navigation[] = array('title' => 'Errors', 'icon' => 'fa-exclamation-triangle', 'module' => 'admin', 'method' => 'errors');
+		$navigation[] = array('title' => 'Configure', 'icon' => 'fa-dashboard', 'module' => 'admin', 'method' => 'config');
+		$navigation[] = array('title' => 'Services', 'icon' => 'fa-cogs', 'module' => 'admin', 'method' => 'services');
 		$navigation[] = array('title' => 'Database', 'icon' => 'fa-database', 'module' => 'admin/developer', 'method' => 'database');
-		$navigation[] = array('title' => 'Version Control', 'icon' => 'fa-upload', 'module' => 'admin/developer', 'method' => 'vcs');
-		$navigation[] = array('title' => 'Inquiry', 'icon' => 'fa-envelope-o', 'module' => 'admin', 'method' => 'inquiry');
+		$navigation[] = array('title' => 'Logs', 'icon' => 'fa-exclamation-triangle', 'module' => 'admin', 'method' => 'logs');
+		//$navigation[] = array('title' => 'Version Control', 'icon' => 'fa-upload', 'module' => 'admin/developer', 'method' => 'vcs');
 		$navigation[] = array('title' => 'Pages', 'icon' => 'fa-newspaper-o', 'module' => 'admin', 'method' => 'pages');
 		$navigation[] = array('title' => 'View Site', 'icon' => 'fa-globe', 'module' => 'index');
 		render_navigation($navigation); ?>

@@ -2,54 +2,43 @@
 <h2>Dashboard</h2>
 
 <ul class="prods">
+<?php
+	function renderIcon($data){
+		if (isset($data['url'])){
+?>
 	<li>
-		<a href="<?php echo BASE_URL; ?>admin/users" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/user.png" />
-			<br/>Users
+		<a href="<?php echo $data['url']; ?>" class="sel">
+			<img src="<?php echo BASE_URL_STATIC; ?>icons/<?php echo $data['icon']; ?>.png" />
+			<br/><?php echo $data['title']; ?>
 		</a>
 	</li>
+<?php
+		}
+		else{
+?>
 	<li>
-		<a href="<?php echo BASE_URL; ?>admin/groups" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/user_group.png" />
-			<br/>Groups
+		<a href="<?php echo BASE_URL; ?><?php echo $data['module']; ?>/<?php echo $data['method']; ?>" class="sel">
+			<img src="<?php echo BASE_URL_STATIC; ?>icons/<?php echo $data['icon']; ?>.png" />
+			<br/><?php echo $data['title']; ?>
 		</a>
 	</li>
-	<li>
-		<a href="<?php echo BASE_URL; ?>admin/developer/errors" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/burning.png" />
-			<br/>Errors
-		</a>
-	</li>
-	<li>
-		<a href="<?php echo BASE_URL; ?>admin/developer/database" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/database_check.png" />
-			<br/>Database
-		</a>
-	</li>
-	<li>
-		<a href="<?php echo BASE_URL; ?>admin/developer/vcs" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/copy-document.png" />
-			<br/>Version Control
-		</a>
-	</li>
-	<li>
-		<a href="<?php echo BASE_URL; ?>admin/inquiry" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/mail_download.png" />
-			<br/>Inquiry
-		</a>
-	</li>
-	<li>
-		<a href="<?php echo BASE_URL; ?>admin/pages" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/document-lined-pen.png" />
-			<br/>Pages
-		</a>
-	</li>
-	<li>
-		<a href="<?php echo BASE_URL; ?>admin/categories" class="sel">
-			<img src="<?php echo BASE_URL_STATIC; ?>icons/tag_white_barcode.png" />
-			<br/>Categories
-		</a>
-	</li>
+<?php
+		}
+	}
+	$icons = array(
+		array('module' => 'admin', 'method' => 'users', 'icon' => 'user', 'title' => 'Users'),
+		array('module' => 'admin', 'method' => 'groups', 'icon' => 'user_group', 'title' => 'Groups'),
+		array('module' => 'admin', 'method' => 'config', 'icon' => 'speed_kmh', 'title' => 'Configure'),
+		array('module' => 'admin', 'method' => 'services', 'icon' => 'nodejs', 'title' => 'Services'),
+		array('module' => 'admin', 'method' => 'logs', 'icon' => 'monitor', 'title' => 'Logs'),
+		array('module' => 'admin/developer', 'method' => 'database', 'icon' => 'database_check', 'title' => 'Database'),
+		//array('module' => 'admin', 'method' => 'categories', 'icon' => 'tag_white_barcode', 'title' => 'Categories'),
+		array('module' => 'admin', 'method' => 'pages', 'icon' => 'document-lined-pen', 'title' => 'Pages')
+	);
+	foreach ($icons as $icon)
+		if (!isset($icon['module']) || checkIfAuthorized($user, $icon['module']))
+			renderIcon($icon);
+?>
 </ul>
 <style>
 ul.prods li img {

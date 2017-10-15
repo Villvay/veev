@@ -1,8 +1,8 @@
 <?php
 
 	$configs = array(
-		'clientId' => '633992777721-fgo3pt9kgvqs3kijhp7hn2vepqesk9co.apps.googleusercontent.com',
-		'clientSecret' => '3mHQX2RRDLoPwAIC2zNSnAmK',
+		'clientId' => GOOGLE_CLIENT_ID,
+		'clientSecret' => GOOGLE_SECRET,
 		'redirectUri' => BASE_URL.'user/google-auth/',
 		'oauthEndpoint' => 'https://accounts.google.com/o/oauth2/v2/auth',
 		'oauthTokenEndpoint' => 'https://www.googleapis.com/oauth2/v4/token',

@@ -50,6 +50,7 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 		//$method_yield = ($errno == false ? '' : '<b>'.$errno.'</b>: ').$errstr.($errfile == false ? '' : '<br/>'.$errfile.($errline == false ? '' : '<br/>line ['.$errline.']').'<br/><small>'.print_r($backtrace, true).'</small>');
 		$method_yield = ($errno == false ? '' : $errno).': '.$errstr."\n".($errfile == false ? '' : $errfile.($errline == false ? '' : ' ['.$errline.']')."\n".print_r($backtrace, true));
 		$method_yield = "\n".$_SERVER['REQUEST_URI'].' '.http_response_code()."\n".$method_yield."\n-------";//.'['.date('Y-m-d H:i:s').'] '
+		$yield = $method_yield;
 		if (is_writable('stdout.log'))
 			file_put_contents('stdout.log', $method_yield, FILE_APPEND);
 	}
