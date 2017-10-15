@@ -419,6 +419,7 @@ With Veev you can write Node JS modules and invoke them from php code.
 Node JS modules are loaded by the accompanying background service which is continuously running.
 You can monitor, start and stop this background service from Veev admin dashboard.
 
+@module
 ```php
 $bg = new background();
 $job = $bg->process('index', 'example', array());
@@ -427,6 +428,7 @@ $_SESSION['background-job-id'] = $job['jobId'];
 $status = $bg->status($_SESSION['background-job-id']);
 ```
 
+example.js
 ```js
 module.exports = {
 	run: function(database, stat, params){
