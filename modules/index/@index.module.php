@@ -13,6 +13,22 @@
 		$method = '_generic_page';
 	}
 
+	//	background process
+	function bgproc_example($params){
+		$bg = new background();
+		$data = array();
+		//$data['stat'] = $bg->process('index', 'example', array());
+		return $data;
+	}
+	function _bgstat($params){
+		global $template_file;
+		$template_file = '';
+		//
+		$bg = new background();
+		$data = $bg->status($params[0]);
+		return json_encode($data);
+	}
+
 	function _generic_page($params){
 		global $lex, $lang, $page;
 		$db = connect_database();

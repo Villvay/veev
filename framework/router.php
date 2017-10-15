@@ -253,6 +253,20 @@ if ($db_connection != false){
 	$db_connection->close();
 }
 
+class background{
+	function process($module, $method, $params = array()){
+		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/start/'.$module.'/'.$method.'/'.implode('/', $params));
+		if ($result == false)
+			return array('error' => 'background service is not running');
+		return json_decode($result, true);
+	}
+	function status($key){
+		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/status/'.$key);
+		if ($result == false)
+			return array('error' => 'invalid key');
+		return json_decode($result, true);
+	}
+}
 
 function redirect($module, $method = false, $params = false, $redirect_after = false){
 	if ($redirect_after != false)

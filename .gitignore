@@ -1,6 +1,7 @@
 .htaccess
 web.config
-stdout.log
+access.log
+data/service.pid
 framework/config.php
 static/uploads/*
 data/cache/*

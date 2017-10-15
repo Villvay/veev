@@ -95,25 +95,20 @@
 	function services($params){
 		$data = array();
 		//
-		$data['pid'] = file_get_contents('framework/service.pid');
-		$data['result2'] = 'nothing';
+		$data['pid'] = file_get_contents('data/service.pid') - 1;
 		if (isset($params[0])){
-			ob_start();
 			if ($params[0] == 'start'){
 				$proc = proc_open('cd framework'."\n".'sh run.sh '.BACKEND_SERVICE_PORT,
 					[0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
-				$data['result2'] = proc_get_status($proc);
-				$data['pid'] = file_get_contents('framework/service.pid');
+				sleep(1);
 			}
 			else if ($params[0] == 'stop'){
-				passthru('kill '.($data['pid']-1));
-				$data['result2'] = ob_get_contents();
+				passthru('kill '.$data['pid']);
+				unlink('data/service.pid');
 			}
-			ob_end_clean();
-			sleep(2);
+			redirect('admin', 'services');
 		}
 		$data['result'] = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/');
-		//try{}catch(Exception $e){}
 		//
 		$data['html_head'] = array('title' => 'Services: Admin Dashboard');
 		return $data;
