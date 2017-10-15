@@ -231,9 +231,9 @@ if (function_exists($method)){
 	}
 	echo $yield;
 	//
-	$method_yield = "\n[".date('Y-m-d H:i:s').'] /'.$query_string.' '.http_response_code().' '.$size.($method_yield == '' ? '' : "\n".$method_yield."\n-------");
-	if (is_writable('stdout.log'))//$method_yield != '' && 
-		file_put_contents('stdout.log', $method_yield, FILE_APPEND);
+	$method_yield = '['.date('Y-m-d H:i:s').'] /'.$query_string.' '.http_response_code().' '.$size.($method_yield == '' ? '' : "\n".$method_yield."\n-------")."\n";
+	if (is_writable('access.log'))//$method_yield != '' && 
+		file_put_contents('access.log', $method_yield, FILE_APPEND);
 }
 else{
 	require_once 'templates/error_404.php';
