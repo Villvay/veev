@@ -10,6 +10,7 @@
 		<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/fonts.css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/basic.css" />
 		<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL_STATIC; ?>css/admin.css" />
+		<script src="<?php echo BASE_URL_STATIC; ?>js/arc.js"></script>
 	</head>
 	<body>
 		<nav>
