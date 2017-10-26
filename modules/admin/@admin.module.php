@@ -97,6 +97,11 @@
 		//
 		$data['pid'] = file_get_contents('data/service.pid') - 1;
 		if (isset($params[0])){
+			if ($params[0] == 'stat'){
+				global $template_file;
+				$template_file = '';
+				return file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/status/summery/');
+			}
 			if ($params[0] == 'start'){
 				$proc = proc_open('cd framework'."\n".'sh run.sh '.BACKEND_SERVICE_PORT,
 					[0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
@@ -104,7 +109,7 @@
 			}
 			else if ($params[0] == 'stop'){
 				passthru('kill '.$data['pid']);
-				unlink('data/service.pid');
+				//unlink('data/service.pid');
 			}
 			redirect('admin', 'services');
 		}

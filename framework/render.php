@@ -11,11 +11,14 @@
 						$$key = $val;
 				include $view;
 			}
-			else{
+			else if (is_array($data)){
 				echo '<pre>';
 				print_r($data);
 				echo '</pre>';
 				//require_once 'templates/error_404.php';
+			}
+			else{
+				echo $data;
 			}
 			$yield = ob_get_contents();
 		ob_end_clean();
@@ -344,9 +347,9 @@ tinymce.init({
 
 	// ========================================================
 
-	function render_dropdown($name, $data, $selected = false, $classname = false, $onchange = false, $ontblrow = false){ ?>
+	function render_dropdown($name, $data, $selected = false, $classname = false, $onchange = false, $ontblrow = false, $deafulttxt = 'Please Select'){ ?>
 				<select name="<?php echo $name; ?>" onclick="dropdown_clicked(this);" class="form-control<?php echo $classname != false ? ' '.$classname : ''; ?>"<?php echo $onchange != false ? ' onchange="'.$onchange.'"' : ''; ?>>
-					<option value="" class="first-child">Please Select</option>
+					<option value="" class="first-child"><?php echo $deafulttxt; ?></option>
 <?php 				foreach ($data as $key => $val){ ?>
 					<option value="<?php echo $key; ?>" <?php echo $selected == $key ? 'selected' : ''; ?>><?php echo is_array($val) ? $val[0] : $val; ?></option>
 <?php 				} ?>
@@ -359,12 +362,17 @@ tinymce.init({
 		global $user, $module, $submodule, $method, $page; ?>
 				<ul class="<?php echo $classname; ?>">
 <?php 	foreach ($data as $link){
-			$path = ( isset($link['module']) ? $link['module'] : '' ) . ( isset($link['module']) && isset($link['method']) ? '/' : '' ) . ( isset($link['method']) ? $link['method'] : '' );
-			if (!isset($link['module']))
-				$link['module'] = 'index';
-			if (!isset($link['method']))
-				$link['method'] = 'index';
-			if (!function_exists('checkIfAuthorized') || checkIfAuthorized($user, $link['module']) !== false){ ?>
+			if (isset($link['url'])){ ?>
+					<li>
+						<a href="<?php echo $link['url']; ?>" target="_blank"><?php echo isset($link['icon']) ? '<i class="fa '.$link['icon'].'"></i> ' : ''; ?><?php echo $link['title']; ?></a>
+					</li>
+<?php 		}
+			else if (!function_exists('checkIfAuthorized') || (isset($link['module']) && checkIfAuthorized($user, $link['module']) !== false)){
+				if (!isset($link['module']))
+					$link['module'] = 'index';
+				if (!isset($link['method']))
+					$link['method'] = 'index';
+				$path = ( isset($link['module']) ? $link['module'] : '' ) . ( isset($link['module']) && isset($link['method']) ? '/' : '' ) . ( isset($link['method']) ? $link['method'] : '' ); ?>
 					<li<?php echo ($module == $link['module'] || $module.'/'.$submodule == $link['module']) && (str_replace('_', '-', $method) == $link['method'] || $page == $link['method']) ? ' class="current"' : ''; ?>>
 <?php 			if (isset($link['submenu'])){ ?>
 						<label>
@@ -450,10 +458,12 @@ tinymce.init({
 	}
 
 	function flash_message_dump(){
-		if (!isset($_SESSION['flash_messages']) || count($_SESSION['flash_messages']) == 0)
-			return true;
-		//
 		echo '<div id="flash_messages">';
+		if (!isset($_SESSION['flash_messages']) || count($_SESSION['flash_messages']) == 0){
+			echo '</div>';
+			return true;
+		}
+		//
 		foreach ($_SESSION['flash_messages'] as $flash_message){
 			$div_id = rand(20, 34956344).'_'.time();
 			echo '<div class="'.$flash_message[0].'" id="flash_message_'.$div_id.'"><div class="icon"></div>'.$flash_message[1].

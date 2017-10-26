@@ -135,7 +135,7 @@ if (isset($headers['content-type']) && $headers['content-type'] == 'application/
 		$params[$key] = $val;
 }
 
-date_default_timezone_set($user['timezone']);
+date_default_timezone_set($user['timezone'] == '' ? DEFAULT_TIMEZONE : $user['timezone']);
 
 //	Load languages
 require_once 'render.php';
@@ -151,6 +151,7 @@ if (!$lex = json_decode(substr($lex, 3), true))
 
 
 // Include the Module
+ob_start();
 $module = str_replace('-', '_', $module);
 $submodule = false;
 if (file_exists('modules/'.$module.'/@'.$module.'.module.php')){
@@ -160,7 +161,8 @@ if (file_exists('modules/'.$module.'/@'.$module.'.module.php')){
 		//
 		if (is_dir('modules/'.$module.'/'.$method)){
 			$submodule = $method;
-			$method = array_shift($params);
+			if (isset($params[0]))
+				$method = array_shift($params);
 			$method = str_replace('-', '_', $method);
 			if ($method == '')
 				$method = $submodule;
@@ -172,8 +174,10 @@ if (file_exists('modules/'.$module.'/@'.$module.'.module.php')){
 			}
 		}
 	}
-	if ($acl === false)
+	if ($acl === false){ // not else
 		require_once 'templates/error_401.php';
+		writeLog(401, '401');
+	}
 }
 else{
 	$acl = checkIfAuthorized($user, 'index');
@@ -183,8 +187,10 @@ else{
 		$module = 'index';
 		require_once 'modules/index/@index.module.php';
 	}
-	else
+	else{
 		require_once 'templates/error_401.php';
+		writeLog(401, '401');
+	}
 }
 $method = str_replace('-', '_', $method);
 
@@ -198,7 +204,6 @@ function checkIfAuthorized($user, $module, $submodule = false){
 
 // Call the Method
 if (function_exists($method)){
-	ob_start();
 	$data = $method($params);
 	$method_yield = ob_get_contents();
 	ob_end_clean();
@@ -230,15 +235,50 @@ if (function_exists($method)){
 		//}
 	}
 	echo $yield;
-	//
-	$method_yield = '['.date('Y-m-d H:i:s').'] /'.$query_string.' '.http_response_code().' '.$size.($method_yield == '' ? '' : "\n".$method_yield."\n-------")."\n";
-	if (is_writable('access.log'))//$method_yield != '' && 
-		file_put_contents('access.log', $method_yield, FILE_APPEND);
 }
 else{
 	require_once 'templates/error_404.php';
+	writeLog(404, '404');
 }
-
+//
+function writeLog($errno, $errstr, $errfile = '', $errline = 0, $backtrace = array()){
+	global $method_yield, $query_string, $size;
+	//
+	$opts = array('http' =>
+		array(
+			'method'  => 'POST',
+			'header'  => 'Content-type: application/json',
+			'content' => http_build_query(
+				array(
+					'code' => $errno,
+					'error' => $errstr,
+					'file' => $errfile,
+					'line' => $errline,
+					'query' => $query_string,
+					'size' => $size,
+					'yield' => $method_yield,
+					'trace' => $backtrace,
+				)
+			)
+		)
+	);
+	$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/log/', false, stream_context_create($opts));
+	if ($result == false){
+		/*/
+		$proc = proc_open('cd framework'."\n".'sh run.sh '.BACKEND_SERVICE_PORT,
+			[0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+		sleep(1);
+		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/log/', false, stream_context_create($opts));
+		/*/
+		if (is_writable('stdout.log'))
+			file_put_contents('stdout.log', $method_yield, FILE_APPEND);
+		//*/
+	}
+	//
+	$method_yield = "\n".date('Y-m-d H:i:s')."\t".http_response_code()."\t".$size."\t".$result."\t/".$query_string;//.($method_yield == '' ? '' : "\n".$method_yield."\n-------")
+}
+if (http_response_code() == 200)
+	writeLog(200, false);
 
 function connect_database($database = false){
 	global $db_connection;
@@ -269,15 +309,29 @@ class background{
 }
 
 function redirect($module, $method = false, $params = false, $redirect_after = false){
+	global $method_yield;
+	$method_yield = ob_get_contents();
+	writeLog(302, '302');
+	//
 	if ($redirect_after != false)
 		$_SESSION['REDIRECT_AFTER_SIGNIN'] = $redirect_after;
-	$params_list = '';
-	if ($params)
-		foreach($params as $par)
-			$params_list .= '/'.$par;
-	if(!$method)
-		$method = 'index';
-	header('location:'.BASE_URL.$module.'/'.$method.$params_list);
+	//
+	if (substr($module, 0, 9) == 'location:')
+		header($module);
+	//
+	else if (substr($module, 0, 7) == 'http://' || substr($module, 0, 8) == 'https://')
+		header('location:'.$module);
+	//
+	else{
+		$params_list = '';
+		if ($params)
+			foreach($params as $par)
+				$params_list .= '/'.$par;
+		if(!$method)
+			$method = 'index';
+		header('location:'.BASE_URL.$module.'/'.$method.$params_list);
+	}
+	//
 	exit;
 }
 

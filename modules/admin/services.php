@@ -25,4 +25,14 @@
 <?php print_r($result); ?>
 	</pre>
 
+	<script>
+		var pre = q('pre')[0];
+		function refreshMon(){
+			new arc.ajax('<?php echo BASE_URL; ?>', {
+				
+			});
+		}
+		refreshMon();
+	</script>
+
 <?php } ?>

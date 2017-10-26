@@ -1,5 +1,6 @@
 
 var fs = require('fs');
+var qs = require('qs');
 var http = require('http');
 var mysql = require('mysql');
 
@@ -51,6 +52,15 @@ function persistantConnection(){
 }
 persistantConnection();
 
+var monitor = [];
+function monitorStep(){
+	monitor.push({'o': 0, 'm': process.memoryUsage().heapUsed, 'p': process.cpuUsage().user});
+	if (monitor.length > 10)
+		monitor.shift();
+	setTimeout(monitorStep, 1000);
+}
+monitorStep();
+
 //	Listen to port for requests from php application
 var server = http.createServer(
 	function (request, response){
@@ -82,9 +92,21 @@ var server = http.createServer(
 								'progress': QStat[ url[1] ].progress,
 								'result': QStat[ url[1] ].result,
 								'started': QStat[ url[1] ].started,
-								'total': QStat[ url[1] ].total
+								'total': QStat[ url[1] ].total,
+								'monitor': monitor
 							}) );
 					}
+					//
+					//	ProcStat
+					else if (url[0] == 'monitor')
+						response.end( JSON.stringify(monitor) );
+					//
+					//	Status check
+					else if (url[0] == 'log'){
+						console.log(JSON.stringify(data));
+						response.end(JSON.stringify({'message': 'received'}));
+					}
+					//
 					else
 						response.end(JSON.stringify({'status': 'service is running'}));
 				}
@@ -152,6 +174,7 @@ function stat(key, callback){
 	//
 	this.hitStep = function(){
 		_this.progress += 1;
+		monitor[monitor.length-1]['o'] += 1;
 		clearTimeout(distroyTimeout);
 		if (_this.progress == _this.total){
 			if (typeof callback == 'function')

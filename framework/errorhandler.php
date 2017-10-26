@@ -9,12 +9,15 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	if ($errorHandlerLatch)
 		return;
 	$errorHandlerLatch = true;
+	//
 	header('Content-Type: text/html');
 	set_include_path(dirname(dirname(__FILE__)).'/');
 	require_once dirname(__FILE__).'/render.php';
 	//
-	//$backtrace = false;
 	$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	array_pop($backtrace);
+	array_pop($backtrace);
+	//	Format backtrace
 	if (substr($errstr, 0, 16) == 'Missing argument' && class_exists('ReflectionFunction')){
 		$p0 = strpos($errstr, ' ', 18);
 		$arg = substr($errstr, 17, $p0-17);
@@ -26,12 +29,11 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 		$parameters = $parameters->getParameters();
 		//for render_form(), called in /var/www/html/veev/modules/admin/errors.php on line 6
 		$errstr = 'Missing argument '.$arg.' ['.$parameters[$arg-1]->name.'] for ['.$p0.']';
-		//$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		//
 		$errfile = $backtrace[1]['file'];
 		$errline = $backtrace[1]['line'];
 	}
 	if (substr($errfile, strlen($errfile)-20) == 'framework/render.php'){
-		//$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$i = 0;
 		while (substr($backtrace[$i]['file'], strlen($backtrace[$i]['file'])-20) == 'framework/render.php')
 			$i += 1;
@@ -45,14 +47,13 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 	ob_clean();
 	$yield = '';
 	//
+	$errfile = substr($errfile, strlen(__FILE__)-26);
+	writeLog($errno, $errstr, $errfile, $errline, $backtrace);
+	//
 	if (ON_ERROR == 'DISPLAY'){
-		$errfile = substr($errfile, strlen(__FILE__)-26);
-		//$method_yield = ($errno == false ? '' : '<b>'.$errno.'</b>: ').$errstr.($errfile == false ? '' : '<br/>'.$errfile.($errline == false ? '' : '<br/>line ['.$errline.']').'<br/><small>'.print_r($backtrace, true).'</small>');
-		$method_yield = ($errno == false ? '' : $errno).': '.$errstr."\n".($errfile == false ? '' : $errfile.($errline == false ? '' : ' ['.$errline.']')."\n".print_r($backtrace, true));
-		$method_yield = $_SERVER['REQUEST_URI'].' '.http_response_code()."\n".$method_yield."\n-------\n";
-		$yield = $method_yield;
-		if (is_writable('access.log'))
-			file_put_contents('access.log', $method_yield, FILE_APPEND);
+		$yield = ($errno == false ? '' : $errno).': '.$errstr."\n".($errfile == false ? '' : $errfile.($errline == false ? '' : ' ['.$errline.']')."\n".print_r($backtrace, true));
+		$yield = "\n[".date('Y-m-d H:i:s').'] '.$_SERVER['REQUEST_URI'].' '.http_response_code()."\n".$yield."\n-------\n";
+		$method_yield = $yield;
 	}
 	else if (ON_ERROR == 'LOG'){
 		global $user, $params;
@@ -61,11 +62,7 @@ function errorHandler($errno = false, $errstr, $errfile = false, $errline = fals
 			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$error_data = base64_encode(gzdeflate(json_encode(array('message' => $errstr, 'backtrace' => $backtrace, 'additional_data' => $adata)), 9));
 		//
-		$errfile = substr($errfile, strlen(__FILE__)-26);
 		$hash = str_replace(array('/', '='), array('-', '_'), base64_encode(gzdeflate($errno.':'.$errfile.':'.$errline)));
-		//if (!file_exists('data/errors/'.$hash.'.log'))
-		//	file_put_contents('data/errors/'.$hash.'.log', $error_data."\n");
-		file_put_contents('data/errors/'.$hash.'.log', time().':'.$error_data."\n", FILE_APPEND);
 	}
 	else if (ON_ERROR == 'EMAIL'){
 		global $server_name;
