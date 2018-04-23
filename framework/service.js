@@ -61,6 +61,8 @@ function monitorStep(){
 }
 monitorStep();
 
+var cache = {};
+
 //	Listen to port for requests from php application
 var server = http.createServer(
 	function (request, response){
@@ -77,7 +79,7 @@ var server = http.createServer(
 						//
 						QStat[key] = new stat(key);
 						var module = require('../modules/'+url[1]+'/'+url[2]+'.js');
-						module.run(database, QStat[key], url.splice(3));
+						module.run(database, cache, QStat[key], url.splice(3));
 					}
 					//
 					//	Status check
@@ -105,6 +107,25 @@ var server = http.createServer(
 					else if (url[0] == 'log'){
 						console.log(JSON.stringify(data));
 						response.end(JSON.stringify({'message': 'received'}));
+					}
+					//
+					//	Cache
+					else if (url[0] == 'cache'){
+						//console.log('Cache '+url[1]+': '+url[2]);
+						if (url[1] == 'add'){
+							cache[ url[2] ] = data.value;
+							response.end(JSON.stringify({'cache': 'added'}));
+						}
+						else if (url[1] == 'get'){
+							if (typeof cache[ url[2] ] == 'undefined')
+								response.end(JSON.stringify({'cache': 'invalid key'}));
+							else
+								response.end(JSON.stringify({'value': cache[ url[2] ]}));
+						}
+						else if (url[1] == 'delete'){
+							delete cache[ url[2] ];
+							response.end(JSON.stringify({'cache': 'deleted'}));
+						}
 					}
 					//
 					else

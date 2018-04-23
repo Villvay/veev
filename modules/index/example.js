@@ -4,10 +4,11 @@
 module.exports = {
 
 	//	Implements the background process
-	// We get a connection to the database,
+	//	database: We get a connection to the database,
+	//	cache shared with main php web-application
 	//	stat object to report back progress,
 	//	array of parameters if any
-	run : function(database, stat, params){
+	run : function(database, cache, stat, params){
 		//	Target steps
 		stat.total = 20;
 		// This can be changed later on, as we discover new steps to process

@@ -32,8 +32,12 @@
 			//
 			//	Get status of a background process
 			else if ($params[0] == 'status'){
-				$data = $bg->status($_SESSION['background-job-id']);//$params[1]
-				return json_encode($data, JSON_PRETTY_PRINT);
+				if (isset($_SESSION['background-job-id'])){
+					$data = $bg->status($_SESSION['background-job-id']);//$params[1]
+					return json_encode($data, JSON_PRETTY_PRINT);
+				}
+				else
+					return json_encode(array('error' => 'invalid-key'), JSON_PRETTY_PRINT);
 			}
 		}
 		return $data;

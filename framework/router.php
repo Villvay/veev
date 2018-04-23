@@ -244,11 +244,7 @@ else{
 function writeLog($errno, $errstr, $errfile = '', $errline = 0, $backtrace = array()){
 	global $method_yield, $query_string, $size;
 	//
-	$opts = array('http' =>
-		array(
-			'method'  => 'POST',
-			'header'  => 'Content-type: application/json',
-			'content' => http_build_query(
+	$body = http_build_query(
 				array(
 					'code' => $errno,
 					'error' => $errstr,
@@ -259,10 +255,23 @@ function writeLog($errno, $errstr, $errfile = '', $errline = 0, $backtrace = arr
 					'yield' => $method_yield,
 					'trace' => $backtrace,
 				)
-			)
+			);
+	/*$opts = array('http' =>
+		array(
+			'method'  => 'POST',
+			'header'  => 'Content-type: application/json',
+			'content' => $body
 		)
-	);
-	$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/log/', false, stream_context_create($opts));
+	);*/
+	//$result = file_get_contents('', false, stream_context_create($opts));
+	//
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, 'http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/log/');
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	$result = curl_exec($ch);
+	curl_close($ch);
 	if ($result == false){
 		/*/
 		$proc = proc_open('cd framework'."\n".'sh run.sh '.BACKEND_SERVICE_PORT,
@@ -270,8 +279,8 @@ function writeLog($errno, $errstr, $errfile = '', $errline = 0, $backtrace = arr
 		sleep(1);
 		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/log/', false, stream_context_create($opts));
 		/*/
-		if (is_writable('stdout.log'))
-			file_put_contents('stdout.log', $method_yield, FILE_APPEND);
+		if (is_writable('access.log'))
+			file_put_contents('access.log', $method_yield, FILE_APPEND);
 		//*/
 	}
 	//
@@ -293,17 +302,44 @@ if ($db_connection != false){
 	$db_connection->close();
 }
 
-class background{
-	function process($module, $method, $params = array()){
+final class background{
+	public function process($module, $method, $params = array()){
 		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/start/'.$module.'/'.$method.'/'.implode('/', $params));
 		if ($result == false)
 			return array('error' => 'background service is not running');
 		return json_decode($result, true);
 	}
-	function status($key){
+	public function status($key){
 		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/status/'.$key);
 		if ($result == false)
 			return array('error' => 'background service is not running');//invalid key
+		return json_decode($result, true);
+	}
+}
+
+final class cache{
+	public function add($key, $value){
+		$body = http_build_query(array('key' => $key, 'value' => $value));
+		//
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, 'http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/cache/add/'.$key);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$result = curl_exec($ch);
+		curl_close($ch);
+		return json_decode($result, true);
+	}
+	public function get($key){
+		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/cache/get/'.$key);
+		if ($result == false)
+			return array('error' => 'cache is offline');//invalid key
+		return json_decode($result, true);
+	}
+	public function delete($key){
+		$result = file_get_contents('http://127.0.0.1:'.BACKEND_SERVICE_PORT.'/cache/delete/'.$key);
+		if ($result == false)
+			return array('error' => 'cache is offline');//invalid key
 		return json_decode($result, true);
 	}
 }
