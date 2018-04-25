@@ -27,7 +27,27 @@
 		/*global $table_schema;
 		write_schema('dbtable', $table_schema);*/
 		$data = array();
-		$db = connect_database();
+		//
+		//$db = connect_database();
+		//include 'interfaces/database.php';
+		/*/
+		$database = 'prodoapp_db';
+		$host = '35.184.12.242';	//QA
+		$user = 'root';
+		$password = '';
+		/*/
+		$database = 'prodoapp_db';
+		$host = '104.198.45.182';	//Live
+		$user = 'root';
+		$password = '';
+		/* /
+		$database = 'prodoapp_db';
+		$host = 'localhost';
+		$user = 'root';
+		$password = '';
+		//*/
+		$db = new MySQL($database, $host, $user, $password);
+		//
 		//
 		if (isset($params['sql']) && is_array($params['sql']))
 			foreach ($params['sql'] as $sql)

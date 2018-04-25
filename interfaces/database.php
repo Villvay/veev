@@ -12,14 +12,20 @@ class MySQL{
    var $Errno = 0;
    var $Error = '';
 
-    public function __construct($database = false){
+    public function __construct($database = false, $host = false, $user = false, $password = false){
 	if ($database != false)
 		$this->Database = $database;
+	if ($host != false)
+		$this->Host = $host;
+	if ($user != false)
+		$this->User = $user;
+	if ($password != false)
+		$this->Password = $password;
     }
 
    function connect(){
       if($this->Link_ID === false){
-	 $this->Link_ID = mysqli_connect(DB_HOST, $this->User, $this->Password, $this->Database);
+	 $this->Link_ID = mysqli_connect($this->Host, $this->User, $this->Password, $this->Database);
          if (mysqli_connect_errno()){
 	    errorHandler(1, mysqli_connect_error(), 'framework/config.php', 26);
          }
